@@ -20,9 +20,11 @@ public class MainMissionProof {
     private String proofImage;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "main_mission_id")
     private MainMission mainMission;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Enumerated(EnumType.STRING)

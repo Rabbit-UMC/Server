@@ -17,9 +17,11 @@ public class MissionSchedule {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "schedule_id")
     private Schedule schedule;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mission_id")
     private Mission mission;
 
     @Enumerated(EnumType.STRING)

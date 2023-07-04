@@ -18,9 +18,11 @@ public class LikeMissionProof {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "main_mission_proof_id")
     private MainMissionProof mainMissionProof;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Enumerated(EnumType.STRING)

@@ -10,10 +10,10 @@ import java.sql.Timestamp;
 @Entity
 @Getter
 @Setter
-@Table(name = "catagory")
+@Table(name = "category")
 public class Category {
     @Id @GeneratedValue
-    @Column(name = "catagory_id")
+    @Column(name = "category_id")
     private Long id;
 
     private String name;

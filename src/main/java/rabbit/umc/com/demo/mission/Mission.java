@@ -20,6 +20,7 @@ public class Mission {
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
     private Category category;
 
     private Boolean isOpen;

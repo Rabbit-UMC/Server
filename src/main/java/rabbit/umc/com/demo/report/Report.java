@@ -20,15 +20,19 @@ public class Report {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "article_id")
     private Article article;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "main_mission_proof_id")
     private MainMissionProof mainMissionProof;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comment_id")
     private Comment comment;
 
     @Enumerated(EnumType.STRING)

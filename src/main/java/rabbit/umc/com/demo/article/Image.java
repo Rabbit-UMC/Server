@@ -18,6 +18,7 @@ public class Image {
     private String filePath;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "article_id")
     private Article article;
 
     @Enumerated(EnumType.STRING)

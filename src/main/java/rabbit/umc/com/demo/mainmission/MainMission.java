@@ -17,7 +17,7 @@ public class MainMission {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "catagory_id")
+    @JoinColumn(name = "category_id")
     private Category category;
 
     private Boolean lastMission;
