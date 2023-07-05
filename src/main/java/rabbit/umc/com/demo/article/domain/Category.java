@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.article;
+package rabbit.umc.com.demo.article.domain;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -16,13 +16,17 @@ public class Category {
     @Column(name = "category_id")
     private Long id;
 
+    @Column(nullable = false)
     private String name;
-
+    @Column(nullable = false)
     private String image;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Status status;
+    @Column(nullable = false)
     private Timestamp createdAt;
+    @Column(nullable = false)
     private Timestamp updatedAt;
 
 }

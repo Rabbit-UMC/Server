@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.mainmission;
+package rabbit.umc.com.demo.mainmission.domain;
 
 import lombok.Getter;
 import lombok.Setter;
