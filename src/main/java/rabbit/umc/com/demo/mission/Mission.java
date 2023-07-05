@@ -3,7 +3,7 @@ package rabbit.umc.com.demo.mission;
 import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.article.Category;
+import rabbit.umc.com.demo.article.domain.Category;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
