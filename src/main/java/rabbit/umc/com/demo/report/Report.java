@@ -3,9 +3,9 @@ package rabbit.umc.com.demo.report;
 import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.article.Article;
-import rabbit.umc.com.demo.article.Comment;
-import rabbit.umc.com.demo.mainmission.MainMissionProof;
+import rabbit.umc.com.demo.article.domain.Article;
+import rabbit.umc.com.demo.article.domain.Comment;
+import rabbit.umc.com.demo.mainmission.domain.MainMissionProof;
 import rabbit.umc.com.demo.user.User;
 
 import javax.persistence.*;

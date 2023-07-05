@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.article;
+package rabbit.umc.com.demo.mainmission.domain;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,27 +11,28 @@ import java.sql.Timestamp;
 @Entity
 @Getter
 @Setter
-@Table(name = "article")
-public class Article {
+@Table(name = "main_mission_proof")
+public class MainMissionProof {
     @Id@GeneratedValue
-    @Column(name = "article_id")
+    @Column(name = "main_mission_proof_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @Column(nullable = false)
+    private String proofImage;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "main_mission_id", nullable = false)
+    private MainMission mainMission;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private String title;
-    private String content;
-
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Status status;
+    @Column(nullable = false)
     private Timestamp createdAt;
+    @Column(nullable = false)
     private Timestamp updatedAt;
-
-
 }
