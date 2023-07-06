@@ -37,6 +37,9 @@ public class Article {
     @OneToMany(mappedBy = "article")
     private List<LikeArticle> likeArticles;
 
+    @OneToMany(mappedBy = "article")
+    private List<Image> images;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;

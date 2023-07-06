@@ -27,4 +27,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findAllByCategoryIdOrderByCreatedAtDesc(Long categoryId, PageRequest pageRequest);
 
 
+    Article findArticleById(Long id);
+
+
+
 }

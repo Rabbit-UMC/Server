@@ -3,27 +3,21 @@ package rabbit.umc.com.demo.article;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.article.domain.Article;
-import rabbit.umc.com.demo.article.dto.ArticleListRes;
-import rabbit.umc.com.demo.article.dto.CommunityHomeRes;
-import rabbit.umc.com.demo.article.dto.PopularArticleDto;
+import rabbit.umc.com.demo.article.domain.Comment;
+import rabbit.umc.com.demo.article.domain.Image;
+import rabbit.umc.com.demo.article.dto.*;
 import rabbit.umc.com.demo.mainmission.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.dto.MainMissionListDto;
 
-import java.awt.print.Pageable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static rabbit.umc.com.demo.Status.ACTIVE;
 
 @ToString
 @Service
@@ -34,6 +28,8 @@ public class ArticleService {
 
     private final ArticleRepository articleRepository;
     private final MainMissionRepository mainMissionRepository;
+    private final CommentRepository commentRepository;
+    private final ImageRepository imageRepository;
 
 
     public CommunityHomeRes getHome() {
@@ -70,6 +66,27 @@ public class ArticleService {
 
         return articleListRes;
     }
+
+    public ArticleRes getArticle(Long articleId){
+
+        Article article = articleRepository.findArticleById(articleId);
+        List<Image> images = imageRepository.findAllByArticleId(articleId);
+
+        List<ArticleImageDto> articleImages = images.stream()
+                .map(ArticleImageDto::toArticleImageDto)
+                .collect(Collectors.toList());
+
+        List<Comment> comments = commentRepository.findAllByArticleId(articleId);
+
+        List<CommentListDto> commentLists = comments.stream()
+                .map(CommentListDto::toCommentListDto)
+                .collect(Collectors.toList());
+
+        return ArticleRes.toArticleRes(article,articleImages,commentLists);
+
+    }
+
+
 
 
 
