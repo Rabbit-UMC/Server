@@ -8,18 +8,18 @@ import rabbit.umc.com.demo.article.domain.Article;
 @Getter
 @Setter
 @AllArgsConstructor
-public class PopularArticle {
+public class PopularArticleDto {
     private Long articleId;
     private String articleTitle;
     private int likeCount;
     private int commentCount;
 
-    public static PopularArticle toPopularArticle(Article article){
-        return new PopularArticle(
+    public static PopularArticleDto toPopularArticleDto(Article article){
+        return new PopularArticleDto(
                 article.getId(),
                 article.getTitle(),
-                article.getComments().size(),
-                article.getLikeArticles().size());
+                article.getLikeArticles().size(),
+                article.getComments().size());
     }
 
 
