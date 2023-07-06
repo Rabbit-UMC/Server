@@ -22,6 +22,9 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
             "ORDER BY a.createdAt DESC ")
     List<Article> findPopularArticleLimitedToFour(@Param("status") Status status, PageRequest pageRequest);
 
+    List<Article> findAllByOrderByCreatedAtDesc(PageRequest pageRequest);
+
+    List<Article> findAllByCategoryIdOrderByCreatedAtDesc(Long categoryId, PageRequest pageRequest);
 
 
 }
