@@ -26,6 +26,7 @@ public class MissionUsers {
 
     @Enumerated(EnumType.STRING)
     private Status status;
+    @Column
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }

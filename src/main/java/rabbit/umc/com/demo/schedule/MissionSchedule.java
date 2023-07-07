@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @Getter@Setter
 @Table(name = "mission_schedule")
 public class MissionSchedule {
-    @Id@GeneratedValue
+    @Id @GeneratedValue
     @Column(name = "mission_schedule_id")
     private Long id;
 
@@ -26,6 +26,7 @@ public class MissionSchedule {
 
     @Enumerated(EnumType.STRING)
     private Status status;
+    @Column
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }
