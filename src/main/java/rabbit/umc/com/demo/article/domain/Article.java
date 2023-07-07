@@ -3,6 +3,7 @@ package rabbit.umc.com.demo.article.domain;
 import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.article.dto.PostArticleReq;
 import rabbit.umc.com.demo.user.User;
 
 import javax.persistence.*;
@@ -31,13 +32,13 @@ public class Article {
     @Column(nullable = false)
     private String content;
 
-    @OneToMany(mappedBy = "article")
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
     private List<Comment> comments;
 
-    @OneToMany(mappedBy = "article")
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
     private List<LikeArticle> likeArticles;
 
-    @OneToMany(mappedBy = "article")
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
 
     @Enumerated(EnumType.STRING)
@@ -49,6 +50,8 @@ public class Article {
     private Timestamp updatedAt;
 
 
-
-
+    public void setArticle(PostArticleReq postArticleReq) {
+        title = postArticleReq.getArticleTitle();
+        content = postArticleReq.getArticleContent();
+    }
 }

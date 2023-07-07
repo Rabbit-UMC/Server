@@ -30,6 +30,7 @@ public class ArticleService {
     private final MainMissionRepository mainMissionRepository;
     private final CommentRepository commentRepository;
     private final ImageRepository imageRepository;
+    private final LikeArticleRepository likeArticleRepository;
 
 
     public CommunityHomeRes getHome() {
@@ -86,8 +87,23 @@ public class ArticleService {
 
     }
 
+    public void deleteArticle(Long articleId) {
+        articleRepository.deleteById(articleId);
+    }
 
+    public Long postArticle(PostArticleReq postArticleReq, Long userId) {
+        Article article = new Article();
+        article.setArticle(postArticleReq);
 
+        List<String> imageList = postArticleReq.getImageList();
+        for (String imagePath : imageList) {
+            Image image = new Image();
+            image.setArticle(article);
+            image.setFilePath(imagePath);
+            imageRepository.save(image);
+        }
 
+        return article.getId();
+    }
 
 }

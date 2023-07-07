@@ -1,12 +1,16 @@
 package rabbit.umc.com.demo.article;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.demo.article.dto.ArticleListRes;
 import rabbit.umc.com.demo.article.dto.ArticleRes;
 import rabbit.umc.com.demo.article.dto.CommunityHomeRes;
+import rabbit.umc.com.demo.article.dto.PostArticleReq;
+import rabbit.umc.com.utils.JwtService;
 
 import java.util.List;
 
@@ -15,7 +19,8 @@ import java.util.List;
 public class ArticleController {
 
     private final ArticleService articleService;
-
+    
+    private final JwtService jwtService;
     /**
      * 커뮤니티 홈화면 API
      * @return
@@ -47,9 +52,32 @@ public class ArticleController {
      * @return
      */
     @GetMapping("/app/article/{articleId}")
-    public BaseResponse<ArticleRes> getArticle(@PathVariable(name = "articleId") Long articleId){
+    public BaseResponse<ArticleRes> getArticle(@PathVariable(name = "articleId") Long articleId) throws BaseException{
         ArticleRes articleRes = articleService.getArticle(articleId);
         return new BaseResponse<>(articleRes);
+    }
+
+    /**
+     * 게시물 삭제 API
+     * @param articleId
+     * @return
+     */
+    @DeleteMapping("/app/article/{articleId}")
+    public BaseResponse deleteArticle(@PathVariable("articleId") Long articleId) throws BaseException{
+        articleService.deleteArticle(articleId);
+        return new BaseResponse<>(articleId + "번 게시물이 삭제되었습니다");
+    }
+
+    /**
+     * 게시물 생성 API
+     * @param postArticleReq
+     * @return
+     */
+    @PostMapping("/app/article")
+    public BaseResponse postArticle(PostArticleReq postArticleReq) throws BaseException{
+        Long userId = (long) jwtService.getUserIdx();
+        Long articleId = articleService.postArticle(postArticleReq, userId);
+        return new BaseResponse<>(articleId);
     }
 
 
