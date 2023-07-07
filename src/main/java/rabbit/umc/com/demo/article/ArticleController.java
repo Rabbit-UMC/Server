@@ -19,7 +19,7 @@ import java.util.List;
 public class ArticleController {
 
     private final ArticleService articleService;
-    
+
     private final JwtService jwtService;
     /**
      * 커뮤니티 홈화면 API

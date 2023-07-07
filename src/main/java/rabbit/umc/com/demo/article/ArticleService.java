@@ -40,8 +40,8 @@ public class ArticleService {
         List<Article> articleList = articleRepository.findPopularArticleLimitedToFour(Status.ACTIVE, pageable);
         communityHomeRes.setPopularArticle(
                 articleList.stream()
-                .map(PopularArticleDto::toPopularArticleDto)
-                .collect(Collectors.toList())
+                        .map(PopularArticleDto::toPopularArticleDto)
+                        .collect(Collectors.toList())
         );
 
         List<MainMission> missionList = mainMissionRepository.findProgressMissionByStatus(Status.ACTIVE);
