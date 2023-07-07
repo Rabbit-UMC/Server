@@ -35,23 +35,20 @@ import static rabbit.umc.com.demo.user.Domain.UserPermision.USER;
 @Service
 @RequiredArgsConstructor
 public class KakaoService {
-    //private final PasswordEncoder passwordEncoder;
     @Autowired
-    private final UserRepository userRepository;
+    UserRepository userRepository;
 
-    public String/*User*/ kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
-        // 1. "인가 코드"로 "액세스 토큰" 요청
+    public User kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+        //인가 코드로 액세스 토큰 요청
         String accessToken = getAccessToken(code);
 
-        // 2. 토큰으로 카카오 API 호출
+        //토큰으로 카카오 API 호출
         KakaoDto kakaoDto = findProfile(accessToken);
 
-        // 3. 카카오ID로 회원가입 처리
+        //카카오ID로 회원가입 처리
         User user = saveUser(kakaoDto);
 
-        //4. jwt 토큰 생성
-        String jwtToken = createToken(user);
-        return jwtToken;
+        return user;
     }
 
     private String getAccessToken(String code) throws JsonProcessingException {
@@ -168,7 +165,7 @@ public class KakaoService {
         return user;
     }
 
-    public String createToken(User user) {
+    /*public String createToken(User user) {
         // 서명 키 생성
         SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
         //String str_expirationTime = String.valueOf(JwtProperties.EXPIRATION_TIME);
@@ -184,6 +181,6 @@ public class KakaoService {
                 .compact();
 
         return jwtToken;
-    }
+    }*/
 
 }
