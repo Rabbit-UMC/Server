@@ -3,8 +3,6 @@ package rabbit.umc.com.demo.article.domain;
 import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.article.domain.Article;
-
 import javax.persistence.*;
 import java.sql.Timestamp;
 
@@ -30,4 +28,9 @@ public class Image {
     private Timestamp createdAt;
     @Column(nullable = false)
     private Timestamp updatedAt;
+
+    public void setImage(String filePath) {
+        this.filePath = filePath;
+
+    }
 }
