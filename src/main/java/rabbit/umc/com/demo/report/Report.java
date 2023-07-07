@@ -6,7 +6,7 @@ import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.article.domain.Article;
 import rabbit.umc.com.demo.article.domain.Comment;
 import rabbit.umc.com.demo.mainmission.domain.MainMissionProof;
-import rabbit.umc.com.demo.user.User;
+import rabbit.umc.com.demo.user.Domain.User;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
