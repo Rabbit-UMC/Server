@@ -19,17 +19,10 @@ import javax.servlet.http.HttpServletResponse;
 @RequiredArgsConstructor
 @RequestMapping("/app/users")
 public class UserController {
-    @Autowired
-    UserService userService;
-
-    @Autowired
-    KakaoService kakaoService;
-
-    @Autowired
-    EmailService emailService;
-
-    @Autowired
-    JwtService jwtService;
+    private final UserService userService;
+    private final KakaoService kakaoService;
+    private final EmailService emailService;
+    private final JwtService jwtService;
 
     //카카오 로그인
     @GetMapping("/kakao-login")
