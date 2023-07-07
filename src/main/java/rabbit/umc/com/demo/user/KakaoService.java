@@ -35,8 +35,7 @@ import static rabbit.umc.com.demo.user.Domain.UserPermision.USER;
 @Service
 @RequiredArgsConstructor
 public class KakaoService {
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public User kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         //인가 코드로 액세스 토큰 요청
@@ -59,7 +58,7 @@ public class KakaoService {
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", "c160f1524ce053f21f2d2a4195a0ed0b"); //나주에 묘집사 애플리케이션 id로 바꾸기
+        body.add("client_id", "4d27e2c3e437fa46e403f80e72efe932"); //나주에 묘집사 애플리케이션 id로 바꾸기
         body.add("client_secret", JwtProperties.Client_Secret); //시크릿 키도 나중에 바꾸기
         body.add("redirect_uri", "http://localhost:8080/app/users/kakao-login"); //리다이렉스 uri도 나중에 바꾸기
         body.add("code", code);
@@ -165,22 +164,22 @@ public class KakaoService {
         return user;
     }
 
-    /*public String createToken(User user) {
-        // 서명 키 생성
-        SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-        //String str_expirationTime = String.valueOf(JwtProperties.EXPIRATION_TIME);
-
-        String jwtToken = Jwts.builder()
-                .setSubject(String.valueOf(user.getId()))
-                .setExpiration(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
-                .claim("kakao_id", user.getKakaoId())
-                .claim("user_permission", user.getUserPermission())
-                //.claim("expriration_time", str_expirationTime);
-                .claim("created_at", String.valueOf(user.getCreatedAt()))
-                .signWith(secretKey)
-                .compact();
-
-        return jwtToken;
-    }*/
+//    public String createToken(User user) {
+//        // 서명 키 생성
+//        SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+//        //String str_expirationTime = String.valueOf(JwtProperties.EXPIRATION_TIME);
+//
+//        String jwtToken = Jwts.builder()
+//                .setSubject(String.valueOf(user.getId()))
+//                .setExpiration(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
+//                .claim("kakao_id", user.getKakaoId())
+//                .claim("user_permission", user.getUserPermission())
+//                //.claim("expriration_time", str_expirationTime);
+//                .claim("created_at", String.valueOf(user.getCreatedAt()))
+//                .signWith(secretKey)
+//                .compact();
+//
+//        return jwtToken;
+//    }
 
 }
