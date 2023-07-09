@@ -3,6 +3,9 @@ package rabbit.umc.com.demo.article.domain;
 import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.demo.Status;
+
+
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 

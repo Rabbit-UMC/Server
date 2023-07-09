@@ -296,18 +296,24 @@ public class KakaoService {
 //    public String createToken(User user) {
 //        // 서명 키 생성
 //        SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+
+//        //String str_expirationTime = String.valueOf(JwtProperties.EXPIRATION_TIME);
+
 //
 //        String jwtToken = Jwts.builder()
 //                .setSubject(String.valueOf(user.getId()))
 //                .setExpiration(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
 //                .claim("kakao_id", user.getKakaoId())
 //                .claim("user_permission", user.getUserPermission())
+//                //.claim("expriration_time", str_expirationTime);
+
 //                .claim("created_at", String.valueOf(user.getCreatedAt()))
 //                .signWith(secretKey)
 //                .compact();
 //
 //        return jwtToken;
 //    }
+
 
 //    public String createJwt(int userIdx){
 //        Date now = new Date();
