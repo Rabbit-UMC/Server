@@ -6,10 +6,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
-import rabbit.umc.com.demo.article.dto.ArticleListRes;
-import rabbit.umc.com.demo.article.dto.ArticleRes;
-import rabbit.umc.com.demo.article.dto.CommunityHomeRes;
-import rabbit.umc.com.demo.article.dto.PostArticleReq;
+import rabbit.umc.com.config.BaseTimeEntity;
+import rabbit.umc.com.demo.article.dto.*;
 import rabbit.umc.com.utils.JwtService;
 
 import java.util.List;
@@ -64,7 +62,8 @@ public class ArticleController {
      */
     @DeleteMapping("/app/article/{articleId}")
     public BaseResponse deleteArticle(@PathVariable("articleId") Long articleId) throws BaseException{
-        articleService.deleteArticle(articleId);
+        Long userId = (long) jwtService.getUserIdx();
+        articleService.deleteArticle(articleId, userId);
         return new BaseResponse<>(articleId + "번 게시물이 삭제되었습니다");
     }
 
@@ -74,11 +73,72 @@ public class ArticleController {
      * @return
      */
     @PostMapping("/app/article")
-    public BaseResponse postArticle(PostArticleReq postArticleReq) throws BaseException{
+    public BaseResponse postArticle(@RequestBody PostArticleReq postArticleReq, @RequestParam("categoryId") Long categoryId) throws BaseException{
+        System.out.println(jwtService.createJwt(1));
         Long userId = (long) jwtService.getUserIdx();
-        Long articleId = articleService.postArticle(postArticleReq, userId);
+        Long articleId = articleService.postArticle(postArticleReq, userId, categoryId);
         return new BaseResponse<>(articleId);
     }
+
+    /**
+     * 게시글 수정 API
+     * @param patchArticleReq
+     * @param articleId 수정하는 게시물 id
+     * @return
+     * @throws BaseException
+     */
+    @PatchMapping("/app/article/{articleId}")
+    public BaseResponse patchArticle(@RequestBody PatchArticleReq patchArticleReq, @PathVariable("articleId") Long articleId) throws BaseException {
+        System.out.println(jwtService.createJwt(1));
+        Long userId = (long) jwtService.getUserIdx();
+
+        articleService.updateArticle(userId, patchArticleReq,articleId);
+        return new BaseResponse<>(articleId + "번 수정완료되었습니다.");
+
+    }
+
+    /**
+     * 게시물 신고 API
+     * @param articleId
+     * @return
+     * @throws BaseException
+     */
+    @PostMapping("/app/article/{articleId}/report")
+    public BaseResponse reportArticle (@PathVariable("articleId") Long articleId) throws BaseException {
+        try{
+            System.out.println(jwtService.createJwt(1));
+            Long userId = (long) jwtService.getUserIdx();
+            articleService.reportArticle(userId, articleId);
+            return new BaseResponse<>("신고 완료되었습니다");
+
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 게시물 좋아요 API
+     * @param articleId
+     * @return
+     * @throws BaseException
+     */
+    @PostMapping("/app/article/{articleId}/like")
+    public BaseResponse likeArticle(@PathVariable("articleId") Long articleId) throws BaseException{
+        try{
+            System.out.println(jwtService.createJwt(1));
+            Long userId = (long) jwtService.getUserIdx();
+            articleService.likeArticle(userId, articleId);
+            return new BaseResponse<>("좋아요 완료되었습니다.");
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
+
+
+
+
 
 
 }

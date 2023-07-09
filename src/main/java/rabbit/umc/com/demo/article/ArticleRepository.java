@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.article.domain.Article;
+import rabbit.umc.com.demo.user.Domain.User;
 
 import java.awt.print.Pageable;
 import java.util.List;

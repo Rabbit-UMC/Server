@@ -4,19 +4,25 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.article.domain.Article;
-import rabbit.umc.com.demo.article.domain.Comment;
-import rabbit.umc.com.demo.article.domain.Image;
+import rabbit.umc.com.demo.article.domain.*;
 import rabbit.umc.com.demo.article.dto.*;
 import rabbit.umc.com.demo.mainmission.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.dto.MainMissionListDto;
+import rabbit.umc.com.demo.report.Report;
+import rabbit.umc.com.demo.report.ReportRepository;
+import rabbit.umc.com.demo.user.Domain.User;
+import rabbit.umc.com.demo.user.UserRepository;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ToString
@@ -31,6 +37,9 @@ public class ArticleService {
     private final CommentRepository commentRepository;
     private final ImageRepository imageRepository;
     private final LikeArticleRepository likeArticleRepository;
+    private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
+    private final ReportRepository reportRepository;
 
 
     public CommunityHomeRes getHome() {
@@ -87,13 +96,28 @@ public class ArticleService {
 
     }
 
-    public void deleteArticle(Long articleId) {
+    @Transactional
+    public void deleteArticle(Long articleId, Long userId) throws BaseException {
+        Article findArticle = articleRepository.findArticleById(articleId);
+        if(!findArticle.getUser().getId().equals(userId)){
+            throw new BaseException(BaseResponseStatus.INVALID_USER_JWT);
+        }
         articleRepository.deleteById(articleId);
     }
 
-    public Long postArticle(PostArticleReq postArticleReq, Long userId) {
+    @Transactional
+    public Long postArticle(PostArticleReq postArticleReq, Long userId , Long categoryId) {
+        User user = userRepository.getReferenceById(userId);
+        Category category = categoryRepository.getReferenceById(categoryId);
         Article article = new Article();
-        article.setArticle(postArticleReq);
+        article.setTitle(postArticleReq.getArticleTitle());
+        article.setContent(postArticleReq.getArticleContent());
+
+        article.setUser(user);
+        article.setCategory(category);
+
+
+        articleRepository.save(article);
 
         List<String> imageList = postArticleReq.getImageList();
         for (String imagePath : imageList) {
@@ -102,8 +126,78 @@ public class ArticleService {
             image.setFilePath(imagePath);
             imageRepository.save(image);
         }
-
         return article.getId();
     }
 
+    @Transactional
+    public void updateArticle(Long userId, PatchArticleReq patchArticleReq, Long articleId) throws BaseException {
+
+        //유저 권한 확인
+        Article findArticle = articleRepository.findArticleById(articleId);
+        System.out.println("userId" + userId);
+        System.out.println("authorId" + findArticle.getUser().getId());
+        if (!findArticle.getUser().getId().equals(userId)) {
+            throw new BaseException(BaseResponseStatus.INVALID_USER_JWT);
+        }
+
+        findArticle.setTitle(patchArticleReq.getArticleTitle());
+        findArticle.setContent(patchArticleReq.getArticleContent());
+
+        List<Image> findImages = imageRepository.findAllByArticleId(articleId);
+
+        // 업데이트할 이미지 ID 목록을 생성
+        Set<Long> updatedImageIds = patchArticleReq.getImageList().stream()
+                .map(ChangeImageDto::getImageId)
+                .collect(Collectors.toSet());
+
+        // 기존 이미지 중 업데이트할 이미지 ID 목록에 포함되지 않은 이미지를 삭제
+        List<Image> imagesToDelete = findImages.stream()
+                .filter(image -> !updatedImageIds.contains(image.getId()))
+                .collect(Collectors.toList());
+
+        // 이미지 삭제
+        imageRepository.deleteAll(imagesToDelete);
+
+        // 업데이트할 이미지를 기존 이미지와 매칭하여 업데이트 또는 추가
+        for (ChangeImageDto imageDto : patchArticleReq.getImageList()) {
+            Image findImage = findImages.stream()
+                    .filter(image -> image.getId().equals(imageDto.getImageId()))
+                    .findFirst()
+                    .orElse(new Image()); // 새 이미지 생성
+
+            findImage.setArticle(findArticle);
+            findImage.setFilePath(imageDto.getFilePath());
+
+            // 이미지 저장 또는 업데이트
+            imageRepository.save(findImage);
+        }
+    }
+
+    @Transactional
+    public void reportArticle(Long userId, Long articleId) throws BaseException {
+        User user = userRepository.getReferenceById(userId);
+        Article article = articleRepository.getReferenceById(articleId);
+        Report existingReport = reportRepository.findReportByUserIdAndArticleId(userId, articleId);
+        if(existingReport != null){
+            throw new BaseException(BaseResponseStatus.FAILED_TO_REPORT);
+        }
+        Report report = new Report();
+        report.setUser(user);
+        report.setArticle(article);
+        reportRepository.save(report);
+
+    }
+    @Transactional
+    public void likeArticle(Long userId, Long articleId) throws BaseException {
+        User user = userRepository.getReferenceById(userId);
+        Article article = articleRepository.getReferenceById(articleId);
+        LikeArticle existlikeArticle = likeArticleRepository.findLikeArticleByArticleIdAndUserId(articleId,userId);
+        if(existlikeArticle != null){
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LIKE);
+        }
+        LikeArticle likeArticle = new LikeArticle();
+        likeArticle.setUser(user);
+        likeArticle.setArticle(article);
+        likeArticleRepository.save(likeArticle);
+    }
 }
