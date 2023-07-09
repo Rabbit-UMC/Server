@@ -7,5 +7,5 @@ public interface JwtProperties {
     int EXPIRATION_TIME =  864000000;
     String TOKEN_PREFIX = "Bearer ";
     String HEADER_STRING = "Authorization";
-    String Client_Secret = "hOtv6TIzsNeXEzZyRNS42DvMNUcqFLeu";
+    String Client_Secret = "hOtv6TIzsNeXEzZyRNS42DvMNUcqFLeu"; //카카오 시크릿키
 }

@@ -4,10 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.demo.user.Dto.EmailAuthenticationDto;
 
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Random;
+
+import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_AUTHENTICATION;
 
 @Service
 public class EmailServiceImpl implements EmailService{
@@ -80,5 +84,12 @@ public class EmailServiceImpl implements EmailService{
             throw new IllegalArgumentException();
         }
         return ePw;
+    }
+    @Override
+    public void emailCheck(EmailAuthenticationDto emailAuthenticationDto) throws BaseException {
+        //인증 실패
+        if (!emailAuthenticationDto.getAuthenticationCode().equals(emailAuthenticationDto.getEnteredCode())) {
+            throw new BaseException(FAILED_TO_AUTHENTICATION);
+        }
     }
 }
