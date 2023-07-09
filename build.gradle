@@ -39,6 +39,8 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'com.sun.mail:javax.mail:1.6.2'
+	implementation 'com.auth0:java-jwt:4.3.0'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.0.4'
 
 
 	compileOnly 'org.projectlombok:lombok'

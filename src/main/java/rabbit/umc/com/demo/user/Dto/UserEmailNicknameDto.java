@@ -7,13 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserEmailNicknameReqDto {
+public class UserEmailNicknameDto {
     private Long id;
     private String userEmail;
     private String userName;
-    /*UserEmailNicknameReqDto(Long id, String userEmail, String userName){
-        this.id=id;
-        this.userEmail= userEmail;
-        this.userName=userName;
-    }*/
 }

@@ -32,6 +32,7 @@ public enum BaseResponseStatus {
     POST_USERS_INVALID_EMAIL(false, HttpStatus.BAD_REQUEST.value(), "이메일 형식을 확인해주세요."),
     POST_USERS_EXISTS_EMAIL(false,HttpStatus.BAD_REQUEST.value(),"중복된 이메일입니다."),
     FAILED_TO_LOGIN(false,HttpStatus.NOT_FOUND.value(),"없는 아이디거나 비밀번호가 틀렸습니다."),
+    FAILED_TO_AUTHENTICATION(false, HttpStatus.BAD_REQUEST.value(),"올바른 인증이 아닙니다."),
 
 
 
