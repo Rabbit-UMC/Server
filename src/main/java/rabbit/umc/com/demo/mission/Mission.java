@@ -44,5 +44,4 @@ public class Mission {
 
     private String image;
 
-
 }
