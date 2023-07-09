@@ -2,6 +2,7 @@ package rabbit.umc.com.demo.mainmission.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.article.domain.Category;
 
@@ -11,7 +12,7 @@ import java.sql.Timestamp;
 @Entity
 @Getter@Setter
 @Table(name = "main_mission")
-public class MainMission {
+public class MainMission extends BaseTimeEntity {
     @Id @GeneratedValue
     @Column(name = "main_mission_id")
     private Long id;
@@ -35,11 +36,8 @@ public class MainMission {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
-    @Column(nullable = false)
-    private Timestamp createdAt;
-    @Column(nullable = false)
-    private Timestamp updatedAt;
+    private Status status= Status.ACTIVE;
+
 
 
 

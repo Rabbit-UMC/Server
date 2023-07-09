@@ -7,7 +7,6 @@ import rabbit.umc.com.demo.article.domain.LikeArticle;
 @Repository
 public interface LikeArticleRepository extends JpaRepository<LikeArticle, Long> {
 
-
-
-
+    LikeArticle findLikeArticleByArticleIdAndUserId(Long articleId, Long userId);
+    LikeArticle deleteByArticleIdAndUserId(Long articleId, Long userId);
 }

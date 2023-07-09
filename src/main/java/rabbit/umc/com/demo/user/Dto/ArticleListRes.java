@@ -6,6 +6,7 @@ import lombok.Setter;
 import rabbit.umc.com.demo.article.domain.Article;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -14,7 +15,7 @@ public class ArticleListRes {
 
     private Long id;
     private String articleTitle;
-    private Timestamp uploadTime;
+    private LocalDateTime uploadTime;
     private int likeCount;
     private int commentCount;
 

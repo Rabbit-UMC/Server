@@ -1,8 +1,6 @@
 package rabbit.umc.com.demo.mainmission.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 
 import java.sql.Timestamp;
@@ -10,6 +8,8 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @AllArgsConstructor
+@Data
+@NoArgsConstructor
 public class MainMissionListDto {
     private Long mainMissionId;
     private String mainMissionTitle;

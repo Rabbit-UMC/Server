@@ -1,12 +1,14 @@
 package rabbit.umc.com.demo.article.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.demo.article.domain.Article;
 
 @Getter
 @Setter
+@Data
 @AllArgsConstructor
 public class PopularArticle {
     private Long articleId;

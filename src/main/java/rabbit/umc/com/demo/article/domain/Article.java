@@ -2,6 +2,7 @@ package rabbit.umc.com.demo.article.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
 
 
@@ -20,7 +21,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "article")
-public class Article {
+public class Article extends BaseTimeEntity {
     @Id@GeneratedValue
     @Column(name = "article_id")
     private Long id;
@@ -49,15 +50,14 @@ public class Article {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
-    @Column(nullable = false)
-    private Timestamp createdAt;
-    @Column(nullable = false)
-    private Timestamp updatedAt;
+    private Status status = Status.ACTIVE;
+
 
 
     public void setArticle(PostArticleReq postArticleReq) {
         title = postArticleReq.getArticleTitle();
         content = postArticleReq.getArticleContent();
     }
+
+
 }
