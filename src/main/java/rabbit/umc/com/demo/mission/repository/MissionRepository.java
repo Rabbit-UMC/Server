@@ -18,4 +18,5 @@ public interface MissionRepository extends JpaRepository<Mission,Long> {
     List<Mission> getMissionByCategoryId(@Param("categoryId") Long categoryId);
 //    @Query("select m from Mission m join MissionUsers ms on m.id = ms.mission.id")
 //    List<Mission> getMissionHome();
+
 }
