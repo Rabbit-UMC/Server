@@ -43,5 +43,4 @@ public class Mission {
     private Timestamp endAt;
 
     private String image;
-
 }
