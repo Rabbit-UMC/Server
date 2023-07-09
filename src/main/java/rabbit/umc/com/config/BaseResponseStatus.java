@@ -40,6 +40,10 @@ public enum BaseResponseStatus {
     FAILED_TO_LIKE(false,HttpStatus.NOT_FOUND.value(),"이미 좋아요한 게시물입니다."),
 
 
+
+
+    FAILED_TO_UNLIKE(false,HttpStatus.NOT_FOUND.value(),"좋아요하지 않은 게시물입니다."),
+
     /**
      * 50 : Database, Server 오류
      */

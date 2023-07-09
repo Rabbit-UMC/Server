@@ -134,6 +134,24 @@ public class ArticleController {
         }
     }
 
+    /**
+     * 게시물 좋아요 취소 API
+     * @param articleId
+     * @return
+     * @throws BaseException
+     */
+    @DeleteMapping("/app/article/{articleId}/unlike")
+    public BaseResponse unLikeArticle(@PathVariable("articleId")Long articleId) throws BaseException{
+        try {
+            System.out.println(jwtService.createJwt(1));
+            Long userId = (long) jwtService.getUserIdx();
+            articleService.unLikeArticle(userId, articleId);
+            return new BaseResponse<>("좋아요 취소되었습니다");
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
 
 
 

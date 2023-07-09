@@ -187,6 +187,8 @@ public class ArticleService {
         reportRepository.save(report);
 
     }
+
+
     @Transactional
     public void likeArticle(Long userId, Long articleId) throws BaseException {
         User user = userRepository.getReferenceById(userId);
@@ -199,5 +201,17 @@ public class ArticleService {
         likeArticle.setUser(user);
         likeArticle.setArticle(article);
         likeArticleRepository.save(likeArticle);
+    }
+
+    @Transactional
+    public void unLikeArticle(Long userId, Long articleId) throws BaseException {
+        User user = userRepository.getReferenceById(userId);
+        Article article = articleRepository.getReferenceById(articleId);
+        LikeArticle existlikeArticle = likeArticleRepository.findLikeArticleByArticleIdAndUserId(articleId,userId);
+        if(existlikeArticle == null){
+            throw new BaseException(BaseResponseStatus.FAILED_TO_UNLIKE);
+        }
+        likeArticleRepository.delete(existlikeArticle);
+
     }
 }
