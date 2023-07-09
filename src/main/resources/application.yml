@@ -17,3 +17,30 @@ spring:
 logging.level:
   org.hibernate.SQL: debug
 #  org.hibernate.type: trace
+
+#spring:
+#  datasource:
+#    url: ${url}
+#    username: ${username}
+#    password: ${password}
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: create
+#    properties:
+#      hibernate:
+#        #        show_sql: true
+#        format_sql: true
+#    defer-datasource-initialization: true
+#  sql:
+#    init:
+#      data-locations: classpath*:db/data.sql
+#      mode: always
+#      platform: rabbit
+#
+#
+#logging.level:
+#  org.hibernate.SQL: debug
+##  org.hibernate.type: trace
