@@ -37,7 +37,7 @@ public class MissionListDto {
         return new MissionListDto(
             mission.getId(),
             mission.getTitle(),
-            mission.getMissionUsersList().size(),
+            mission.getMissionUsers().size(),
             dayDiff
         );
     }

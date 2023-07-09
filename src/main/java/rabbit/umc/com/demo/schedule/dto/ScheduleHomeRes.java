@@ -11,5 +11,5 @@ import java.util.List;
 @Setter
 public class ScheduleHomeRes {
     private List<MissionListDto> missionList;
-    private List<ScheduleListDto> sceduleList;
+    private List<ScheduleListDto> scheduleList;
 }

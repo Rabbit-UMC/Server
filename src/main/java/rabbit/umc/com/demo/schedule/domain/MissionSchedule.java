@@ -1,7 +1,8 @@
-package rabbit.umc.com.demo.schedule;
+package rabbit.umc.com.demo.schedule.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.mission.Mission;
 
@@ -25,9 +26,16 @@ public class MissionSchedule {
     private Mission mission;
 
     @Enumerated(EnumType.STRING)
+    @ColumnDefault(value = "ACTIVE")
     private Status status;
     @Column
     private Timestamp createdAt;
     private Timestamp updatedAt;
+
+    public void setMissionAndSchedule(Long missionId,Long scheduleId){
+        this.mission.setId(missionId);
+        this.schedule.setId(scheduleId);
+    }
+
 }
 
