@@ -26,7 +26,7 @@ public class UserController {
 
 
     /**
-     * 카카오 로그인
+     * 카카오 로그인 api
      * @param code
      * @param response
      * @return
@@ -36,7 +36,7 @@ public class UserController {
     @GetMapping("/kakao-login")
     public BaseResponse<UserLoginResDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
         System.out.println("kakao code: "+ code);
-
+        //api
         //엑세스 토큰 받기
         String accessToken = kakaoService.getAccessToken(code);
 
