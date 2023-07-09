@@ -47,7 +47,10 @@ public class UserController {
         }
 
         //jwt 토큰 생성(로그인 처리하기?)
+
         String jwtToken = jwtService.createJwt(Math.toIntExact(user.getId())/**, accessToken**/);
+
+
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtToken);
