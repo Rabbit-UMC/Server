@@ -5,13 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.demo.article.domain.Article;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class ArticleListRes {
+public class UserArticleListResDto {
 
     private Long id;
     private String articleTitle;
@@ -19,8 +18,8 @@ public class ArticleListRes {
     private int likeCount;
     private int commentCount;
 
-    public static ArticleListRes toArticleListRes(Article article){
-        return new ArticleListRes(
+    public static UserArticleListResDto toArticleListRes(Article article){
+        return new UserArticleListResDto(
                 article.getId(),
                 article.getTitle(),
                 article.getUpdatedAt(),

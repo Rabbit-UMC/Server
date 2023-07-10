@@ -258,10 +258,8 @@ public class KakaoService {
         //회원이 아닌 경우
         //회원가입 진행(이메일, 닉네임 제외 모두)
         if(!isUser){
-            Timestamp currentTimestamp = Timestamp.valueOf(LocalDateTime.now());
-
             user = new User(kakaoDto.getKakaoId(), kakaoDto.getUserProfileImage(), USER, kakaoDto.getAgeRange(),
-                    kakaoDto.getGender(), kakaoDto.getBirthday(), ACTIVE, currentTimestamp, currentTimestamp);
+                    kakaoDto.getGender(), kakaoDto.getBirthday(), ACTIVE);
             userRepository.save(user);
         }
 

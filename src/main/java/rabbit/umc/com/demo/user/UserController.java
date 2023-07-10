@@ -46,11 +46,9 @@ public class UserController {
             String authorize_code = code;
         }
 
-        //jwt 토큰 생성(로그인 처리하기?)
-
-        String jwtToken = jwtService.createJwt(Math.toIntExact(user.getId())/**, accessToken**/);
-
-
+        //jwt 토큰 생성(로그인 처리)
+        String jwtToken = jwtService.createJwt(Math.toIntExact(user.getId()));
+        System.out.println(jwtToken);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtToken);
@@ -153,10 +151,10 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/articleList")
-    public BaseResponse<List<ArticleListRes>> getArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam Long userId) throws BaseException{
-        List<ArticleListRes> articleListRes = userService.getArticles(page, userId);
+    public BaseResponse<List<UserArticleListResDto>> getArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam Long userId) throws BaseException{
+        List<UserArticleListResDto> userArticleListResDtos = userService.getArticles(page, userId);
 
-        return new BaseResponse<>(articleListRes);
+        return new BaseResponse<>(userArticleListResDtos);
     }
 
     /**
@@ -169,15 +167,15 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/commented-articles")
-    public BaseResponse<List<ArticleListRes>> getCommentedArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam Long userId) throws BaseException{
-        List<ArticleListRes> articleListRes = userService.getCommentedArticles(page, userId);
+    public BaseResponse<List<UserArticleListResDto>> getCommentedArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam Long userId) throws BaseException{
+        List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, userId);
 
-        return new BaseResponse<>(articleListRes);
+        return new BaseResponse<>(userArticleListResDtos);
     }
 
     //유저 랭킹 조회(각 게시판 별 main mission user에 있는 score 이용)
     @GetMapping("/rank")
-    public BaseResponse<Long> getRank(@RequestParam Long userId, @RequestParam Long categoryId){
+    public BaseResponse<Long> getRank(@RequestParam Long userId, @RequestParam Long categoryId) throws BaseException {
         long rank = userService.getRank(userId, categoryId);
         return new BaseResponse<>(rank);
     }
