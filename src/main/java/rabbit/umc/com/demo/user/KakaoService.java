@@ -101,9 +101,6 @@ public class KakaoService {
             long expires_in = jsonNode.get("expires_in").asLong();
             long refresh_token_expires_in = jsonNode.get("refresh_token_expires_in").asLong();
         }else{
-            /**
-             * map에 error, error_description, error_code 들어있음
-             */
             String responseBody = response.getBody();
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(responseBody);
