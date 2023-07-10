@@ -29,6 +29,12 @@ public class UserService {
     UserRepository userRepository;
     ArticleRepository articleRepository;
 
+    /**
+     * 수정하기!! status가 inactive일 때도 오류나게
+     * @param id
+     * @return
+     * @throws BaseException
+     */
     public User findUser(Long id) throws BaseException {
         Optional<User> optionalUser = userRepository.findById(id);
         User user = optionalUser.orElseThrow(() -> new BaseException(BaseResponseStatus.RESPONSE_ERROR));
@@ -36,13 +42,10 @@ public class UserService {
     }
 
     public void getEmailandNickname(UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
-        //해당 유저 아이디 먼저 찾고
-//        Optional<User> optionalUser = userRepository.findById(userEmailNicknameReqDto.getId());
-//        User user = optionalUser.orElseThrow(() -> new BaseException(BaseResponseStatus.RESPONSE_ERROR));
         User user = findUser(userEmailNicknameReqDto.getId());
         user.setUserName(userEmailNicknameReqDto.getUserName());
         user.setUserEmail(userEmailNicknameReqDto.getUserEmail());
-        //해당 유저 엔티티에 나머지값 업데이트
+
         userRepository.save(user);
     }
 
@@ -82,13 +85,6 @@ public class UserService {
     }
 
     public List<UserArticleListResDto> getArticles(int page, Long userId) {
-        //user id로 article id찾기
-//        Long articleId = UserRepository.findArticleIdsByUserId(userId);
-//        ArticleRepository.findArticleById(articleId);
-//        //article 객체 찾고
-//        Article article = articleRepository.findArticleById(articleId);
-        //dto에 필요한 것만 넣어서 반환
-        //최신순으로 상단에서 추가(생성일 기준으로 모든 글 내림차순으로)
 
         int pageSize = 20;
 
@@ -108,7 +104,6 @@ public class UserService {
 
         PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
-        //List<Article> articlePage = userRepository.findCommentedArticlesByUserId(userId, pageRequest);
         List<Object[]> articlePageAndCreatedAt = userRepository.findCommentedArticlesByUserId(userId, pageRequest);
 
         List<Article> articlePage = new ArrayList<>();

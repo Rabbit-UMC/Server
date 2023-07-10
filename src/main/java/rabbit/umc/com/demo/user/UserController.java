@@ -141,8 +141,6 @@ public class UserController {
         return new BaseResponse(userGetProfileResDto);
     }
 
-    //유저 작성 글 전체 조회(article에 있는 article id 이용)
-
     /**
      * 유저가 작성한 글 전체 조회
      * @param page
@@ -159,8 +157,6 @@ public class UserController {
 
     /**
      * 유저가 댓글을 작성한 글 리스트 조회
-     * 댓글 2개여도 글 1개면 하나만 나오게???
-     * 글 정렬 기준: 최근에 댓글 단 순서 or 글이 써진 순서
      * @param page
      * @param userId
      * @return
@@ -173,11 +169,18 @@ public class UserController {
         return new BaseResponse<>(userArticleListResDtos);
     }
 
-    //유저 랭킹 조회(각 게시판 별 main mission user에 있는 score 이용)
+    /**
+     * 유저 랭킹 조회
+     * @param userId
+     * @param categoryId
+     * @return
+     * @throws BaseException
+     */
     @GetMapping("/rank")
-    public BaseResponse<Long> getRank(@RequestParam Long userId, @RequestParam Long categoryId) throws BaseException {
+    public BaseResponse<UserRankResDto> getRank(@RequestParam Long userId, @RequestParam Long categoryId) throws BaseException {
         long rank = userService.getRank(userId, categoryId);
-        return new BaseResponse<>(rank);
+        UserRankResDto userRankResDto = new UserRankResDto(categoryId, userId, rank);
+        return new BaseResponse<>(userRankResDto);
     }
 
 
