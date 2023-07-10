@@ -28,7 +28,18 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findAllByCategoryIdOrderByCreatedAtDesc(Long categoryId, PageRequest pageRequest);
 
 
+
     Article findArticleById(Long id);
+
+
+    @Query(value = "SELECT a\n" +
+            "FROM Article a JOIN LikeArticle la ON a.id = la.article.id \n" +
+            "WHERE a.status = :status " +
+            "GROUP BY a\n" +
+            "HAVING COUNT(a) > 1\n" +
+            "ORDER BY a.createdAt DESC ")
+    List<Article> findArticleLimited20(@Param("status") Status status, PageRequest pageRequest);
+
 
 
 

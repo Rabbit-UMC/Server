@@ -8,6 +8,7 @@ import rabbit.umc.com.demo.article.domain.Category;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter@Setter
@@ -30,9 +31,9 @@ public class MainMission extends BaseTimeEntity {
     private String content;
 
     @Column(nullable = false)
-    private Timestamp startAt;
+    private LocalDateTime startAt;
     @Column(nullable = false)
-    private Timestamp endAt;
+    private LocalDateTime endAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

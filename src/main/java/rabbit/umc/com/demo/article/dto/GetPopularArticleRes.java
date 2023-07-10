@@ -1,20 +1,16 @@
 package rabbit.umc.com.demo.article.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import rabbit.umc.com.demo.article.domain.Article;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Data
 @Getter
 @Setter
-@Data
+@NoArgsConstructor
 @AllArgsConstructor
-public class ArticleListRes {
+public class GetPopularArticleRes {
 
     private Long articleId;
     private String articleTitle;
@@ -22,14 +18,17 @@ public class ArticleListRes {
     private int likeCount;
     private int commentCount;
 
-    public static ArticleListRes toArticleListRes(Article article){
+    public static GetPopularArticleRes toPopularArticle(Article article){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String uploadTime = article.getCreatedAt().format(formatter);
-        return new ArticleListRes(
+
+        return new GetPopularArticleRes(
                 article.getId(),
                 article.getTitle(),
                 uploadTime,
                 article.getLikeArticles().size(),
-                article.getComments().size());
+                article.getComments().size()
+        );
     }
+
 }

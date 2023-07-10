@@ -17,6 +17,8 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
 
+import static javax.persistence.CascadeType.*;
+
 @Entity
 @Getter
 @Setter
@@ -39,13 +41,13 @@ public class Article extends BaseTimeEntity {
     @Column(nullable = false)
     private String content;
 
-    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "article", cascade = ALL, orphanRemoval = true)
     private List<Comment> comments;
 
-    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "article", cascade = ALL, orphanRemoval = true)
     private List<LikeArticle> likeArticles;
 
-    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "article", cascade = ALL, orphanRemoval = true)
     private List<Image> images;
 
     @Enumerated(EnumType.STRING)

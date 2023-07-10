@@ -1,10 +1,7 @@
 package rabbit.umc.com.demo.article;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.demo.article.dto.PostCommentReq;
@@ -17,7 +14,13 @@ public class CommentController {
     private final CommentService commentService;
     private final JwtService jwtService;
 
-    //댓글 작성 API
+    /**
+     * 댓글 작성 API
+     * @param postCommentReq
+     * @param articleId
+     * @return
+     * @throws BaseException
+     */
     @PostMapping("/app/comments/{articleId}")
     public BaseResponse postComment(@RequestBody PostCommentReq postCommentReq, @PathVariable("articleId") Long articleId) throws BaseException{
         try {
@@ -29,4 +32,26 @@ public class CommentController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+    //댓글 삭제
+    @DeleteMapping("/app/comments/{commentsId}")
+    public BaseResponse deleteComment(@PathVariable("commentsId") Long commentsId)throws BaseException{
+        try {
+            System.out.println(jwtService.createJwt(1));
+            Long userId = (long) jwtService.getUserIdx();
+            Long deleteId = commentService.deleteComment(commentsId, userId);
+
+            return new BaseResponse<>(deleteId + "번 댓글이 삭제되었습니다.");
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
+
+
+
+
+
+
 }

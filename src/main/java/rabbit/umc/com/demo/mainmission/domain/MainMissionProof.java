@@ -8,6 +8,9 @@ import rabbit.umc.com.demo.user.Domain.User;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
+
+import static javax.persistence.CascadeType.*;
 
 @Entity
 @Getter
@@ -24,6 +27,9 @@ public class MainMissionProof extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "main_mission_id", nullable = false)
     private MainMission mainMission;
+
+    @OneToMany(mappedBy = "mainMissionProof", cascade = ALL)
+    private List<LikeMissionProof> likeMissionProofs;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
