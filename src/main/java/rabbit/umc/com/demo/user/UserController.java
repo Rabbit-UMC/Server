@@ -5,15 +5,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
-import rabbit.umc.com.demo.article.dto.ArticleListRes;
+import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.*;
-import rabbit.umc.com.demo.user.jwt.JwtProperties;
+import rabbit.umc.com.demo.user.jwt.JwtAndKakaoProperties;
 import rabbit.umc.com.utils.JwtService;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+
+import static rabbit.umc.com.config.BaseResponseStatus.RESPONSE_ERROR;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -51,12 +55,77 @@ public class UserController {
         System.out.println(jwtToken);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtToken);
+        headers.add(JwtAndKakaoProperties.HEADER_STRING, JwtAndKakaoProperties.TOKEN_PREFIX + jwtToken);
+        Cookie cookie = new Cookie("jwtToken",jwtToken);
+
+        response.addCookie(cookie);
 
         UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtToken);
 
         //UserLoginResDto 돌려주기
         return new BaseResponse<>(userLoginResDto);
+    }
+
+
+    /**
+     * 카카오 로그아웃
+     * @return
+     * @throws BaseException
+     * @throws IOException
+     */
+    @GetMapping("/kakao-logout")
+    public BaseResponse<String> kakaoLogout(@CookieValue(value = "jwtToken", required = false) String jwtToken, HttpServletResponse response) throws BaseException, IOException {
+        //쿠키가 없을 때
+        if(jwtToken == null){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+
+        //jwt 토큰으로 로그아웃할 유저 아이디 받아오기
+        int userId = jwtService.getUserIdByCookie(jwtToken);
+
+        //유저 아이디로 카카오 아이디 받아오기
+        User user = userService.findUser(Long.valueOf(userId));
+        Long kakaoId = user.getKakaoId();
+        Long logout_kakaoId = kakaoService.logout(kakaoId);
+
+        //쿠키 삭제
+        Cookie cookie = new Cookie("jwtToken",null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return new BaseResponse<>("로그아웃되었습니다. 카카오 아이디: "+logout_kakaoId);
+    }
+
+    /**
+     * 회원 탈퇴(카카오 연결 끊기)
+     * @param jwtToken
+     * @param response
+     * @return
+     * @throws BaseException
+     * @throws IOException
+     */
+    @GetMapping("/kakao-unlink")
+    public BaseResponse<String> kakaoUnlink(@CookieValue(value = "jwtToken", required = false) String jwtToken, HttpServletResponse response) throws BaseException, IOException {
+        //쿠키가 없을 때
+        if(jwtToken == null){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+
+        //jwt 토큰으로 로그아웃할 유저 아이디 받아오기
+        int userId = jwtService.getUserIdByCookie(jwtToken);
+
+        //유저 아이디로 카카오 아이디 받아오기
+        User user = userService.findUser(Long.valueOf(userId));
+        Long kakaoId = user.getKakaoId();
+        Long logout_kakaoId = kakaoService.unlink(kakaoId);
+
+        //status inactive로 바꾸기
+        user.setStatus(Status.INACTIVE);
+
+        //쿠키 삭제
+        Cookie cookie = new Cookie("jwtToken",null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return new BaseResponse<>("회원 탈퇴되었습니다. 카카오 아이디: "+logout_kakaoId);
     }
 
     /**
@@ -191,14 +260,6 @@ public class UserController {
 
 
 
-    //로그아웃
-//    @RequestMapping(value="/kakao-logout")
-//    public String logout(HttpSession session) throws IOException {
-//        kakaoService.logout((String)session.getAttribute("access_token"));
-//        session.invalidate();
-//        return "redirect:/";
-//    }
-
 //    @GetMapping("/logout")
 //    private ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 //        Optional<Cookie> refreshTokenCookie = Arrays.stream(request.getCookies())
@@ -240,12 +301,4 @@ public class UserController {
 //        return ResponseEntity.status(HttpStatus.CREATED).body(refreshTokenResponse);
 //    }
 
-
-    //연결 끊기
-//    @RequestMapping(value="/kakao-unlink")
-//    public String unlink(HttpSession session) {
-//        kakaoService.unlink((String)session.getAttribute("access_token"));
-//        session.invalidate();
-//        return "redirect:/";
-//    }
 }

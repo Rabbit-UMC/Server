@@ -3,10 +3,6 @@ package rabbit.umc.com.demo.user;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Jwt;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -20,21 +16,13 @@ import org.springframework.web.client.RestTemplate;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.KakaoDto;
-import rabbit.umc.com.demo.user.jwt.JwtProperties;
+import rabbit.umc.com.demo.user.jwt.JwtAndKakaoProperties;
 
-import javax.crypto.SecretKey;
-import javax.servlet.http.Cookie;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Optional;
 
 import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_AUTHENTICATION;
+import static rabbit.umc.com.config.BaseResponseStatus.REQUEST_ERROR;
 import static rabbit.umc.com.demo.Status.ACTIVE;
 import static rabbit.umc.com.demo.user.Domain.UserPermision.USER;
 
@@ -73,7 +61,7 @@ public class KakaoService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", "4d27e2c3e437fa46e403f80e72efe932"); //나중에 묘집사 애플리케이션 id로 바꾸기
-        body.add("client_secret", JwtProperties.Client_Secret); //시크릿 키도 나중에 바꾸기
+        body.add("client_secret", JwtAndKakaoProperties.Client_Secret); //시크릿 키도 나중에 바꾸기
         body.add("redirect_uri", "http://localhost:8080/app/users/kakao-login"); //리다이렉스 uri도 나중에 바꾸기
         body.add("code", code);
 
@@ -124,60 +112,10 @@ public class KakaoService {
         }
 
         //토큰 유효성 검증
-        validateToken(accessToken);
+        //validateToken(accessToken);
         return accessToken;
 //        return validateToken(accessToken);
     }
-
-    /*
-    토큰 유효성 검증(토큰 정보보기)
-    */
-
-    private boolean validateToken(String /*access_token*/accessToken) throws IOException, BaseException {
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + accessToken);
-
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        RestTemplate rt = new RestTemplate();
-        ResponseEntity<String> response = rt.exchange(
-                "https://kapi.kakao.com/v1/user/access_token_info",
-                HttpMethod.GET,
-                //kakaoTokenRequest,
-                entity,
-                String.class
-        );
-
-        // HTTP 응답 상태 코드 가져오기
-        int responseCode = response.getStatusCodeValue();
-
-        if (responseCode == HttpURLConnection.HTTP_OK) { // 200 OK
-
-            // HTTP 응답 (JSON) -> 액세스 토큰 파싱
-            String responseBody = response.getBody();
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(responseBody);
-            Long id= jsonNode.get("id").asLong();
-            Integer expires_in = jsonNode.get("expires_in").asInt();
-
-            return true;
-        } else { // not 200
-
-            // HTTP 응답 (JSON) -> 액세스 토큰 파싱
-            String responseBody = response.getBody();
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(responseBody);
-            int code= jsonNode.get("code").asInt();
-            String msg = jsonNode.get("msg").asText();
-
-            if(code == -401){
-                throw new BaseException(FAILED_TO_AUTHENTICATION);
-            }else {
-                throw new RuntimeException(msg);
-            }
-        }
-    }
-
 
     // 토큰으로 카카오 API 호출
     private KakaoDto findProfile(String accessToken) throws JsonProcessingException {
@@ -250,11 +188,12 @@ public class KakaoService {
         boolean isUser = userRepository.existsByKakaoId(kakaoDto.getKakaoId());
         System.out.println("회원, 비회원 확인 완료");
 
-        User user=null;
+        User user;
 
         //회원이 아닌 경우
         //회원가입 진행(이메일, 닉네임 제외 모두)
         if(!isUser){
+            System.out.println("회원가입 진행");
             user = new User(kakaoDto.getKakaoId(), kakaoDto.getUserProfileImage(), USER, kakaoDto.getAgeRange(),
                     kakaoDto.getGender(), kakaoDto.getBirthday(), ACTIVE);
             userRepository.save(user);
@@ -262,115 +201,101 @@ public class KakaoService {
 
         //회원인 경우, 회원 조회
         else{
+            /**
+             * 회원아이디는 있지만, status가 inactive인 경우, 다시 active로 바꾸고 로그인 처리???
+             */
+            System.out.println("회원 로그인 진행");
             //kakao_id로 user 객체 조회
             user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
         }
-
-        //로그인 처리하기
-//        Jwt jwt = tokenService.createTokens(user.getId(), user.getUserName(), kakaoAccessToken); // 세션 저장 대신 JWT 토큰 사용
-//
-//        // 리프레쉬 토큰 httpOnly 쿠키 설정
-//        long maxAge = (jwt.getRefreshTokenExp().getTime() - System.currentTimeMillis()) / 1000;
-//        Cookie refreshTokenCookie = setCookie("refreshToken", jwt.refreshToken, true, false, (int) maxAge, "/");
-//        response.addCookie(refreshTokenCookie);
-//
-//        CreateTokenResponse createTokenResponse = new CreateTokenResponse(jwt.accessToken, jwt.refreshToken, jwt.accessTokenExp, jwt.refreshTokenExp);
-
         return user;
     }
-    //쿠키 설정
-    public static Cookie setCookie(String cookieName, String value, boolean isHttpOnly, boolean isSecure, int maxAge, String path) {
-        Cookie cookie = new Cookie(cookieName, value);
-        cookie.setHttpOnly(isHttpOnly);
-        cookie.setMaxAge(maxAge);
-        cookie.setPath(path);
-        cookie.setSecure(isSecure); // HTTPS 프로토콜에서만 쿠키 전송 가능
-        return cookie;
-    }
-
-//    public String createToken(User user) {
-//        // 서명 키 생성
-//        SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-
-//        //String str_expirationTime = String.valueOf(JwtProperties.EXPIRATION_TIME);
-
-//
-//        String jwtToken = Jwts.builder()
-//                .setSubject(String.valueOf(user.getId()))
-//                .setExpiration(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
-//                .claim("kakao_id", user.getKakaoId())
-//                .claim("user_permission", user.getUserPermission())
-//                //.claim("expriration_time", str_expirationTime);
-
-//                .claim("created_at", String.valueOf(user.getCreatedAt()))
-//                .signWith(secretKey)
-//                .compact();
-//
-//        return jwtToken;
-//    }
-
-
-//    public String createJwt(int userIdx){
-//        Date now = new Date();
-//        return Jwts.builder()
-//                .setHeaderParam("type","jwt")
-//                .claim("userIdx",userIdx)
-//                .setIssuedAt(now)
-//                .setExpiration(new Date(System.currentTimeMillis()+1*(1000*60*60*24*365)))
-//                .signWith(SignatureAlgorithm.HS256, Secret.JWT_SECRET_KEY)
-//                .compact();
-//    }
 
     //카카오 로그아웃
-    public void logout(String access_Token) throws IOException {
-        String reqURL = "https://kapi.kakao.com/v1/user/logout";
-        try {
-            URL url = new URL(reqURL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Authorization", "Bearer " + access_Token);
+    public Long logout(Long kakaoId) throws IOException, BaseException {
+        String adminKey= JwtAndKakaoProperties.Admin; //adminKey 넣기
+        //Long kakaoId; //= Long.valueOf(int_kakaoId);
 
-            int responseCode = conn.getResponseCode();
-            System.out.println("responseCode : " + responseCode);
+        String str_kakaoId = String.valueOf(kakaoId);
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        // HTTP Header 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "KakaoAK "+adminKey);
 
-            String result = "";
-            String line = "";
+        // HTTP Body 생성
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("target_id_type", "user_id");
+        body.add("target_id", str_kakaoId); //로그아웃할 회원의 kakaoId
 
-            while ((line = br.readLine()) != null) {
-                result += line;
-            }
-            System.out.println(result);
-        } catch (IOException e) {
-            e.printStackTrace();
+        // HTTP 요청 보내기
+        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<String> response = rt.exchange(
+                "https://kapi.kakao.com/v1/user/logout",
+                HttpMethod.POST,
+                kakaoTokenRequest,
+                String.class
+        );
+
+        // HTTP 응답 상태 코드 가져오기
+        int responseCode = response.getStatusCodeValue();
+        log.info("getAccessToken response code: {}", responseCode);
+
+        if(responseCode == HttpURLConnection.HTTP_OK) {
+            // HTTP 응답 (JSON) -> 액세스 토큰 파싱
+            String responseBody = response.getBody();
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+            kakaoId = jsonNode.get("id").asLong();
         }
+        else{
+            throw new BaseException(REQUEST_ERROR);
+        }
+
+        return kakaoId;
     }
 
-    //카카오 연결 끊기
-    public void unlink(String access_Token) {
-        String reqURL = "https://kapi.kakao.com/v1/user/unlink";
-        try {
-            URL url = new URL(reqURL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Authorization", "Bearer " + access_Token);
+    //카카오 연결끊기
+    public Long unlink(Long kakaoId) throws IOException, BaseException {
+        String adminKey= JwtAndKakaoProperties.Admin;
 
-            int responseCode = conn.getResponseCode();
-            System.out.println("responseCode : " + responseCode);
+        String str_kakaoId = String.valueOf(kakaoId);
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        // HTTP Header 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "KakaoAK "+adminKey);
 
-            String result = "";
-            String line = "";
+        // HTTP Body 생성
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("target_id_type", "user_id");
+        body.add("target_id", str_kakaoId); //로그아웃할 회원의 kakaoId
 
-            while ((line = br.readLine()) != null) {
-                result += line;
-            }
-            System.out.println(result);
-        } catch (IOException e) {
-            e.printStackTrace();
+        // HTTP 요청 보내기
+        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<String> response = rt.exchange(
+                "https://kapi.kakao.com/v1/user/unlink",
+                HttpMethod.POST,
+                kakaoTokenRequest,
+                String.class
+        );
+
+        // HTTP 응답 상태 코드 가져오기
+        int responseCode = response.getStatusCodeValue();
+        log.info("getAccessToken response code: {}", responseCode);
+
+        if(responseCode == HttpURLConnection.HTTP_OK) {
+            // HTTP 응답 (JSON) -> 액세스 토큰 파싱
+            String responseBody = response.getBody();
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+            kakaoId = jsonNode.get("id").asLong();
         }
+        else{
+            throw new BaseException(REQUEST_ERROR);
+        }
+
+        return kakaoId;
     }
 
 }
