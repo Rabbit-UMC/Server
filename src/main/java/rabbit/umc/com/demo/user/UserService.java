@@ -27,7 +27,6 @@ import static rabbit.umc.com.config.BaseResponseStatus.POST_USERS_INVALID_EMAIL;
 public class UserService {
     @Autowired
     UserRepository userRepository;
-    ArticleRepository articleRepository;
 
     /**
      * 수정하기!! status가 inactive일 때도 오류나게
