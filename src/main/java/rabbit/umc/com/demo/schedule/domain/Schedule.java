@@ -2,6 +2,7 @@ package rabbit.umc.com.demo.schedule.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.schedule.dto.PatchScheduleReq;
 import rabbit.umc.com.demo.schedule.dto.PostScheduleReq;
@@ -10,13 +11,18 @@ import rabbit.umc.com.demo.user.Domain.User;
 import javax.persistence.*;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Getter
 @Setter
 @Table(name = "schedule")
-public class Schedule {
-    @Id@GeneratedValue
+public class Schedule extends BaseTimeEntity {
+    @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "schedule_id")
     private Long id;
 
@@ -28,25 +34,24 @@ public class Schedule {
     private String content;
 
     @Column(nullable = false)
-    private Timestamp startAt;
+    private LocalDateTime startAt;
     @Column(nullable = false)
-    private Timestamp endAt;
+    private LocalDateTime endAt;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", columnDefinition = "varchar(20) default 'ACTIVE'")
     private Status status;
-    @Column
-    private Timestamp createdAt;
 
-    private Timestamp updatedAt;
+    public void setSchedule(PostScheduleReq postScheduleReq){
 
-    public void setSchedule(PostScheduleReq postScheduleReq,Long userId){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime startAt = LocalDateTime.parse(postScheduleReq.getStartAt(),formatter);
+        LocalDateTime endAt = LocalDateTime.parse(postScheduleReq.getEndAt(),formatter);
+
         this.content = postScheduleReq.getContent();
         this.title = postScheduleReq.getTitle();
-        this.createdAt = postScheduleReq.getCreatedAt();
-        this.endAt = postScheduleReq.getEndAt();
-        this.startAt = postScheduleReq.getStartAt();
-        this.updatedAt = postScheduleReq.getUpdatedAt();
-        this.user.setId(userId);
+        this.endAt = endAt;
+        this.startAt = startAt;
     }
 
 

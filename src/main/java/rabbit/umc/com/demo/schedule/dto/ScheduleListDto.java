@@ -3,11 +3,14 @@ package rabbit.umc.com.demo.schedule.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.cglib.core.Local;
 import rabbit.umc.com.demo.schedule.domain.Schedule;
 
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
@@ -21,20 +24,16 @@ public class ScheduleListDto {
     private String scheduleWhen; // 일정 날짜
 
     public static ScheduleListDto toScheduleDto(Schedule schedule) {
-        Date startTime = new Date(schedule.getStartAt().getTime());
-        Date endTime = new Date(schedule.getEndAt().getTime());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String when = sdf.format(startTime);
 
-        SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm");
-        String startAt = sdf2.format(startTime);
-        String endAt = sdf2.format(endTime);
+        String when = schedule.getStartAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String startTime = schedule.getStartAt().format(DateTimeFormatter.ofPattern("HH:mm"));
+        String endTime = schedule.getEndAt().format(DateTimeFormatter.ofPattern("HH:mm"));
 
         return new ScheduleListDto(
                 schedule.getId(),
                 schedule.getTitle(),
-                startAt,
-                endAt,
+                startTime,
+                endTime,
                when);
     }
 

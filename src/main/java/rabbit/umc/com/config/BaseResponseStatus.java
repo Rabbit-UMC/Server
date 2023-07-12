@@ -42,10 +42,17 @@ public enum BaseResponseStatus {
     FAILED_TO_LIKE_MISSION(false,HttpStatus.NOT_FOUND.value(),"이미 좋아요한 사진입니다."),
     FAILED_TO_UNLIKE_MISSION(false,HttpStatus.NOT_FOUND.value(),"좋아요하지 않은 사진입니다."),
 
+
     DONT_EXIST_ARTICLE(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 게시물입니다."),
     DONT_EXIST_COMMENT(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 글/댓글 입니다."),
     DONT_EXIST_MISSION(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 미션입니다."),
     DONT_EXIST_MISSION_PROOF(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 미션 사진입니다."),
+
+    FAILED_TO_SCHEDULE(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 일정입니다."),
+    FAILED_TO_MISSION(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 미션입니다."),
+    FALIED_TO_TOGETHER_MISSION(false,HttpStatus.BAD_REQUEST.value(), "이미 같이하고 있는 미션입니다."),
+
+
     /**
      * 50 : Database, Server 오류
      */
@@ -57,6 +64,7 @@ public enum BaseResponseStatus {
 
     PASSWORD_ENCRYPTION_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "비밀번호 암호화에 실패하였습니다."),
     PASSWORD_DECRYPTION_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "비밀번호 복호화에 실패하였습니다.");
+
 
 
 

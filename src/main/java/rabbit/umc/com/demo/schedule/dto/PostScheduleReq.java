@@ -2,18 +2,17 @@ package rabbit.umc.com.demo.schedule.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import rabbit.umc.com.config.BaseTimeEntity;
 
 import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class PostScheduleReq {
+public class PostScheduleReq extends BaseTimeEntity {
     private String content;
-    private Timestamp createdAt;
-    private Timestamp endAt;
-    private Timestamp startAt;
+    private String endAt;
+    private String startAt;
     private String status;
     private String title;
-    private Timestamp updatedAt;
     private Long missionId;
 }

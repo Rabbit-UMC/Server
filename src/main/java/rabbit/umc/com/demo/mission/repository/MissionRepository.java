@@ -6,17 +6,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import rabbit.umc.com.demo.mission.Mission;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface MissionRepository extends JpaRepository<Mission,Long> {
 
-    @Query("select m from Mission m join MissionUsers ms on m.id = ms.mission.id")
+    @Query("select m from Mission m join MissionUsers ms on m.id = ms.mission.id where m.isOpen = 0")
     List<Mission> getHome();
+    List<Mission> getMissionByMissionCategoryId(@Param("missionCategoryId") Long missionCategryId);
+    Mission getMissionByIdAndEndAtIsAfter(Long id, LocalDateTime currentDateTime);
 
-    @Query("select m from Mission m join MissionUsers ms on m.id = ms.mission.id where m.category.id = :categoryId")
-    List<Mission> getMissionByCategoryId(@Param("categoryId") Long categoryId);
-//    @Query("select m from Mission m join MissionUsers ms on m.id = ms.mission.id")
-//    List<Mission> getMissionHome();
-
+    Mission getMissionById(long missionId);
 }
