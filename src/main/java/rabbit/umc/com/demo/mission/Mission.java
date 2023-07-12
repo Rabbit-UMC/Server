@@ -19,6 +19,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@Table(name = "missions")
 public class Mission extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "mission_id")
