@@ -8,6 +8,7 @@ import rabbit.umc.com.demo.mission.Mission;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
@@ -20,16 +21,12 @@ public class MissionHomeRes {
     private int challengerCnt;
     private String startAt;
     private String endAt;
-    private String image;
-
     private Long categoryId;
 
     public static MissionHomeRes toMissionHomeRes(Mission mission){
-        Date startTime = new Date(mission.getStartAt().getTime());
-        Date endTime = new Date(mission.getEndAt().getTime());
-        SimpleDateFormat sdf = new SimpleDateFormat("MM.dd");
-        String startAt = sdf.format(startTime);
-        String endAt = sdf.format(endTime);
+
+        String startAt = mission.getStartAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String endAt = mission.getEndAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         return new MissionHomeRes(
                 mission.getId(),
@@ -38,8 +35,8 @@ public class MissionHomeRes {
                 mission.getMissionUsers().size(),
                 startAt,
                 endAt,
-                mission.getImage(),
-                mission.getCategory().getId()
+                mission.getMissionCategory().getId()
         );
     }
+
 }

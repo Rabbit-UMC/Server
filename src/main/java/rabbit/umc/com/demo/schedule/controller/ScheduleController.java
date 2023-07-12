@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
+import rabbit.umc.com.config.BaseResponseStatus;
+import rabbit.umc.com.demo.schedule.domain.MissionSchedule;
 import rabbit.umc.com.demo.schedule.domain.Schedule;
 import rabbit.umc.com.demo.schedule.dto.*;
 import rabbit.umc.com.demo.schedule.service.ScheduleService;
@@ -26,6 +28,7 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
     private final JwtService jwtService;
+
 
     /**
      *
@@ -60,13 +63,12 @@ public class ScheduleController {
     }
 
     /**
-     * 일정 등록(미완성)
+     * 일정 등록
      */
     @PostMapping()
     public BaseResponse postSchedule(@RequestBody PostScheduleReq postScheduleReq) throws BaseException {
 
-//        Long userId = (long) jwtService.getUserIdx();
-        Long userId = 1L;
+        Long userId = (long) jwtService.getUserIdx();
         Long scheduleId = scheduleService.postSchedule(postScheduleReq,userId);
 
         return new BaseResponse<>(scheduleId);
@@ -76,22 +78,30 @@ public class ScheduleController {
      *  일정 삭제
      */
     @DeleteMapping("/{scheduleId}")
-    public BaseResponse deleteSchedule(@PathVariable(name = "scheduleId") Long scheduleId) throws BaseException{
-        scheduleService.deleteSchedule(scheduleId);
+    public BaseResponse deleteSchedule(@PathVariable(name = "scheduleId") Long scheduleId){
+        try {
+            Long userId = (long) jwtService.getUserIdx();
+            scheduleService.deleteSchedule(scheduleId,userId);
+        } catch (BaseException e) {
+            return new BaseResponse(BaseResponseStatus.FAILED_TO_SCHEDULE);
+        }
         return new BaseResponse<>(scheduleId + "번 일정 삭제됨");
     }
 
 
 
     /**
-     *  일정 수정(미완성)
+     *  일정 수정
      */
     @PatchMapping("/{scheduleId}")
-    public BaseResponse patchSchedule(@PathVariable(name = "schedulId") Long scheduleId,@RequestBody PatchScheduleReq patchScheduleReq) throws BaseException {
-        Long userId = (long) jwtService.getUserIdx();
-        Schedule schedule = scheduleService.findById(scheduleId);
-        //// 여기부터다시
-        scheduleService.patchSchedule(schedule);
-        return new BaseResponse<>(patchScheduleReq.getScheduleId() + "번 일정 수정됨");
+    public BaseResponse patchSchedule(@PathVariable(name = "scheduleId") Long scheduleId,@RequestBody PostScheduleReq postScheduleReq) {
+        try {
+            Long userId = (long) jwtService.getUserIdx(); // 여기도 캐치 따로 처리 해야됨
+            scheduleService.updateSchedule(postScheduleReq,userId,scheduleId);
+        } catch (BaseException e) {
+            return new BaseResponse(BaseResponseStatus.FAILED_TO_SCHEDULE);
+        }
+
+        return new BaseResponse<>(scheduleId + "번 일정 수정됨");
     }
 }

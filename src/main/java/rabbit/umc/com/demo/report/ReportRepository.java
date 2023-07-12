@@ -8,4 +8,6 @@ public interface ReportRepository extends JpaRepository<Report ,Long> {
 
     Long findReportByArticleId(Long id);
     Report findReportByUserIdAndArticleId(Long userId, Long articleId);
+
+    Report findReportByUserIdAndMissionId(long userId, long missionId);
 }
