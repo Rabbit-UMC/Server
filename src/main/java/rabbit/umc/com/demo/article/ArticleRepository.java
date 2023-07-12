@@ -15,17 +15,30 @@ import java.util.List;
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
-    @Query(value = "SELECT a\n" +
-            "FROM Article a JOIN LikeArticle la ON a.id = la.article.id \n" +
+    @Query(value =
+            "SELECT a FROM Article a " +
+            "JOIN LikeArticle la ON a.id = la.article.id " +
             "WHERE a.status = :status " +
-            "GROUP BY a\n" +
-            "HAVING COUNT(a) > 1\n" +
+            "GROUP BY a " +
+            "HAVING COUNT(a) >= 5 " +
             "ORDER BY a.createdAt DESC ")
     List<Article> findPopularArticleLimitedToFour(@Param("status") Status status, PageRequest pageRequest);
 
-    List<Article> findAllByOrderByCreatedAtDesc(PageRequest pageRequest);
+//    @Query("SELECT new rabbit.umc.com.demo.article.dto.PopularArticleDto(a.id,a.title,a. createdAt, count(la), count(c)) " +
+//            "FROM Article a " +
+//            "LEFT JOIN a.likeArticles la " +
+//            "LEFT JOIN a.comments c " +
+//            "WHERE a.status = :status " +
+//            "GROUP BY a.id, a.title, a.updatedAt " +
+//            "HAVING COUNT(la) >= 20 " +
+//            "ORDER BY a.updatedAt DESC")
+//    List<rabbit.umc.com.demo.article.dto.PopularArticleDto> findPopularArticleLimitedToFour(@Param("status") Status status, PageRequest pageRequest);
 
-    List<Article> findAllByCategoryIdOrderByCreatedAtDesc(Long categoryId, PageRequest pageRequest);
+
+//    List<Article> findAllByOrderByCreatedAtDesc(PageRequest pageRequest);
+
+
+    List<Article> findAllByCategoryIdAndStatusOrderByCreatedAtDesc(Long categoryId,Status status, PageRequest pageRequest);
 
 
 
@@ -33,11 +46,12 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
 
     @Query(value = "SELECT a\n" +
-            "FROM Article a JOIN LikeArticle la ON a.id = la.article.id \n" +
+            "FROM Article a " +
+            "JOIN LikeArticle la ON a.id = la.article.id " +
             "WHERE a.status = :status " +
-            "GROUP BY a\n" +
-            "HAVING COUNT(a) > 1\n" +
-            "ORDER BY a.createdAt DESC ")
+            "GROUP BY a " +
+            "HAVING COUNT(a) >= 5 "
+           )
     List<Article> findArticleLimited20(@Param("status") Status status, PageRequest pageRequest);
 
 

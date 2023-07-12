@@ -2,8 +2,6 @@ package rabbit.umc.com.demo.article.domain;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.user.Domain.User;
@@ -11,11 +9,13 @@ import rabbit.umc.com.demo.user.Domain.User;
 import javax.persistence.*;
 import java.sql.Timestamp;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 @Entity
 @Getter@Setter
 @Table(name = "comments")
 public class Comment extends BaseTimeEntity {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "comments_id")
     private Long id;
 
@@ -31,7 +31,6 @@ public class Comment extends BaseTimeEntity {
     private String content;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Status status = Status.ACTIVE;
 
 }

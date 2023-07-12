@@ -2,20 +2,16 @@ package rabbit.umc.com.demo.article.domain;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
-
-
-
 import javax.persistence.*;
-import java.sql.Timestamp;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Getter@Setter
 @Table(name = "image")
 public class Image extends BaseTimeEntity {
-    @Id@GeneratedValue
+    @Id@GeneratedValue(strategy = IDENTITY)
     @Column(name = "image_id")
     private Long id;
 

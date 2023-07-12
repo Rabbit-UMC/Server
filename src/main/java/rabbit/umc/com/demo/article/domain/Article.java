@@ -1,6 +1,8 @@
 package rabbit.umc.com.demo.article.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
@@ -18,13 +20,15 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import static javax.persistence.CascadeType.*;
+import static javax.persistence.GenerationType.*;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @Table(name = "article")
 public class Article extends BaseTimeEntity {
-    @Id@GeneratedValue
+    @Id@GeneratedValue(strategy = IDENTITY)
     @Column(name = "article_id")
     private Long id;
 
@@ -51,7 +55,6 @@ public class Article extends BaseTimeEntity {
     private List<Image> images;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Status status = Status.ACTIVE;
 
 

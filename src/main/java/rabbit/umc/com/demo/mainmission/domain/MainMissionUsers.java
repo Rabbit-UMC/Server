@@ -5,16 +5,15 @@ import lombok.Setter;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.user.Domain.User;
-
 import javax.persistence.*;
-import java.sql.Timestamp;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Getter
 @Setter
 @Table(name = "main_mission_users")
 public class MainMissionUsers extends BaseTimeEntity {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "main_mission_user_id")
     private Long id;
 
