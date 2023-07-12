@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.KakaoDto;
-import rabbit.umc.com.demo.user.jwt.JwtAndKakaoProperties;
+import rabbit.umc.com.demo.user.property.JwtAndKakaoProperties;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;

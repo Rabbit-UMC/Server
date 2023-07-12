@@ -8,7 +8,7 @@ import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.*;
-import rabbit.umc.com.demo.user.jwt.JwtAndKakaoProperties;
+import rabbit.umc.com.demo.user.property.JwtAndKakaoProperties;
 import rabbit.umc.com.utils.JwtService;
 
 import javax.servlet.http.Cookie;

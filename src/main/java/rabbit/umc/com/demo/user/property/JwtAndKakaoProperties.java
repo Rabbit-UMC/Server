@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.user.jwt;
+package rabbit.umc.com.demo.user.property;
 
 public interface JwtAndKakaoProperties {
 
