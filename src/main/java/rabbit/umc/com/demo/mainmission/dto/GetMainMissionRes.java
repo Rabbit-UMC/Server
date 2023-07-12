@@ -3,32 +3,27 @@ package rabbit.umc.com.demo.mainmission.dto;
 import lombok.*;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
+@Data
 @Getter
 @Setter
-@AllArgsConstructor
-@Data
 @NoArgsConstructor
-public class MainMissionListDto {
-
+@AllArgsConstructor
+public class GetMainMissionRes {
     private Long mainMissionId;
-    private String mainMissionTitle;
-    private String categoryImage;
-    private String categoryName;
+    private String mainMissionName;
     private String dDay;
+    private String mainMissionContent;
+    private List<RankDto> rank;
+    private List<MissionProofImageDto> missionProofImages;
 
-
-
-    public static MainMissionListDto toMainMissionListDto(MainMission mainMission) {
+    public  GetMainMissionRes(MainMission mainMission){
         LocalDateTime currentDateTime = LocalDateTime.now().withMinute(0).withSecond(0);
         LocalDateTime endDateTime = mainMission.getEndAt().withMinute(0).withSecond(0);
-
         long daysRemaining = ChronoUnit.DAYS.between(currentDateTime.toLocalDate(), endDateTime.toLocalDate());
-
         String dDay;
         if (daysRemaining > 0) {
             dDay = "D-" + daysRemaining;
@@ -38,14 +33,15 @@ public class MainMissionListDto {
             dDay = "D+" + Math.abs(daysRemaining);
         }
 
-        return new MainMissionListDto(
-                mainMission.getId(),
-                mainMission.getTitle(),
-                mainMission.getCategory().getImage(),
-                mainMission.getCategory().getName(),
-                dDay
-        );
+        this.mainMissionId = mainMission.getId();
+        this.mainMissionName = mainMission.getTitle();
+        this.dDay = dDay;
+        this.mainMissionContent = mainMission.getContent();
 
     }
 
-}
+    }
+
+
+
+

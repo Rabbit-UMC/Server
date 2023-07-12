@@ -8,15 +8,14 @@ import rabbit.umc.com.demo.article.domain.Article;
 import rabbit.umc.com.demo.article.domain.Comment;
 import rabbit.umc.com.demo.mainmission.domain.MainMissionProof;
 import rabbit.umc.com.demo.user.Domain.User;
-
 import javax.persistence.*;
-import java.sql.Timestamp;
+import static javax.persistence.GenerationType.*;
 
 @Entity
 @Getter@Setter
 @Table(name = "report")
 public class Report extends BaseTimeEntity {
-    @Id@GeneratedValue
+    @Id@GeneratedValue(strategy = IDENTITY)
     @Column(name = "report_id")
     private Long id;
 

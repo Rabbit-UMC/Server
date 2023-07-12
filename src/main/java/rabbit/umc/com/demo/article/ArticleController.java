@@ -61,10 +61,15 @@ public class ArticleController {
      * @return
      */
     @DeleteMapping("/app/article/{articleId}")
-    public BaseResponse deleteArticle(@PathVariable("articleId") Long articleId) throws BaseException{
-        Long userId = (long) jwtService.getUserIdx();
-        articleService.deleteArticle(articleId, userId);
-        return new BaseResponse<>(articleId + "번 게시물이 삭제되었습니다");
+    public BaseResponse deleteArticle(@PathVariable("articleId") Long articleId) throws BaseException {
+        try{
+            System.out.println(jwtService.createJwt(13));
+            Long userId = (long) jwtService.getUserIdx();
+            articleService.deleteArticle(articleId, userId);
+            return new BaseResponse<>(articleId + "번 게시물이 삭제되었습니다");
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
     /**
@@ -89,12 +94,15 @@ public class ArticleController {
      */
     @PatchMapping("/app/article/{articleId}")
     public BaseResponse patchArticle(@RequestBody PatchArticleReq patchArticleReq, @PathVariable("articleId") Long articleId) throws BaseException {
-        System.out.println(jwtService.createJwt(1));
-        Long userId = (long) jwtService.getUserIdx();
+        try {
+            System.out.println(jwtService.createJwt(1));
+            Long userId = (long) jwtService.getUserIdx();
 
-        articleService.updateArticle(userId, patchArticleReq,articleId);
-        return new BaseResponse<>(articleId + "번 수정완료되었습니다.");
-
+            articleService.updateArticle(userId, patchArticleReq, articleId);
+            return new BaseResponse<>(articleId + "번 수정완료되었습니다.");
+        }catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
     /**
@@ -108,8 +116,9 @@ public class ArticleController {
         try{
             System.out.println(jwtService.createJwt(1));
             Long userId = (long) jwtService.getUserIdx();
+            System.out.println("userId = "+ userId);
             articleService.reportArticle(userId, articleId);
-            return new BaseResponse<>("신고 완료되었습니다");
+            return new BaseResponse<>(articleId + "번 게시물 신고 완료되었습니다");
 
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
@@ -146,12 +155,30 @@ public class ArticleController {
             System.out.println(jwtService.createJwt(1));
             Long userId = (long) jwtService.getUserIdx();
             articleService.unLikeArticle(userId, articleId);
-            return new BaseResponse<>("좋아요 취소되었습니다");
+            return new BaseResponse<>(articleId + "번 게시물 좋아요 취소되었습니다");
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
     }
 
+    /**
+     * 인기 게시물 조회 API
+     * @param page
+     * @return
+     * @throws BaseException
+     */
+    @GetMapping("/app/popular-posts")
+    public BaseResponse<List<GetPopularArticleRes>> getPopularArticles(@RequestParam(defaultValue = "0", name = "page") int page) throws BaseException {
+
+        try {
+            List<GetPopularArticleRes> popularArticles = articleService.popularArticle(page);
+            return new BaseResponse<>(popularArticles);
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+
+
+    }
 
 
 

@@ -8,6 +8,7 @@ import rabbit.umc.com.demo.article.domain.Article;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Getter
@@ -19,19 +20,24 @@ public class ArticleRes {
     private Long authorId;
     private String authorProfileImage;
     private String authorName;
-    private LocalDateTime uploadTime;
+    private String uploadTime;
     private String articleTitle;
     private String articleContent;
     private List<ArticleImageDto> articleImage;
     private List<CommentListDto> commentList;
 
     public static ArticleRes toArticleRes(Article article, List<ArticleImageDto> articleImage, List<CommentListDto> commentList){
+        /**
+         * 시간 포맷 (yyyy-MM-dd HH:mm)
+         */
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String uploadTime = article.getCreatedAt().format(formatter);
         return new ArticleRes(
                 article.getId(),
                 article.getUser().getId(),
                 article.getUser().getUserProfileImage(),
                 article.getUser().getUserName(),
-                article.getCreatedAt(),
+                uploadTime,
                 article.getTitle(),
                 article.getContent(),
                 articleImage,
