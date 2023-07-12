@@ -25,4 +25,5 @@ public interface ReportRepository extends JpaRepository<Report ,Long> {
 
     Report findReportByUserIdAndMissionId(long userId, long missionId);
 
+
 }
