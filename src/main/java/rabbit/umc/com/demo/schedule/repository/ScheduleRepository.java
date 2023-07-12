@@ -23,4 +23,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule,Long> {
 
     @Query(value = "SELECT s FROM Schedule s JOIN MissionSchedule ms ON ms.schedule.id = s.id WHERE DATE(s.startAt) = DATE(:when)")
     List<Schedule> getScheduleByWhen(@Param(value = "when") Timestamp when);
+
+    Schedule findScheduleById(Long id);
 }

@@ -6,10 +6,18 @@ import org.springframework.data.repository.query.Param;
 import rabbit.umc.com.demo.schedule.domain.MissionSchedule;
 import rabbit.umc.com.demo.schedule.dto.ScheduleDetailRes;
 
+import java.util.List;
+
 public interface MissionScheduleRepository extends JpaRepository<MissionSchedule,Long> {
 //    @Query("select ms.mission.id from MissionSchedule ms join Schedule s on s.id = ms.schedule.id")
 //    MissionSchedule findMissionIdByScheduleId(Long scheduleId);
 
-    @Query(value ="select ms from MissionSchedule ms WHERE ms.schedule.id = :scheduleId")
-    MissionSchedule getScheduleDetail(@Param("scheduleId") Long scheduleId);
+    MissionSchedule getMissionScheduleByScheduleId(long scheduleId);
+
+    void deleteByScheduleId(Long id);
+
+    MissionSchedule findMissionScheduleByScheduleId(Long scheduleId);
+
+    List<MissionSchedule> findMissionSchedulesByMissionId(Long missionId);
+
 }

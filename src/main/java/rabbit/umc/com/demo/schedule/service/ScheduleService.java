@@ -1,10 +1,9 @@
 package rabbit.umc.com.demo.schedule.service;
 
+import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.demo.schedule.domain.MissionSchedule;
 import rabbit.umc.com.demo.schedule.domain.Schedule;
-import rabbit.umc.com.demo.schedule.dto.PostScheduleReq;
-import rabbit.umc.com.demo.schedule.dto.ScheduleDetailRes;
-import rabbit.umc.com.demo.schedule.dto.ScheduleHomeRes;
-import rabbit.umc.com.demo.schedule.dto.ScheduleListDto;
+import rabbit.umc.com.demo.schedule.dto.*;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -17,11 +16,9 @@ public interface ScheduleService {
     ScheduleDetailRes getScheduleDetail(Long scheduleId);
     Long postSchedule(PostScheduleReq postScheduleReq,Long userId);
 
-    void deleteSchedule(Long scheduleId);
-
-    void patchSchedule(Schedule schedule);
-
-    Schedule findById(Long scheduleId);
+    void deleteSchedule(Long scheduleId,Long userId) throws BaseException;
 
     List<ScheduleListDto> getScheduleByWhen(String when) throws ParseException;
+
+    void updateSchedule(PostScheduleReq postScheduleReq, Long userId, Long scheduleId);
 }

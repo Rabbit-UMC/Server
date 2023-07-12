@@ -7,6 +7,7 @@ import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.article.domain.Article;
 import rabbit.umc.com.demo.article.domain.Comment;
 import rabbit.umc.com.demo.mainmission.domain.MainMissionProof;
+import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.user.Domain.User;
 import javax.persistence.*;
 import static javax.persistence.GenerationType.*;
@@ -37,5 +38,9 @@ public class Report extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mission_id")
+    private Mission mission;
 
 }
