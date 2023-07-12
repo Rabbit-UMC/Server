@@ -8,12 +8,13 @@ import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.article.ArticleRepository;
 import rabbit.umc.com.demo.article.domain.Article;
-import rabbit.umc.com.demo.article.dto.ArticleListRes;
 import rabbit.umc.com.demo.user.Domain.User;
+import rabbit.umc.com.demo.user.Dto.UserArticleListResDto;
 import rabbit.umc.com.demo.user.Dto.UserEmailNicknameDto;
 import rabbit.umc.com.demo.user.Dto.UserGetProfileResDto;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -26,8 +27,13 @@ import static rabbit.umc.com.config.BaseResponseStatus.POST_USERS_INVALID_EMAIL;
 public class UserService {
     @Autowired
     UserRepository userRepository;
-    ArticleRepository articleRepository;
 
+    /**
+     * 수정하기!! status가 inactive일 때도 오류나게
+     * @param id
+     * @return
+     * @throws BaseException
+     */
     public User findUser(Long id) throws BaseException {
         Optional<User> optionalUser = userRepository.findById(id);
         User user = optionalUser.orElseThrow(() -> new BaseException(BaseResponseStatus.RESPONSE_ERROR));
@@ -35,13 +41,10 @@ public class UserService {
     }
 
     public void getEmailandNickname(UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
-        //해당 유저 아이디 먼저 찾고
-//        Optional<User> optionalUser = userRepository.findById(userEmailNicknameReqDto.getId());
-//        User user = optionalUser.orElseThrow(() -> new BaseException(BaseResponseStatus.RESPONSE_ERROR));
         User user = findUser(userEmailNicknameReqDto.getId());
         user.setUserName(userEmailNicknameReqDto.getUserName());
         user.setUserEmail(userEmailNicknameReqDto.getUserEmail());
-        //해당 유저 엔티티에 나머지값 업데이트
+
         userRepository.save(user);
     }
 
@@ -80,14 +83,7 @@ public class UserService {
         return userGetProfileResDto;
     }
 
-    public List<ArticleListRes> getArticles(int page, Long userId) {
-        //user id로 article id찾기
-//        Long articleId = UserRepository.findArticleIdsByUserId(userId);
-//        ArticleRepository.findArticleById(articleId);
-//        //article 객체 찾고
-//        Article article = articleRepository.findArticleById(articleId);
-        //dto에 필요한 것만 넣어서 반환
-        //최신순으로 상단에서 추가(생성일 기준으로 모든 글 내림차순으로)
+    public List<UserArticleListResDto> getArticles(int page, Long userId) {
 
         int pageSize = 20;
 
@@ -95,35 +91,47 @@ public class UserService {
 
         List<Article> articlePage = userRepository.findArticlesByUserIdOrderByCreatedAtDesc(userId, pageRequest);
 
-        List<ArticleListRes> articleListRes = articlePage.stream()
-                .map(ArticleListRes::toArticleListRes)
+        List<UserArticleListResDto> userArticleListResDtos = articlePage.stream()
+                .map(UserArticleListResDto::toArticleListRes)
                 .collect(Collectors.toList());
 
-        return articleListRes;
+        return userArticleListResDtos;
     }
 
-    public List<ArticleListRes> getCommentedArticles(int page, Long userId) {
+    public List<UserArticleListResDto> getCommentedArticles(int page, Long userId) {
         int pageSize = 20;
 
         PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
-        List<Article> articlePage = userRepository.findCommentedArticlesByUserId(userId, pageRequest);
+        List<Object[]> articlePageAndCreatedAt = userRepository.findCommentedArticlesByUserId(userId, pageRequest);
 
-        List<ArticleListRes> articleListRes = articlePage.stream()
-                .map(ArticleListRes::toArticleListRes)
+        List<Article> articlePage = new ArrayList<>();
+        for (Object[] objArr : articlePageAndCreatedAt) {
+            Article article = (Article) objArr[0];
+            articlePage.add(article);
+        }
+
+        List<UserArticleListResDto> userArticleListResDtos = articlePage.stream()
+                .map(UserArticleListResDto::toArticleListRes)
                 .collect(Collectors.toList());
 
-        return articleListRes;
+        return userArticleListResDtos;
     }
 
     //카테고리별 랭킹
-    public Long getRank(Long userId, Long categoryId){
+    public Long getRank(Long userId, Long categoryId) throws BaseException {
         //먼저 해당 카테고리의 메인 미션 유저인지 확인
         //mainMissionUser 값들 중에 해당 userId랑 일치한 값이 있는지
         Boolean isMainMissionUser = userRepository.existsMainMissionUserByUserIdAndCategoryId(userId, categoryId);
-
-        //순위 확인
-        Long ranking = userRepository.getRankByScoreForMainMissionByUserIdAndCategoryId(userId, categoryId);
-        return ranking;
+        Long rank;
+        if(isMainMissionUser){
+            //순위 확인
+            rank = userRepository.getRankByScoreForMainMissionByUserIdAndCategoryId(userId, categoryId);
+        }
+        else{
+            //해당 게시판의 메인 미션에 참여하지 않음
+            throw new BaseException(BaseResponseStatus.RESPONSE_ERROR);
+        }
+        return rank;
     }
 }

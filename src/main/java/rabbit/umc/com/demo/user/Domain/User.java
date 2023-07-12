@@ -3,6 +3,7 @@ package rabbit.umc.com.demo.user.Domain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
 
 import javax.persistence.*;
@@ -13,8 +14,8 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @Table(name = "users")
-public class User {
-    @Id @GeneratedValue
+public class User extends BaseTimeEntity {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
@@ -38,13 +39,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     @JoinColumn(nullable = false)
     private Status status;
-    @JoinColumn(nullable = false)
-    private Timestamp createdAt;
-    @JoinColumn(nullable = false)
-    private Timestamp updatedAt;
 
     public User(Long kakaoId, String profile_image, UserPermision userPermission, String ageRange,
-                String gender, String birthday, Status status, Timestamp createdAt,Timestamp updatedAt) {
+                String gender, String birthday, Status status) {
         this.kakaoId = kakaoId;
         this.userProfileImage = profile_image;
         this.userPermission=userPermission;
@@ -52,8 +49,6 @@ public class User {
         this.gender=gender;
         this.birthday=birthday;
         this.status=status;
-        this.createdAt=createdAt;
-        this.updatedAt=updatedAt;
     }
 
 }

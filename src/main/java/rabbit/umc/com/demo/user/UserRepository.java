@@ -30,8 +30,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<Article> findArticlesByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId, PageRequest pageRequest);
 
     //유저가 댓글을 남긴 글 조회
-    @Query("SELECT a FROM Article a JOIN a.comments c WHERE c.user.id = :userId ORDER BY a.createdAt DESC")
-    List<Article> findCommentedArticlesByUserId(@Param("userId") Long userId, PageRequest pageRequest);
+    @Query("SELECT a, MAX(c.createdAt) AS maxCreatedDate " +
+            "FROM Article a " +
+            "JOIN a.comments c " +
+            "WHERE c.user.id = :userId " +
+            "GROUP BY a " +
+            "ORDER BY maxCreatedDate DESC")
+    List<Object[]> findCommentedArticlesByUserId(@Param("userId") Long userId, PageRequest pageRequest);
 
     //해당 유저가 해당 메인 미션 유저인지 확인
     @Query("SELECT CASE WHEN COUNT(mmu) > 0 THEN true ELSE false END " +
@@ -46,8 +51,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "WHERE mmu.mainMission.category.id = :categoryId " +
             "AND mmu.score > (SELECT mmu2.score FROM MainMissionUsers mmu2 WHERE mmu2.user.id = :userId)")
     Long getRankByScoreForMainMissionByUserIdAndCategoryId(@Param("userId") Long userId, @Param("categoryId") Long categoryId);
-    //메인 미션 유저 스코어 중, 해당 유저의 스코어보다 높은 사람 숫자 세기 + 1 -> 랭크
-    //메인 미션 유저 테이블에는 카테고리 없고 메인 미션 아이디가 있으니까
-    //메인 미션 아이디로 메인 미션, 메인 미션 유저 조인시켜서
-    //메인 미션에서 카테고리 아이디 값 가져와야하나?
 }
