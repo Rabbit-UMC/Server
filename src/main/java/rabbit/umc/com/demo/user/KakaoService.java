@@ -183,12 +183,9 @@ public class KakaoService {
 
     //
     public User saveUser(KakaoDto kakaoDto) {
-
+        User user = new User();
         //같은 카카오 아이디있는지 확인
         boolean isUser = userRepository.existsByKakaoId(kakaoDto.getKakaoId());
-        System.out.println("회원, 비회원 확인 완료");
-
-        User user;
 
         //회원이 아닌 경우
         //회원가입 진행(이메일, 닉네임 제외 모두)
@@ -204,6 +201,7 @@ public class KakaoService {
             /**
              * 회원아이디는 있지만, status가 inactive인 경우, 다시 active로 바꾸고 로그인 처리???
              */
+            user.setStatus(ACTIVE);
             System.out.println("회원 로그인 진행");
             //kakao_id로 user 객체 조회
             user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
