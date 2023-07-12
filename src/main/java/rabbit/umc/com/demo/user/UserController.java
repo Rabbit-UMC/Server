@@ -107,6 +107,7 @@ public class UserController {
     public BaseResponse<String> kakaoUnlink(@CookieValue(value = "jwtToken", required = false) String jwtToken, HttpServletResponse response) throws BaseException, IOException {
         //쿠키가 없을 때
         if(jwtToken == null){
+            System.out.println("쿠키가 없음!!");
             throw new BaseException(RESPONSE_ERROR);
         }
 
