@@ -1,6 +1,7 @@
 package rabbit.umc.com.demo.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
@@ -20,6 +21,7 @@ import static rabbit.umc.com.config.BaseResponseStatus.RESPONSE_ERROR;
 
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/app/users")
 public class UserController {
@@ -39,16 +41,12 @@ public class UserController {
      */
     @GetMapping("/kakao-login")
     public BaseResponse<UserLoginResDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
-        System.out.println("kakao code: "+ code);
+        //System.out.println("kakao code: "+ code);
         //api
         //엑세스 토큰 받기
         String accessToken = kakaoService.getAccessToken(code);
 
         User user = kakaoService.kakaoLogin(accessToken);
-
-        if (code != null) {
-            String authorize_code = code;
-        }
 
         //jwt 토큰 생성(로그인 처리)
         String jwtToken = jwtService.createJwt(Math.toIntExact(user.getId()));
@@ -62,7 +60,6 @@ public class UserController {
 
         UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtToken);
 
-        //UserLoginResDto 돌려주기
         return new BaseResponse<>(userLoginResDto);
     }
 
@@ -74,9 +71,10 @@ public class UserController {
      * @throws IOException
      */
     @GetMapping("/kakao-logout")
-    public BaseResponse<String> kakaoLogout(@CookieValue(value = "jwtToken", required = false) String jwtToken, HttpServletResponse response) throws BaseException, IOException {
+    public BaseResponse<Long> kakaoLogout(@CookieValue(value = "jwtToken", required = false) String jwtToken, HttpServletResponse response) throws BaseException, IOException {
         //쿠키가 없을 때
         if(jwtToken == null){
+            log.info("쿠키가 존재하지 않습니다.");
             throw new BaseException(RESPONSE_ERROR);
         }
 
@@ -92,7 +90,9 @@ public class UserController {
         Cookie cookie = new Cookie("jwtToken",null);
         cookie.setMaxAge(0);
         response.addCookie(cookie);
-        return new BaseResponse<>("로그아웃되었습니다. 카카오 아이디: "+logout_kakaoId);
+
+        log.info("로그아웃이 완료되었습니다.");
+        return new BaseResponse<>(logout_kakaoId);
     }
 
     /**
@@ -104,10 +104,10 @@ public class UserController {
      * @throws IOException
      */
     @GetMapping("/kakao-unlink")
-    public BaseResponse<String> kakaoUnlink(@CookieValue(value = "jwtToken", required = false) String jwtToken, HttpServletResponse response) throws BaseException, IOException {
+    public BaseResponse<Long> kakaoUnlink(@CookieValue(value = "jwtToken", required = false) String jwtToken, HttpServletResponse response) throws BaseException, IOException {
         //쿠키가 없을 때
         if(jwtToken == null){
-            System.out.println("쿠키가 없음!!");
+            log.info("쿠키가 존재하지 않습니다.");
             throw new BaseException(RESPONSE_ERROR);
         }
 
@@ -126,7 +126,9 @@ public class UserController {
         Cookie cookie = new Cookie("jwtToken",null);
         cookie.setMaxAge(0);
         response.addCookie(cookie);
-        return new BaseResponse<>("회원 탈퇴되었습니다. 카카오 아이디: "+logout_kakaoId);
+
+        log.info("회원 탈퇴가 완료되었습니다.");
+        return new BaseResponse<>(logout_kakaoId);
     }
 
     /**
@@ -141,8 +143,6 @@ public class UserController {
         userService.getEmailandNickname(userEmailNicknameReqDto);
         return new BaseResponse<>(userEmailNicknameReqDto);
     }
-
-    //이메일 인증 메일 발송
 
     /**
      * 이메일 인증 메일 발송
@@ -172,30 +172,30 @@ public class UserController {
 
     /**
      * 프로필 이미지 수정
-     * 수정시 updatedat 수정 기능 추가하기
      * @param userId
-     * @param userUpdateProfileImageReqDto
-     * @return
-     */
-    @PatchMapping("/profileImage/{userId}")
-    public BaseResponse<Long> updateProfileImage(@PathVariable Long userId,
-                                                 @RequestBody UserUpdateProfileImageReqDto userUpdateProfileImageReqDto) throws BaseException {
-        userService.updateProfileImage(userId, userUpdateProfileImageReqDto.getUserProfileImage());
-        return new BaseResponse<>(userId);
-    }
-
-    /**
-     * 닉네임 수정
-     * 수정시 updatedAt 수정 기능 추가하기
-     * @param userId
-     * @param userUpdateNicknameReqDto
+     * @param userProfileImage
      * @return
      * @throws BaseException
      */
-    @PatchMapping("/nickname/{userId}")
-    public BaseResponse<Long> updateNickname(@PathVariable Long userId,
-                                         @RequestBody UserUpdateNicknameReqDto userUpdateNicknameReqDto) throws BaseException{
-        userService.updateNickname(userId, userUpdateNicknameReqDto.getUserName());
+    @PatchMapping("/profileImage")
+    public BaseResponse<Long> updateProfileImage(@RequestParam Long userId,
+                                                 @RequestParam String userProfileImage) throws BaseException {
+        userService.updateProfileImage(userId, userProfileImage);
+        return new BaseResponse<>(userId);
+    }
+
+
+    /**
+     * 닉네임 수정
+     * @param userId
+     * @param userName
+     * @return
+     * @throws BaseException
+     */
+    @PatchMapping("/nickname")
+    public BaseResponse<Long> updateNickname(@RequestParam Long userId,
+                                         @RequestParam String userName) throws BaseException{
+        userService.updateNickname(userId, userName);
         return new BaseResponse<>(userId);
     }
 
@@ -252,54 +252,4 @@ public class UserController {
         UserRankResDto userRankResDto = new UserRankResDto(categoryId, userId, rank);
         return new BaseResponse<>(userRankResDto);
     }
-
-
-
-
-
-
-
-
-
-//    @GetMapping("/logout")
-//    private ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        Optional<Cookie> refreshTokenCookie = Arrays.stream(request.getCookies())
-//                .filter(cookie -> cookie.getName().equals("refreshToken")).findFirst();
-//
-//        if (refreshTokenCookie.isPresent()) {
-//            refreshTokenCookie.get().setMaxAge(0);
-//            response.addCookie(refreshTokenCookie.get());
-//        } // refreshTokenCookie 삭제. HttpOnly여서 서버에서 삭제
-//
-//        String accessToken = request.getHeader(JwtTokenConstants.HEADER_AUTHORIZATION).replace(JwtTokenConstants.TOKEN_PREFIX, "");
-//
-//        Jwt jwt = tokenService.getAccessTokenInfo(accessToken);
-//        Long loggedoutId = kakaoLogout(jwt.getSocialAccessToken()); // 카카오 로그아웃
-//
-//        if (loggedoutId == null) {
-//            throw new RuntimeException("logout failed");
-//        }
-//
-//        return ResponseEntity.noContent().build();
-//    }
-
-    //엑세스 토큰 갱신
-//    @GetMapping("/api/jwt/refresh")
-//    public ResponseEntity refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
-//        RefreshTokenResponse refreshTokenResponse = null;
-//
-//        Optional<Cookie> refreshToken = Arrays.stream(request.getCookies()).filter(
-//                cookie -> cookie.getName().equals("refreshToken")
-//        ).findFirst();
-//
-//        if (refreshToken.isPresent()) {
-//            Jwt jwt = tokenService.refreshAccessToken(refreshToken.get().getValue());
-//            refreshTokenResponse = RefreshTokenResponse.builder().accessToken(jwt.getAccessToken())
-//                    .accessTokenExp(jwt.getAccessTokenExp()).build();
-//        } else {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        }
-//        return ResponseEntity.status(HttpStatus.CREATED).body(refreshTokenResponse);
-//    }
-
 }

@@ -1,13 +1,16 @@
 package rabbit.umc.com.demo.user;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponseStatus;
+import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.article.ArticleRepository;
 import rabbit.umc.com.demo.article.domain.Article;
+import rabbit.umc.com.demo.article.dto.ArticleListRes;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.UserArticleListResDto;
 import rabbit.umc.com.demo.user.Dto.UserEmailNicknameDto;
@@ -24,22 +27,31 @@ import java.util.stream.Collectors;
 import static rabbit.umc.com.config.BaseResponseStatus.POST_USERS_INVALID_EMAIL;
 
 @Service
+@Slf4j
 public class UserService {
     @Autowired
     UserRepository userRepository;
 
-    /**
-     * 수정하기!! status가 inactive일 때도 오류나게
-     * @param id
-     * @return
-     * @throws BaseException
-     */
+    //유저 아이디로 User 객체 찾기
     public User findUser(Long id) throws BaseException {
         Optional<User> optionalUser = userRepository.findById(id);
-        User user = optionalUser.orElseThrow(() -> new BaseException(BaseResponseStatus.RESPONSE_ERROR));
+//        User user = optionalUser.orElseThrow(() -> new BaseException(BaseResponseStatus.RESPONSE_ERROR));
+        User user;
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+        } else {
+            log.info("데이터 베이스에서 찾을 수 없는 user id입니다.");
+            throw new BaseException(BaseResponseStatus.RESPONSE_ERROR);
+        }
+
+        if(user.getStatus() == Status.INACTIVE){
+            log.info("탈퇴한 회원입니다.");
+            throw new BaseException(BaseResponseStatus.RESPONSE_ERROR);
+        }
         return user;
     }
 
+    //유저 email, nickname 저장
     public void getEmailandNickname(UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
         User user = findUser(userEmailNicknameReqDto.getId());
         user.setUserName(userEmailNicknameReqDto.getUserName());
@@ -60,6 +72,7 @@ public class UserService {
         Matcher matcher = pattern.matcher(email);
 
         if (!matcher.matches()) {
+            log.info("이메일 형식이 잘못되었습니다.");
             throw new BaseException(POST_USERS_INVALID_EMAIL);
         }
     }
@@ -90,6 +103,9 @@ public class UserService {
         PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
         List<Article> articlePage = userRepository.findArticlesByUserIdOrderByCreatedAtDesc(userId, pageRequest);
+
+        //status가 active인 글만 나오게?
+        //List<Article> articlePage = userRepository.findAllByCategoryIdAndStatusOrderByCreatedAtDesc(userId, Status.ACTIVE, pageRequest);
 
         List<UserArticleListResDto> userArticleListResDtos = articlePage.stream()
                 .map(UserArticleListResDto::toArticleListRes)
@@ -129,7 +145,7 @@ public class UserService {
             rank = userRepository.getRankByScoreForMainMissionByUserIdAndCategoryId(userId, categoryId);
         }
         else{
-            //해당 게시판의 메인 미션에 참여하지 않음
+            log.info("해당 카테고리의 메인 미션에 참여하지 않았습니다.");
             throw new BaseException(BaseResponseStatus.RESPONSE_ERROR);
         }
         return rank;

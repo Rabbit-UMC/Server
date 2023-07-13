@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.user;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,6 +14,7 @@ import java.util.Random;
 
 import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_AUTHENTICATION;
 
+@Slf4j
 @Service
 public class EmailServiceImpl implements EmailService{
 
@@ -77,9 +79,10 @@ public class EmailServiceImpl implements EmailService{
     public String sendSimpleMessage(String to)throws Exception {
         // TODO Auto-generated method stub
         MimeMessage message = createMessage(to);
-        try{//예외처리
+        try{
             emailSender.send(message);
         }catch(MailException es){
+            log.info("이메일 전송에 실패하였습니다. (MailException 발생)");
             es.printStackTrace();
             throw new IllegalArgumentException();
         }
@@ -87,8 +90,8 @@ public class EmailServiceImpl implements EmailService{
     }
     @Override
     public void emailCheck(EmailAuthenticationDto emailAuthenticationDto) throws BaseException {
-        //인증 실패
         if (!emailAuthenticationDto.getAuthenticationCode().equals(emailAuthenticationDto.getEnteredCode())) {
+            log.info("인증 코드가 일치하지 않습니다.");
             throw new BaseException(FAILED_TO_AUTHENTICATION);
         }
     }

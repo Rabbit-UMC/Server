@@ -6,23 +6,28 @@ import lombok.Setter;
 import rabbit.umc.com.demo.article.domain.Article;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class UserArticleListResDto {
 
-    private Long id;
+    private Long articleId;
     private String articleTitle;
-    private LocalDateTime uploadTime;
+    private String uploadTime;
     private int likeCount;
     private int commentCount;
 
     public static UserArticleListResDto toArticleListRes(Article article){
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String uploadTime = article.getCreatedAt().format(formatter);
+
         return new UserArticleListResDto(
                 article.getId(),
                 article.getTitle(),
-                article.getUpdatedAt(),
+                uploadTime,
                 article.getLikeArticles().size(),
                 article.getComments().size());
     }

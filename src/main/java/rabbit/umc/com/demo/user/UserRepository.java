@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
+import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.article.domain.Article;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.user.Domain.User;
@@ -21,21 +22,27 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE User u SET u.userProfileImage = :newProfileImage WHERE u.id = :userId")
     void updateUserUserProfileImageById(@Param("userId") Long userId, @Param("newProfileImage") String newProfileImage);
+
     @Modifying
     @Query("UPDATE User u SET u.userName = :newNickname WHERE u.id = :userId")
     void updateUserUserNameById(@Param("userId") Long userId, @Param("newNickname") String newNickname);
 
     //유저가 쓴 글 조회
-    @Query("SELECT a FROM Article a WHERE a.user.id = :userId ORDER BY a.createdAt DESC")
+    @Query("SELECT a FROM Article a " +
+            "WHERE a.user.id = :userId " +
+            "AND a.status = 'ACTIVE' " +
+            "ORDER BY a.createdAt DESC")
     List<Article> findArticlesByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId, PageRequest pageRequest);
+    //List<Article> findAllByCategoryIdAndStatusOrderByCreatedAtDesc(Long categoryId, Status status, PageRequest pageRequest);
 
     //유저가 댓글을 남긴 글 조회
-    @Query("SELECT a, MAX(c.createdAt) AS maxCreatedDate " +
+    @Query("SELECT a, max(c.createdAt) as maxCreatedAt " +
             "FROM Article a " +
             "JOIN a.comments c " +
             "WHERE c.user.id = :userId " +
+            "AND a.status = 'ACTIVE' " +
             "GROUP BY a " +
-            "ORDER BY maxCreatedDate DESC")
+            "ORDER BY maxCreatedAt DESC")
     List<Object[]> findCommentedArticlesByUserId(@Param("userId") Long userId, PageRequest pageRequest);
 
     //해당 유저가 해당 메인 미션 유저인지 확인
