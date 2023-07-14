@@ -36,7 +36,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     //List<Article> findAllByCategoryIdAndStatusOrderByCreatedAtDesc(Long categoryId, Status status, PageRequest pageRequest);
 
     //유저가 댓글을 남긴 글 조회
-    @Query("SELECT a, max(c.createdAt) as maxCreatedAt " +
+        @Query("SELECT a, max(c.createdAt) as maxCreatedAt " +
             "FROM Article a " +
             "JOIN a.comments c " +
             "WHERE c.user.id = :userId " +
