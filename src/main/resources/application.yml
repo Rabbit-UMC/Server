@@ -15,10 +15,6 @@ spring:
         format_sql: true
         default_batch_fetch_size: 500
 
-  #  루나
-  redis:
-    host: localhost
-    port: 6379
 
 logging.level:
   org.hibernate.SQL: debug
