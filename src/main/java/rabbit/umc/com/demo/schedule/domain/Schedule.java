@@ -52,6 +52,7 @@ public class Schedule extends BaseTimeEntity {
         this.title = postScheduleReq.getTitle();
         this.endAt = endAt;
         this.startAt = startAt;
+        this.status = Status.valueOf(postScheduleReq.getStatus());
     }
 
 

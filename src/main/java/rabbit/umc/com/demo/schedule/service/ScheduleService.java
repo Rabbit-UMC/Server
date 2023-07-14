@@ -13,12 +13,12 @@ import java.util.Optional;
 public interface ScheduleService {
     ScheduleHomeRes getHome();
 
-    ScheduleDetailRes getScheduleDetail(Long scheduleId);
+    ScheduleDetailRes getScheduleDetail(Long scheduleId) throws BaseException;
     Long postSchedule(PostScheduleReq postScheduleReq,Long userId);
 
     void deleteSchedule(Long scheduleId,Long userId) throws BaseException;
 
-    List<ScheduleListDto> getScheduleByWhen(String when) throws ParseException;
+    List<ScheduleListDto> getScheduleByWhen(String when, long userId) throws ParseException;
 
     void updateSchedule(PostScheduleReq postScheduleReq, Long userId, Long scheduleId);
 }

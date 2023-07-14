@@ -22,7 +22,7 @@ import java.util.List;
 @Table(name = "missions")
 public class Mission extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "mission_id")
+    @Column(name = "missions_id")
     private Long id;
 
     private String title;
@@ -57,6 +57,7 @@ public class Mission extends BaseTimeEntity {
         this.startAt = startAt;
         this.endAt = endAt;
         this.isOpen = postMissionReq.getIsOpen();
+        this.status = Status.valueOf(postMissionReq.getStatus());
     }
 
 

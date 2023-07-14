@@ -13,5 +13,6 @@ public class PostMissionReq extends BaseTimeEntity {
     private String startAt;
     private String endAt;
     private int isOpen;
+    private String status;
 
 }

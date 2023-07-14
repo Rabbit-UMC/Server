@@ -17,10 +17,10 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 public class ScheduleListDto {
     //일정
-    private Long sceduleId;
-    private String sceduleTitle; // 일정 이름
-    private String sceduleStart; // 시작 시간
-    private String sceduleEnd; // 종료 시간
+    private Long scheduleId;
+    private String scheduleTitle; // 일정 이름
+    private String scheduleStart; // 시작 시간
+    private String scheduleEnd; // 종료 시간
     private String scheduleWhen; // 일정 날짜
 
     public static ScheduleListDto toScheduleDto(Schedule schedule) {

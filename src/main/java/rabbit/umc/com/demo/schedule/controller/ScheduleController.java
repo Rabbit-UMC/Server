@@ -46,7 +46,12 @@ public class ScheduleController {
      */
     @GetMapping("/{scheduleId}")
     public BaseResponse<ScheduleDetailRes> getScheduleDetail(@PathVariable("scheduleId") Long scheduleId){
-        ScheduleDetailRes scheduleDetailRes = scheduleService.getScheduleDetail(scheduleId);
+        ScheduleDetailRes scheduleDetailRes = null;
+        try {
+            scheduleDetailRes = scheduleService.getScheduleDetail(scheduleId);
+        } catch (BaseException e) {
+            return new BaseResponse<>(BaseResponseStatus.FAILED_TO_SCHEDULE);
+        }
         return new BaseResponse<ScheduleDetailRes>(scheduleDetailRes);
     }
 
@@ -55,11 +60,17 @@ public class ScheduleController {
      */
     @GetMapping("/when")
     public BaseResponse<List<ScheduleListDto>> getScheduleByWhen(@RequestBody String when) throws ParseException {
-        JsonObject jsonObject = JsonParser.parseString(when).getAsJsonObject();
-        String whenStr = jsonObject.get("when").getAsString();
-        System.out.println("when = " + when);
-        List<ScheduleListDto> resultList = scheduleService.getScheduleByWhen(whenStr);
-        return new BaseResponse<>(resultList);
+        try {
+            long userId = (long)jwtService.getUserIdx();
+            JsonObject jsonObject = JsonParser.parseString(when).getAsJsonObject();
+            String whenStr = jsonObject.get("when").getAsString();
+            System.out.println("when = " + when);
+            List<ScheduleListDto> resultList = scheduleService.getScheduleByWhen(whenStr,userId);
+            return new BaseResponse<>(resultList);
+        } catch (BaseException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     /**
@@ -96,7 +107,7 @@ public class ScheduleController {
     @PatchMapping("/{scheduleId}")
     public BaseResponse patchSchedule(@PathVariable(name = "scheduleId") Long scheduleId,@RequestBody PostScheduleReq postScheduleReq) {
         try {
-            Long userId = (long) jwtService.getUserIdx(); // 여기도 캐치 따로 처리 해야됨
+            Long userId = (long) jwtService.getUserIdx();
             scheduleService.updateSchedule(postScheduleReq,userId,scheduleId);
         } catch (BaseException e) {
             return new BaseResponse(BaseResponseStatus.FAILED_TO_SCHEDULE);

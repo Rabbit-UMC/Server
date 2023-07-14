@@ -24,7 +24,7 @@ public interface MissionService {
 
     void deleteMyMissoin(long missionId, long userId);
 
-    void reportMission(long missionId,long userId) throws BaseException;
+    void reportMission(long missionId,long userId) throws Exception;
 
     void togetherMission(long missionId, long userId) throws BaseException;
 
