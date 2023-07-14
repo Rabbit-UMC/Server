@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import rabbit.umc.com.config.BaseException;
@@ -44,6 +45,8 @@ public class JwtService {
      */
     public String getJwt(){
         HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
+        System.out.println("request: "+request);
+        System.out.println("access token: "+request.getHeader("Authorization"));
         return request.getHeader("X-ACCESS-TOKEN");
     }
 
@@ -55,6 +58,7 @@ public class JwtService {
     public int getUserIdx() throws BaseException {
         //1. JWT 추출
         String accessToken = getJwt();
+        System.out.println("accessToken = " + accessToken);
         if(accessToken == null || accessToken.length() == 0){
             throw new BaseException(EMPTY_JWT);
         }
@@ -65,6 +69,20 @@ public class JwtService {
             claims = Jwts.parser()
                     .setSigningKey(Secret.JWT_SECRET_KEY)
                     .parseClaimsJws(accessToken);
+        } catch (Exception ignored) {
+            throw new BaseException(INVALID_JWT);
+        }
+
+        // 3. userIdx 추출
+        return claims.getBody().get("userIdx",Integer.class);
+    }
+
+    public int getUserIdByCookie (String jwtToken)throws BaseException {
+        Jws<Claims> claims;
+        try{
+            claims = Jwts.parser()
+                    .setSigningKey(Secret.JWT_SECRET_KEY)
+                    .parseClaimsJws(jwtToken);
         } catch (Exception ignored) {
             throw new BaseException(INVALID_JWT);
         }

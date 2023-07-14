@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.mission;
+package rabbit.umc.com.demo.article.domain;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,21 +13,24 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Getter@Setter
-@Table(name = "mission_users")
-public class MissionUsers extends BaseTimeEntity {
+@Table(name = "comments")
+public class Comment extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "mission_user_id")
+    @Column(name = "comments_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "article_id", nullable = false)
+    private Article article;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mission_id")
-    private Mission mission;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(nullable = false)
+    private String content;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "varchar(20) default 'ACTIVE'")
-    private Status status;
+    private Status status = Status.ACTIVE;
+
 }

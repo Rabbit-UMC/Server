@@ -1,10 +1,11 @@
-package rabbit.umc.com.demo.mission;
+package rabbit.umc.com.demo.schedule.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.user.Domain.User;
+import rabbit.umc.com.demo.mission.Mission;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -13,15 +14,15 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Getter@Setter
-@Table(name = "mission_users")
-public class MissionUsers extends BaseTimeEntity {
+@Table(name = "mission_schedule")
+public class MissionSchedule extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "mission_user_id")
+    @Column(name = "mission_schedule_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mission_id")
@@ -30,4 +31,7 @@ public class MissionUsers extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", columnDefinition = "varchar(20) default 'ACTIVE'")
     private Status status;
+
+
 }
+

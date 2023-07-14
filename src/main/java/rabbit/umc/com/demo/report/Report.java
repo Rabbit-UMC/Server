@@ -2,20 +2,21 @@ package rabbit.umc.com.demo.report;
 
 import lombok.Getter;
 import lombok.Setter;
+import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.article.Article;
-import rabbit.umc.com.demo.article.Comment;
-import rabbit.umc.com.demo.mainmission.MainMissionProof;
-import rabbit.umc.com.demo.user.User;
-
+import rabbit.umc.com.demo.article.domain.Article;
+import rabbit.umc.com.demo.article.domain.Comment;
+import rabbit.umc.com.demo.mainmission.domain.MainMissionProof;
+import rabbit.umc.com.demo.mission.Mission;
+import rabbit.umc.com.demo.user.Domain.User;
 import javax.persistence.*;
-import java.sql.Timestamp;
+import static javax.persistence.GenerationType.*;
 
 @Entity
 @Getter@Setter
 @Table(name = "report")
-public class Report {
-    @Id@GeneratedValue
+public class Report extends BaseTimeEntity {
+    @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "report_id")
     private Long id;
 
@@ -36,7 +37,10 @@ public class Report {
     private Comment comment;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    private Status status = Status.ACTIVE;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mission_id")
+    private Mission mission;
+
 }

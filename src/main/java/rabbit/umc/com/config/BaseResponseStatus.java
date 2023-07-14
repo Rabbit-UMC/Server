@@ -23,7 +23,7 @@ public enum BaseResponseStatus {
     INVALID_JWT(false, HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 JWT입니다."),
     INVALID_USER_JWT(false,HttpStatus.FORBIDDEN.value(),"권한이 없는 유저의 접근입니다."),
     RESPONSE_ERROR(false, HttpStatus.NOT_FOUND.value(), "값을 불러오는데 실패하였습니다."),
-
+    END_PAGE(false, HttpStatus.NOT_FOUND.value(), "마지막 페이지입니다."),
     // users
     USERS_EMPTY_USER_ID(false, HttpStatus.BAD_REQUEST.value(), "유저 아이디 값을 확인해주세요."),
 
@@ -33,6 +33,25 @@ public enum BaseResponseStatus {
     POST_USERS_EXISTS_EMAIL(false,HttpStatus.BAD_REQUEST.value(),"중복된 이메일입니다."),
     FAILED_TO_LOGIN(false,HttpStatus.NOT_FOUND.value(),"없는 아이디거나 비밀번호가 틀렸습니다."),
 
+    FAILED_TO_AUTHENTICATION(false, HttpStatus.BAD_REQUEST.value(),"올바른 인증이 아닙니다."),
+
+
+    FAILED_TO_REPORT(false,HttpStatus.NOT_FOUND.value(),"이미 신고한 게시물입니다."),
+    FAILED_TO_LIKE(false,HttpStatus.NOT_FOUND.value(),"이미 좋아요한 게시물입니다."),
+    FAILED_TO_UNLIKE(false,HttpStatus.NOT_FOUND.value(),"좋아요하지 않은 게시물입니다."),
+    FAILED_TO_LIKE_MISSION(false,HttpStatus.NOT_FOUND.value(),"이미 좋아요한 사진입니다."),
+    FAILED_TO_UNLIKE_MISSION(false,HttpStatus.NOT_FOUND.value(),"좋아요하지 않은 사진입니다."),
+    FAILED_TO_LOCK(false,HttpStatus.NOT_FOUND.value(),"이미 잠긴 댓글 입니다."),
+
+
+    DONT_EXIST_ARTICLE(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 게시물입니다."),
+    DONT_EXIST_COMMENT(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 글/댓글 입니다."),
+    DONT_EXIST_MISSION(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 미션입니다."),
+    DONT_EXIST_MISSION_PROOF(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 미션 사진입니다."),
+
+    FAILED_TO_SCHEDULE(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 일정입니다."),
+    FAILED_TO_MISSION(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 미션입니다."),
+    FALIED_TO_TOGETHER_MISSION(false,HttpStatus.BAD_REQUEST.value(), "이미 같이하고 있는 미션입니다."),
 
 
     /**
@@ -46,6 +65,9 @@ public enum BaseResponseStatus {
 
     PASSWORD_ENCRYPTION_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "비밀번호 암호화에 실패하였습니다."),
     PASSWORD_DECRYPTION_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "비밀번호 복호화에 실패하였습니다.");
+
+
+
 
 
     private final boolean isSuccess;
