@@ -16,7 +16,7 @@ import static javax.persistence.GenerationType.*;
 @Getter@Setter
 @Table(name = "report")
 public class Report extends BaseTimeEntity {
-    @Id@GeneratedValue(strategy = IDENTITY)
+    @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "report_id")
     private Long id;
 

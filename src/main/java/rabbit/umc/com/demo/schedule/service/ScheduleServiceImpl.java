@@ -1,13 +1,11 @@
 package rabbit.umc.com.demo.schedule.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.mission.Mission;
-import rabbit.umc.com.demo.mission.MissionUsers;
 import rabbit.umc.com.demo.mission.repository.MissionRepository;
 import rabbit.umc.com.demo.schedule.domain.MissionSchedule;
 import rabbit.umc.com.demo.schedule.domain.Schedule;
@@ -47,12 +45,12 @@ public class ScheduleServiceImpl implements ScheduleService {
     public ScheduleHomeRes getHome() {
         ScheduleHomeRes scheduleHomeRes = new ScheduleHomeRes();
 
-
         List<Schedule> scheduleList = scheduleRepository.getHome();
         System.out.println("scheduleList = " + scheduleList);
         scheduleHomeRes.setScheduleList(
                 scheduleList.stream().map(ScheduleListDto::toScheduleDto).collect(Collectors.toList())
         );
+
 
         List<Mission> missionList = missionRepository.getHome();
         System.out.println("missionList = " + missionList);
@@ -68,18 +66,25 @@ public class ScheduleServiceImpl implements ScheduleService {
      * 일정 상제 페이지
      */
     @Override
-    public ScheduleDetailRes getScheduleDetail(Long scheduleId) {
+    public ScheduleDetailRes getScheduleDetail(Long scheduleId) throws BaseException {
 
         MissionSchedule missionSchedule = missionScheduleRepository.getMissionScheduleByScheduleId(scheduleId);
         Schedule schedule = scheduleRepository.findScheduleById(scheduleId);
-        Mission mission = new Mission();
-        missionSchedule.setSchedule(schedule);
+
+        // 해당 일정이 없을 때
+        if(schedule == null){
+            throw new BaseException(BaseResponseStatus.FAILED_TO_SCHEDULE);
+        }else{
+            missionSchedule.setSchedule(schedule);
+        }
+
+        // 일정에 미션이 없을 때
         if(missionSchedule.getMission() == null){
             missionSchedule.setMission(null);
-        }else {
-            mission = missionRepository.getMissionById(missionSchedule.getMission().getId());
-        }
+        }else{
+            Mission mission = missionRepository.getMissionById(missionSchedule.getMission().getId());
             missionSchedule.setMission(mission);
+        }
 
         return ScheduleDetailRes.setMissionSchedule(missionSchedule);
     }
@@ -132,13 +137,13 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 
     @Override
-    public List<ScheduleListDto> getScheduleByWhen(String when) throws ParseException {
+    public List<ScheduleListDto> getScheduleByWhen(String when,long userId) throws ParseException {
         LocalDate localDate = LocalDate.parse(when);
         LocalDateTime localDateTime = localDate.atStartOfDay();
         Timestamp timestamp = Timestamp.valueOf(localDateTime);
 
         ScheduleHomeRes scheduleHomeRes = new ScheduleHomeRes();
-        List<Schedule> scheduleList = scheduleRepository.getScheduleByWhen(timestamp);
+        List<Schedule> scheduleList = scheduleRepository.getScheduleByWhenAndUserId(timestamp,userId);
         scheduleHomeRes.setScheduleList(
                 scheduleList.stream().map(ScheduleListDto::toScheduleDto).collect(Collectors.toList())
         );
