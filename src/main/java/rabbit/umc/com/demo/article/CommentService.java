@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.config.BaseResponseStatus;
+import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.article.domain.Article;
 import rabbit.umc.com.demo.article.domain.Comment;
 import rabbit.umc.com.demo.article.dto.PostCommentReq;
@@ -17,6 +18,7 @@ import rabbit.umc.com.demo.user.UserRepository;
 import javax.persistence.EntityNotFoundException;
 
 import static rabbit.umc.com.config.BaseResponseStatus.*;
+import static rabbit.umc.com.demo.Status.*;
 
 @ToString
 @Service
@@ -65,5 +67,24 @@ public class CommentService {
         }catch (EntityNotFoundException e){
             throw new BaseException(DONT_EXIST_COMMENT);
         }
+    }
+
+    @Transactional
+    public void lockComment(Long userId, Long commentsId) throws BaseException {
+        try {
+            Comment comment = commentRepository.getReferenceById(commentsId);
+            if(userId != comment.getArticle().getUser().getId()){
+                throw new BaseException(INVALID_USER_JWT);
+            }
+            if(comment.getStatus() == INACTIVE){
+                throw new BaseException(FAILED_TO_LOCK);
+            }
+            comment.setStatus(INACTIVE);
+            commentRepository.save(comment);
+
+        }catch (EntityNotFoundException e){
+            throw new BaseException(DONT_EXIST_COMMENT);
+        }
+
     }
 }

@@ -33,7 +33,12 @@ public class CommentController {
         }
     }
 
-    //댓글 삭제
+    /**
+     * 댓글 삭제 API
+     * @param commentsId
+     * @return
+     * @throws BaseException
+     */
     @DeleteMapping("/app/comments/{commentsId}")
     public BaseResponse deleteComment(@PathVariable("commentsId") Long commentsId)throws BaseException{
         try {
@@ -47,6 +52,18 @@ public class CommentController {
         }
     }
 
+    // 댓글 잠금
+    @PatchMapping("app/comments/{commentsId}/lock")
+    public BaseResponse lockComment(@PathVariable("commentsId") Long commentsId) {
+        try {
+            System.out.println(jwtService.createJwt(1));
+            Long userId = (long) jwtService.getUserIdx();
+            commentService.lockComment(userId, commentsId);
+            return new BaseResponse(commentsId + "번 댓글이 잠겼습니다.");
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 
 
 
