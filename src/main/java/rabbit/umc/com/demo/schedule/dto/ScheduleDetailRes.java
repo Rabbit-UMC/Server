@@ -29,15 +29,32 @@ public class ScheduleDetailRes {
         String startTime = missionSchedule.getSchedule().getStartAt().format(DateTimeFormatter.ofPattern("HH:mm"));
         String endTime = missionSchedule.getSchedule().getEndAt().format(DateTimeFormatter.ofPattern("HH:mm"));
 
-        return new ScheduleDetailRes(
-                missionSchedule.getSchedule().getId(),
-                missionSchedule.getSchedule().getTitle(),
-                missionSchedule.getMission().getTitle(),
-                startTime,
-                endTime,
-                when,
-                missionSchedule.getSchedule().getContent(),
-                missionSchedule.getMission().getId()
-        );
+        // 일정에 미션이 있을 때
+        if(missionSchedule.getMission() != null){
+            return new ScheduleDetailRes(
+                    missionSchedule.getSchedule().getId(),
+                    missionSchedule.getSchedule().getTitle(),
+                    missionSchedule.getMission().getTitle(),
+                    startTime,
+                    endTime,
+                    when,
+                    missionSchedule.getSchedule().getContent(),
+                    missionSchedule.getMission().getId()
+            );
+        }else {
+            // 일정에 미션이 없을 때
+            return new ScheduleDetailRes(
+                    missionSchedule.getSchedule().getId(),
+                    missionSchedule.getSchedule().getTitle(),
+                    null,
+                    startTime,
+                    endTime,
+                    when,
+                    missionSchedule.getSchedule().getContent(),
+                    null
+            );
+        }
+
+
     }
 }

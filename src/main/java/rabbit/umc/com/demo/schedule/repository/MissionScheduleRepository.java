@@ -3,6 +3,7 @@ package rabbit.umc.com.demo.schedule.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.schedule.domain.MissionSchedule;
 import rabbit.umc.com.demo.schedule.dto.ScheduleDetailRes;
 
@@ -17,7 +18,8 @@ public interface MissionScheduleRepository extends JpaRepository<MissionSchedule
     void deleteByScheduleId(Long id);
 
     MissionSchedule findMissionScheduleByScheduleId(Long scheduleId);
-
     List<MissionSchedule> findMissionSchedulesByMissionId(Long missionId);
+//    List<MissionSchedule> getMissionScheduleByMissionIdAndStatusIs(Long id, Status status);
 
+    List<MissionSchedule> getMissionScheduleByMissionId(Long id);
 }

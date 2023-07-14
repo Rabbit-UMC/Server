@@ -7,12 +7,15 @@ import rabbit.umc.com.demo.Status;
 
 import javax.persistence.*;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 @Entity
 @Getter
 @Setter
+@Table(name = "mission_category")
 public class MissionCategory extends BaseTimeEntity {
 
-    @Id
+    @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "mission_category_id")
     private Long id;
     private String title;

@@ -13,4 +13,5 @@ public interface MissionUsersRepository extends JpaRepository<MissionUsers,Long>
 
     MissionUsers getMissionUsersByMissionIdAndUserId(long missionId,long userId);
 
+
 }

@@ -62,7 +62,7 @@ public class MissionController {
      * 미션 성공 리스트 페이지(미완성)
      */
     @GetMapping("/success")
-    public BaseResponse<List<MissionHomeRes>> getSucessMissions(){
+    public BaseResponse<List<MissionHomeRes>> getSuccessMissions(){
         try {
             Long userId = (long) jwtService.getUserIdx();
             List<MissionHomeRes> resultList = missionService.getSuccessMissions(userId);
@@ -144,7 +144,7 @@ public class MissionController {
     }
 
     /**
-     * 미션 신고
+     * 미션 신고 (여기 예외 처리)
      */
     @PostMapping("report/{missionId}")
     public BaseResponse reportMission(@PathVariable(name = "missionId") long missionId){
@@ -152,8 +152,8 @@ public class MissionController {
             long userId = (long) jwtService.getUserIdx();
             missionService.reportMission(missionId, userId);
             return new BaseResponse<>(missionId + "번 미션 신고됨");
-        } catch (BaseException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            return new BaseResponse(e.getMessage());
         }
     }
 

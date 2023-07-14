@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.mission.repository;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,4 +19,6 @@ public interface MissionRepository extends JpaRepository<Mission,Long> {
     Mission getMissionByIdAndEndAtIsAfter(Long id, LocalDateTime currentDateTime);
 
     Mission getMissionById(long missionId);
+
+    List<Mission> getMissionsByIdIsIn(List ids);
 }
