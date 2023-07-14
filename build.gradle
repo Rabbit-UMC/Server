@@ -41,6 +41,7 @@ dependencies {
 
 	compileOnly 'org.projectlombok:lombok'
 	testCompileOnly('org.projectlombok:lombok')
+	testCompileOnly 'junit:junit:4.12'
 	testAnnotationProcessor('org.projectlombok:lombok')
 	runtimeOnly 'com.mysql:mysql-connector-j'
 //	runtimeOnly 'com.h2database:h2'
@@ -51,6 +52,6 @@ dependencies {
 	implementation 'com.google.code.gson:gson:2.10.1'
 }
 
-test.onlyIf {
-	!project.hasProperty('test')
+test {
+	useJUnitPlatform()
 }
