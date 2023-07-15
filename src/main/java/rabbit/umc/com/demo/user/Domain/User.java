@@ -51,4 +51,5 @@ public class User extends BaseTimeEntity {
         this.status=status;
     }
 
+
 }

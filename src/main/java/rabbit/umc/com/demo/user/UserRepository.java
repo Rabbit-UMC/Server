@@ -19,6 +19,7 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByKakaoId(Long kakaoId);
     boolean existsByKakaoId(Long kakaoId);
+    boolean existsByUserName(String userName);
     @Modifying
     @Query("UPDATE User u SET u.userProfileImage = :newProfileImage WHERE u.id = :userId")
     void updateUserUserProfileImageById(@Param("userId") Long userId, @Param("newProfileImage") String newProfileImage);
