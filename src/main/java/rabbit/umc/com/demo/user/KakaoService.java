@@ -85,9 +85,6 @@ public class KakaoService {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(responseBody);
             accessToken= jsonNode.get("access_token").asText();
-            //String refreshToken = jsonNode.get("refresh_token").asText();
-            //long expires_in = jsonNode.get("expires_in").asLong();
-            //long refresh_token_expires_in = jsonNode.get("refresh_token_expires_in").asLong();
         }else{
             log.info("요청에 실패하였습니다");
             String responseBody = response.getBody();
@@ -156,7 +153,7 @@ public class KakaoService {
         if (hasAgeRange) {
             String ageRange = jsonNode.get("kakao_account").get("age_range").asText();
             kakaoDto.setAgeRange(ageRange);
-            System.out.println("AgeRange: " + ageRange);
+            System.out.println("카카오에서 가져온 AgeRange: " + ageRange);
         } else {
             kakaoDto.setAgeRange(null);
         }
@@ -171,8 +168,8 @@ public class KakaoService {
 
         if (hasGender) {
             String gender = jsonNode.get("kakao_account").get("gender").asText();
-            kakaoDto.setAgeRange(gender);
-            System.out.println("Gender: " + gender);
+            kakaoDto.setGender(gender);
+            System.out.println("카카오에서 가져온 Gender: " + gender);
         } else {
             kakaoDto.setGender(null);
         }
@@ -183,7 +180,7 @@ public class KakaoService {
     //유저 회원가입 or 로그인
     public User saveUser(KakaoDto kakaoDto) {
         User user = new User();
-        //같은 카카오 아이디있는지 확인
+
         boolean isUser = userRepository.existsByKakaoId(kakaoDto.getKakaoId());
 
         //회원이 아닌 경우
