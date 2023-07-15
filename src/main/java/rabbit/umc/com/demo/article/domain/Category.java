@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.user.Domain.User;
 
 import javax.persistence.*;
 
@@ -23,7 +24,9 @@ public class Category extends BaseTimeEntity {
     @Column(nullable = false)
     private String image;
 
-    private Long hostUserId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
