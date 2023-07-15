@@ -145,15 +145,12 @@ public class KakaoService {
         boolean hasBirthday = jsonNode.get("kakao_account").get("has_birthday").asBoolean();
         boolean hasGender = jsonNode.get("kakao_account").get("has_gender").asBoolean();
 
-        System.out.println("kakao_id: " + kakao_id);
-        System.out.println("profile_image: " + profile_image);
         kakaoDto.setKakaoId(kakao_id);
         kakaoDto.setUserProfileImage(profile_image);
 
         if (hasAgeRange) {
             String ageRange = jsonNode.get("kakao_account").get("age_range").asText();
             kakaoDto.setAgeRange(ageRange);
-            System.out.println("카카오에서 가져온 AgeRange: " + ageRange);
         } else {
             kakaoDto.setAgeRange(null);
         }
@@ -161,7 +158,6 @@ public class KakaoService {
         if (hasBirthday) {
             String birthday = jsonNode.get("kakao_account").get("birthday").asText();
             kakaoDto.setBirthday(birthday);
-            System.out.println("birthday: " + birthday);
         } else {
             kakaoDto.setBirthday(null);
         }
@@ -169,7 +165,6 @@ public class KakaoService {
         if (hasGender) {
             String gender = jsonNode.get("kakao_account").get("gender").asText();
             kakaoDto.setGender(gender);
-            System.out.println("카카오에서 가져온 Gender: " + gender);
         } else {
             kakaoDto.setGender(null);
         }
