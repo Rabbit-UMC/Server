@@ -276,7 +276,7 @@ public class ArticleService {
                 .collect(Collectors.toList());
 
         // 더 이상 페이지가 없을 때
-        if (popularArticles.size() < pageSize) {
+        if (popularArticles.size() ==0 ) {
             throw new BaseException(END_PAGE);
         }
 
