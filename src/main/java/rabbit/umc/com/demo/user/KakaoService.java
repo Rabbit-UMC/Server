@@ -154,7 +154,6 @@ public class KakaoService {
         if (hasAgeRange) {
             String ageRange = jsonNode.get("kakao_account").get("age_range").asText();
             kakaoDto.setAgeRange(ageRange);
-
             System.out.println("카카오에서 가져온 AgeRange: " + ageRange);
 
         } else {
