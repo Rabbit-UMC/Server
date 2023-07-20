@@ -241,8 +241,17 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/profile/{userId}")
-    public BaseResponse<UserGetProfileResDto> getProfile(@PathVariable Long userId) throws BaseException {
-        UserGetProfileResDto userGetProfileResDto = userService.getProfile(userId);
+    public BaseResponse<UserGetProfileResDto> getProfile(@CookieValue(value = "jwtToken", required = false) String jwtToken,
+                                                         @PathVariable Long userId) throws BaseException {
+        if(jwtToken == null){
+            log.info("쿠키가 존재하지 않습니다.");
+            throw new BaseException(RESPONSE_ERROR);
+        }
+        Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
+        if(jwtUserId != userId){
+            throw new BaseException(INVALID_USER_JWT);
+        }
+        UserGetProfileResDto userGetProfileResDto = userService.getProfile(jwtUserId);
         return new BaseResponse(userGetProfileResDto);
     }
 
@@ -254,9 +263,18 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/articleList")
-    public BaseResponse<List<UserArticleListResDto>> getArticles(@RequestParam(defaultValue = "0", name = "page") int page,
+    public BaseResponse<List<UserArticleListResDto>> getArticles(@CookieValue(value = "jwtToken", required = false) String jwtToken,
+                                                                 @RequestParam(defaultValue = "0", name = "page") int page,
                                                                  @RequestParam Long userId) throws BaseException{
-        List<UserArticleListResDto> userArticleListResDtos = userService.getArticles(page, userId);
+        if(jwtToken == null){
+            log.info("쿠키가 존재하지 않습니다.");
+            throw new BaseException(RESPONSE_ERROR);
+        }
+        Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
+        if(jwtUserId != userId){
+            throw new BaseException(INVALID_USER_JWT);
+        }
+        List<UserArticleListResDto> userArticleListResDtos = userService.getArticles(page, jwtUserId);
 
         return new BaseResponse<>(userArticleListResDtos);
     }
@@ -269,9 +287,18 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/commented-articles")
-    public BaseResponse<List<UserArticleListResDto>> getCommentedArticles(@RequestParam(defaultValue = "0", name = "page") int page,
+    public BaseResponse<List<UserArticleListResDto>> getCommentedArticles(@CookieValue(value = "jwtToken", required = false) String jwtToken,
+                                                                          @RequestParam(defaultValue = "0", name = "page") int page,
                                                                           @RequestParam Long userId) throws BaseException{
-        List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, userId);
+        if(jwtToken == null){
+            log.info("쿠키가 존재하지 않습니다.");
+            throw new BaseException(RESPONSE_ERROR);
+        }
+        Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
+        if(jwtUserId != userId){
+            throw new BaseException(INVALID_USER_JWT);
+        }
+        List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, jwtUserId);
 
         return new BaseResponse<>(userArticleListResDtos);
     }
