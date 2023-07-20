@@ -9,9 +9,6 @@ import rabbit.umc.com.demo.schedule.dto.PostScheduleReq;
 import rabbit.umc.com.demo.user.Domain.User;
 
 import javax.persistence.*;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 

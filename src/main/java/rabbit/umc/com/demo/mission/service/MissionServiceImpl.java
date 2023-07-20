@@ -1,11 +1,9 @@
 package rabbit.umc.com.demo.mission.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionCategory;
@@ -49,7 +47,9 @@ public class MissionServiceImpl implements MissionService{
 
     @Override
     public List<MissionHomeRes> getMissionHome() {
-        List<Mission> missionList = missionRepository.getHome();
+        LocalDateTime now =  LocalDateTime.now();
+        List<Mission> missionList = missionRepository.getMissionsByEndAtAfterAndIsOpenOrderByEndAt(now,0);
+
         List<MissionHomeRes> resultList = missionList.stream()
                 .map(MissionHomeRes::toMissionHomeRes)
                 .collect(Collectors.toList());
@@ -57,10 +57,13 @@ public class MissionServiceImpl implements MissionService{
         return resultList;
     }
 
+    /**
+     * 미션 카테고리별 확인
+     */
     @Override
     public List<MissionHomeRes> getMissionByMissionCategoryId(Long categoryId) {
 
-        List<Mission> missionList = missionRepository.getMissionByMissionCategoryId(categoryId);
+        List<Mission> missionList = missionRepository.getMissionByMissionCategoryIdOrderByEndAt(categoryId);
         List<MissionHomeRes> resultList = missionList.stream()
                 .map(MissionHomeRes::toMissionHomeRes)
                 .collect(Collectors.toList());
@@ -76,22 +79,30 @@ public class MissionServiceImpl implements MissionService{
 
         List<Long> ids = new ArrayList<>();
 
-        int successCnt = 0;
-        int targetCnt = 0;
-        Status status = Status.valueOf("ACTIVE");
-        Mission mission = new Mission();
-        List<MissionSchedule> missionSchedules = new ArrayList<>();
-        for (MissionUsers missionUser : missionUsersList) {
-            System.out.println("missionUser.getMission().getId() = " + missionUser.getMission().getId());
-            missionSchedules = missionScheduleRepository.getMissionScheduleByMissionId(missionUser.getMission().getId());
-            successCnt = missionSchedules.size();
-            mission = missionRepository.getMissionById(missionUser.getMission().getId());
-            LocalDate targetDate = mission.getEndAt().toLocalDate();
-            LocalDate currentDate = mission.getStartAt().toLocalDate();
-            targetCnt = (int) ChronoUnit.DAYS.between(currentDate,targetDate); // 현재 날짜와 대상 날짜 사이의 일 수 계산
 
-            if(successCnt < targetCnt+1){
-                ids.add(missionUser.getMission().getId());
+
+        Status status = Status.valueOf("ACTIVE");
+        List<MissionSchedule> missionSchedules;
+        LocalDateTime now =  LocalDateTime.now();
+        for (MissionUsers missionUser : missionUsersList) {
+            int successCnt = 0;
+            missionSchedules = missionScheduleRepository.getMissionScheduleByMissionId(missionUser.getMission().getId());
+            for(MissionSchedule ms : missionSchedules){
+                Schedule schedule = scheduleRepository.findScheduleById(ms.getSchedule().getId());
+                if(schedule.getUser().getId() == userId)
+                    successCnt++;
+            }
+
+            Mission mission = missionRepository.getMissionByIdAndEndAtIsAfterOrderByEndAt(missionUser.getMission().getId(), now);
+            if(mission != null){
+                LocalDate targetDate = mission.getEndAt().toLocalDate();
+                LocalDate currentDate = mission.getStartAt().toLocalDate();
+                int targetCnt; // 현재 날짜와 대상 날짜 사이의 일 수 계산
+                targetCnt = (int) ChronoUnit.DAYS.between(currentDate,targetDate);
+
+                if(successCnt >= targetCnt+1){
+                    ids.add(missionUser.getMission().getId());
+                }
             }
         }
 
@@ -103,6 +114,11 @@ public class MissionServiceImpl implements MissionService{
         return resultList;
     }
 
+    /**
+     *
+     * @param userId
+     * @return
+     */
     @Override
     public List<GetMyMissionRes> getMyMissions(long userId) {
         List<MissionUsers> missionUsersList = missionUserRepository.getMissionUsersByUserId(userId);
@@ -113,7 +129,7 @@ public class MissionServiceImpl implements MissionService{
 
 
         for (MissionUsers mu :missionUsersList) {
-            Mission mission = missionRepository.getMissionByIdAndEndAtIsAfter(mu.getMission().getId(), currentDateTime);
+            Mission mission = missionRepository.getMissionByIdAndEndAtIsAfterOrderByEndAt(mu.getMission().getId(), currentDateTime);
             if(mission != null)
                 missionList.add(mission);
         }
@@ -148,9 +164,13 @@ public class MissionServiceImpl implements MissionService{
     @Override
     public List<GetMyMissionSchedule> getMyMissionSchedules(long userId, long missionId) {
         List<MissionSchedule> missionSchedules = missionScheduleRepository.findMissionSchedulesByMissionId(missionId);
+
         List<Schedule> schedules = new ArrayList<>();
+        Schedule schedule;
         for (MissionSchedule ms: missionSchedules) {
-            schedules.add(scheduleRepository.findScheduleById(ms.getSchedule().getId()));
+            schedule = scheduleRepository.findScheduleById(ms.getSchedule().getId());
+            if(schedule.getUser().getId() == userId)
+                schedules.add(schedule);
         }
 
         List<GetMyMissionSchedule> resultList = schedules.stream()
@@ -204,7 +224,7 @@ public class MissionServiceImpl implements MissionService{
             missionUsers.setMission(mission);
             missionUserRepository.save(missionUsers);
         }else{
-            throw new BaseException(FALIED_TO_TOGETHER_MISSION);
+            throw new BaseException(FAILED_TO_TOGETHER_MISSION);
         }
     }
 
@@ -218,6 +238,54 @@ public class MissionServiceImpl implements MissionService{
         }
 
         return GetMissionDetailDto.toGetMissionDetaliDto(mission);
+    }
+
+    /**
+     * 도전 실패한 미션리스트
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<MissionHomeRes> getFailureMissions(Long userId) {
+        // 5일차면 5일동안 일정에 있으면 성공!
+        // 내가 참여중인 미션 리스트 가져오기
+        List<MissionUsers> missionUsersList = missionUserRepository.getMissionUsersByUserId(userId);
+
+        List<Long> ids = new ArrayList<>();
+
+
+        int targetCnt = 0;
+        Status status = Status.valueOf("ACTIVE");
+        Mission mission = new Mission();
+        List<MissionSchedule> missionSchedules;
+        LocalDateTime now =  LocalDateTime.now();
+        for (MissionUsers missionUser : missionUsersList) {
+            int successCnt = 0;
+            missionSchedules = missionScheduleRepository.getMissionScheduleByMissionId(missionUser.getMission().getId());
+            for(MissionSchedule ms : missionSchedules){
+                Schedule schedule = scheduleRepository.findScheduleById(ms.getSchedule().getId());
+                if(schedule.getUser().getId() == userId)
+                    successCnt++;
+            }
+
+            mission = missionRepository.getMissionByIdAndEndAtIsBefore(missionUser.getMission().getId(), now);
+            if(mission != null){
+                LocalDate targetDate = mission.getEndAt().toLocalDate();
+                LocalDate currentDate = mission.getStartAt().toLocalDate();
+                targetCnt = (int) ChronoUnit.DAYS.between(currentDate,targetDate); // 현재 날짜와 대상 날짜 사이의 일 수 계산
+
+                if(successCnt < targetCnt+1){
+                    ids.add(missionUser.getMission().getId());
+                }
+            }
+        }
+
+        List<Mission> missionList = missionRepository.getMissionsByIdIsIn(ids);
+        List<MissionHomeRes> resultList = missionList.stream()
+                .map(MissionHomeRes::toMissionHomeRes)
+                .collect(Collectors.toList());
+
+        return resultList;
     }
 
     @Override

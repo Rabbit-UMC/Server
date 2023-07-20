@@ -22,4 +22,5 @@ public interface MissionScheduleRepository extends JpaRepository<MissionSchedule
 //    List<MissionSchedule> getMissionScheduleByMissionIdAndStatusIs(Long id, Status status);
 
     List<MissionSchedule> getMissionScheduleByMissionId(Long id);
+
 }

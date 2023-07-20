@@ -51,7 +51,8 @@ public enum BaseResponseStatus {
 
     FAILED_TO_SCHEDULE(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 일정입니다."),
     FAILED_TO_MISSION(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 미션입니다."),
-    FALIED_TO_TOGETHER_MISSION(false,HttpStatus.BAD_REQUEST.value(), "이미 같이하고 있는 미션입니다."),
+    FAILED_TO_TOGETHER_MISSION(false,HttpStatus.BAD_REQUEST.value(), "이미 같이하고 있는 미션입니다."),
+    FAILED_TO_POST_SCHEDULE(false,HttpStatus.BAD_REQUEST.value(), "해당 미션에 대한 일정이 같은 날짜에 있습니다."),
 
 
     /**

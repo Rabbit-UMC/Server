@@ -32,7 +32,7 @@ public class MissionController {
     }
 
     /**
-     * 미션 카테고리 별로 확인(리스트 없을 때 처리하기)
+     * 미션 카테고리 별로 확인
      */
     @GetMapping("category/{categoryId}")
     public BaseResponse<List<MissionHomeRes>> getHomeByCategoryId(@PathVariable(name = "categoryId") Long categoryId){
@@ -59,7 +59,7 @@ public class MissionController {
     }
 
     /**
-     * 미션 성공 리스트 페이지(미완성)
+     * 미션 성공 리스트 페이지
      */
     @GetMapping("/success")
     public BaseResponse<List<MissionHomeRes>> getSuccessMissions(){
@@ -71,6 +71,20 @@ public class MissionController {
             throw new RuntimeException(e);
         }
 
+    }
+
+    /**
+     * 미션 실패 리스트
+     */
+    @GetMapping("/failures")
+    public BaseResponse<List<MissionHomeRes>> getFailureMissions(){
+        try {
+            Long userId = (long) jwtService.getUserIdx();
+            List<MissionHomeRes> resultList = missionService.getFailureMissions(userId);
+            return new BaseResponse<>(resultList);
+        } catch (BaseException e) {
+            return new BaseResponse(e.getMessage());
+        }
     }
 
     /**
@@ -168,7 +182,7 @@ public class MissionController {
             missionService.togetherMission(missionId,userId);
             return new BaseResponse<>(missionId + "번 미션 같이하기 성공");
         } catch (BaseException e) {
-            return new BaseResponse<>(BaseResponseStatus.FALIED_TO_TOGETHER_MISSION);
+            return new BaseResponse<>(BaseResponseStatus.FAILED_TO_TOGETHER_MISSION);
         }
     }
 }
