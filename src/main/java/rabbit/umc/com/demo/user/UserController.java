@@ -246,10 +246,10 @@ public class UserController {
      * @return
      * @throws BaseException
      */
-//    @GetMapping("/rank")
-//    public BaseResponse<UserRankResDto> getRank(@RequestParam Long userId, @RequestParam Long categoryId) throws BaseException {
-//        long rank = userService.getRank(userId, categoryId);
-//        UserRankResDto userRankResDto = new UserRankResDto(categoryId, userId, rank);
-//        return new BaseResponse<>(userRankResDto);
-//    }
+    @GetMapping("/rank")
+    public BaseResponse<UserRankResDto> getRank(@RequestParam Long userId, @RequestParam Long categoryId) throws BaseException {
+        long rank = userService.getRank(userId, categoryId);
+        UserRankResDto userRankResDto = new UserRankResDto(categoryId, userId, rank);
+        return new BaseResponse<>(userRankResDto);
+    }
 }

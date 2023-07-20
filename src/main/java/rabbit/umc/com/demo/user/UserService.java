@@ -135,19 +135,19 @@ public class UserService {
     }
 
     //카테고리별 랭킹
-//    public Long getRank(Long userId, Long categoryId) throws BaseException {
-//        //먼저 해당 카테고리의 메인 미션 유저인지 확인
-//        //mainMissionUser 값들 중에 해당 userId랑 일치한 값이 있는지
-//        Boolean isMainMissionUser = userRepository.existsMainMissionUserByUserIdAndCategoryId(userId, categoryId);
-//        Long rank;
-//        if(isMainMissionUser){
-//            //순위 확인
-//            rank = userRepository.getRankByScoreForMainMissionByUserIdAndCategoryId(userId, categoryId);
-//        }
-//        else{
-//            log.info("해당 카테고리의 메인 미션에 참여하지 않았습니다.");
-//            throw new BaseException(BaseResponseStatus.RESPONSE_ERROR);
-//        }
-//        return rank;
-//    }
+    public Long getRank(Long userId, Long categoryId) throws BaseException {
+        //먼저 해당 카테고리의 메인 미션 유저인지 확인
+        //mainMissionUser 값들 중에 해당 userId랑 일치한 값이 있는지
+        Boolean isMainMissionUser = userRepository.existsMainMissionUserByUserIdAndCategoryId(userId, categoryId);
+        Long rank;
+        if(isMainMissionUser){
+            //순위 확인
+            rank = userRepository.getRankByScoreForMainMissionByUserIdAndCategoryId(userId, categoryId);
+        }
+        else{
+            log.info("해당 카테고리의 메인 미션에 참여하지 않았습니다.");
+            throw new BaseException(BaseResponseStatus.RESPONSE_ERROR);
+        }
+        return rank;
+    }
 }
