@@ -263,7 +263,6 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/articleList")
-
     public BaseResponse<List<UserArticleListResDto>> getArticles(@CookieValue(value = "jwtToken", required = false) String jwtToken,
                                                                  @RequestParam(defaultValue = "0", name = "page") int page,
                                                                  @RequestParam Long userId) throws BaseException {
@@ -278,6 +277,7 @@ public class UserController {
         List<UserArticleListResDto> userArticleListResDtos = userService.getArticles(page, jwtUserId);
         return new BaseResponse<>(userArticleListResDtos);
     }
+
 
 
 
@@ -297,6 +297,7 @@ public class UserController {
             List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, jwtUserId);
             return new BaseResponse<>(userArticleListResDtos);
         }
+
 
 
 
