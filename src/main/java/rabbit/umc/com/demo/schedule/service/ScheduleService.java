@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ScheduleService {
-    ScheduleHomeRes getHome();
+    ScheduleHomeRes getHome(Long userId);
 
     ScheduleDetailRes getScheduleDetail(Long scheduleId) throws BaseException;
-    Long postSchedule(PostScheduleReq postScheduleReq,Long userId);
+    Long postSchedule(PostScheduleReq postScheduleReq,Long userId) throws BaseException;
 
     void deleteSchedule(Long scheduleId,Long userId) throws BaseException;
 
