@@ -8,11 +8,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import rabbit.umc.com.demo.article.ImageRepository;
+import rabbit.umc.com.demo.article.domain.Image;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor    // final 멤버변수가 있으면 생성자 항목에 포함시킴
@@ -20,6 +24,7 @@ import java.util.Optional;
 public class S3Uploader {
 
     private final AmazonS3Client amazonS3Client;
+    private final ImageRepository imageRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -32,12 +37,20 @@ public class S3Uploader {
     }
 
     private String upload(File uploadFile, String dirName) {
-        String fileName = dirName + "/" + uploadFile.getName();
+        String originalFileName = uploadFile.getName();
+        String fileName = dirName + "/" + UUID.randomUUID() + originalFileName ;
         String uploadImageUrl = putS3(uploadFile, fileName);
+
+//        //원본 이미지 저장
+//        Image image = new Image();
+//        image.setImage(uploadImageUrl);
+//        image.setImageName(originalFileName);
+//        image.setS3ImageName(fileName);
+//        imageRepository.save(image);
 
         removeNewFile(uploadFile);  // 로컬에 생성된 File 삭제 (MultipartFile -> File 전환 하며 로컬에 파일 생성됨)
 
-        return uploadImageUrl;      // 업로드된 파일의 S3 URL 주소 반환
+        return uploadImageUrl;      // 업로드된 파일의 S3 URL 주소 반환 originalFileName
     }
 
     private String putS3(File uploadFile, String fileName) {

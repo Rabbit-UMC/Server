@@ -3,6 +3,7 @@ package rabbit.umc.com.demo.mainmission.dto;
 import lombok.*;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -21,9 +22,9 @@ public class GetMainMissionRes {
     private List<MissionProofImageDto> missionProofImages;
 
     public  GetMainMissionRes(MainMission mainMission){
-        LocalDateTime currentDateTime = LocalDateTime.now().withMinute(0).withSecond(0);
-        LocalDateTime endDateTime = mainMission.getEndAt().withMinute(0).withSecond(0);
-        long daysRemaining = ChronoUnit.DAYS.between(currentDateTime.toLocalDate(), endDateTime.toLocalDate());
+        LocalDate currentDateTime = LocalDate.now();
+        LocalDate endDateTime = mainMission.getEndAt();
+        long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, endDateTime);
         String dDay;
         if (daysRemaining > 0) {
             dDay = "D-" + daysRemaining;

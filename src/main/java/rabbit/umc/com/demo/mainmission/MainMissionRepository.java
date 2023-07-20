@@ -5,11 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import rabbit.umc.com.demo.article.domain.Category;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 
 import rabbit.umc.com.demo.Status;
 import java.util.List;
-
 @Repository
 public interface MainMissionRepository extends JpaRepository<MainMission, Long> {
 
@@ -24,5 +24,7 @@ public interface MainMissionRepository extends JpaRepository<MainMission, Long> 
             "LEFT JOIN FETCH m.category " +
             "WHERE m.status = :status")
     List<MainMission> findProgressMissionByStatus(@Param("status") Status status);
+
+    MainMission findMainMissionByCategoryAndStatus(Category category, Status status);
 
 }

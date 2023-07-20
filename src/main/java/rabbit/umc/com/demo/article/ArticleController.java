@@ -3,21 +3,28 @@ package rabbit.umc.com.demo.article;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.article.dto.*;
 import rabbit.umc.com.utils.JwtService;
+import rabbit.umc.com.utils.S3Uploader;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
 public class ArticleController {
 
     private final ArticleService articleService;
-
+    private final S3Uploader s3Uploader;
     private final JwtService jwtService;
     /**
      * 커뮤니티 홈화면 API
@@ -73,12 +80,28 @@ public class ArticleController {
     }
 
     /**
+     * 이미지 저장 API
+     * @param multipartFiles
+     * @return
+     * @throws IOException
+     */
+    @PostMapping("/file")
+    public BaseResponse<List<String>> uploadFile(@RequestPart(value = "file") List<MultipartFile> multipartFiles, @RequestParam(name = "path") String path) throws IOException {
+        List<String> filePathList = new ArrayList<>();
+        for (MultipartFile multipartFile : multipartFiles) {
+            String filePath = s3Uploader.upload(multipartFile, path );
+            filePathList.add(filePath);
+        }
+        return new BaseResponse<>(filePathList);
+    }
+
+    /**
      * 게시물 생성 API
      * @param postArticleReq
      * @return
      */
     @PostMapping("/app/article")
-    public BaseResponse postArticle(@RequestBody PostArticleReq postArticleReq, @RequestParam("categoryId") Long categoryId) throws BaseException{
+    public BaseResponse postArticle( @RequestBody PostArticleReq postArticleReq, @RequestParam("categoryId") Long categoryId) throws BaseException, IOException {
         System.out.println(jwtService.createJwt(1));
         Long userId = (long) jwtService.getUserIdx();
         Long articleId = articleService.postArticle(postArticleReq, userId, categoryId);

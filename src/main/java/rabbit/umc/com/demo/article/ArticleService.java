@@ -5,6 +5,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
@@ -122,7 +123,7 @@ public class ArticleService {
     }
 
     @Transactional
-    public Long postArticle(PostArticleReq postArticleReq, Long userId , Long categoryId) {
+    public Long postArticle(PostArticleReq postArticleReq, Long userId , Long categoryId ) {
         User user = userRepository.getReferenceById(userId);
         Category category = categoryRepository.getReferenceById(categoryId);
         Article article = new Article();

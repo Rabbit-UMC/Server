@@ -12,6 +12,7 @@ import rabbit.umc.com.demo.article.domain.Comment;
 @Data
 @AllArgsConstructor
 public class CommentListDto {
+    private Long commentUserId;
     private Long commentId;
     private String commentAuthorProfileImage;
     private String commentAuthorName;
@@ -30,6 +31,7 @@ public class CommentListDto {
         }
 
         return new CommentListDto(
+                comment.getUser().getId(),
                 comment.getId(),
                 comment.getUser().getUserProfileImage(),
                 comment.getUser().getUserName(),
