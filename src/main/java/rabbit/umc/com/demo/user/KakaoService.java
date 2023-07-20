@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,6 +19,7 @@ import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.KakaoDto;
 import rabbit.umc.com.demo.user.property.JwtAndKakaoProperties;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
@@ -114,7 +116,8 @@ public class KakaoService {
     }
 
     // 토큰으로 카카오 API 호출
-    private KakaoDto findProfile(String accessToken) throws JsonProcessingException {
+    @Transactional
+    public KakaoDto findProfile(String accessToken) throws JsonProcessingException {
         KakaoDto kakaoDto = new KakaoDto();
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
@@ -191,6 +194,8 @@ public class KakaoService {
         else{
             log.info("로그인을 진행하겠습니다.");
             user.setStatus(ACTIVE);
+            //userRepository.save(user);
+
             user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
         }
         return user;
