@@ -56,8 +56,6 @@ public class UserController {
         HttpHeaders headers = new HttpHeaders();
         headers.add(JwtAndKakaoProperties.HEADER_STRING, JwtAndKakaoProperties.TOKEN_PREFIX + jwtToken);
         Cookie cookie = new Cookie("jwtToken",jwtToken);
-        cookie.setDomain("localhost");
-        log.info("localhost로 도메인 설정");
 
         response.addCookie(cookie);
 
