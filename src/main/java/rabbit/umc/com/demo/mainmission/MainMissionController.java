@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
+import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
 import rabbit.umc.com.utils.JwtService;
 
 @RestController
@@ -20,9 +21,9 @@ public class MainMissionController {
      * @throws BaseException
      */
     @GetMapping("/app/main-mission/{mainMissionId}")
-    public BaseResponse<GetMainMissionRes> getMainMission(@PathVariable("mainMissionId") Long mainMissionId) throws BaseException{
+    public BaseResponse<GetMainMissionRes> getMainMission(@PathVariable("mainMissionId") Long mainMissionId, @RequestParam("day") int day) throws BaseException{
         try {
-            GetMainMissionRes getMainMissionRes = mainMissionService.getMainMission(mainMissionId);
+            GetMainMissionRes getMainMissionRes = mainMissionService.getMainMission(mainMissionId, day);
 
             return new BaseResponse<>(getMainMissionRes);
         }catch (BaseException exception){
@@ -84,6 +85,21 @@ public class MainMissionController {
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
+    }
+
+    /**
+     * 메인 미션 생성 API
+     * @param categoryId
+     * @param postMainMissionReq
+     * @return
+     * @throws BaseException
+     */
+    @PostMapping("/app/host/main-mission/{categoryId}")
+    public BaseResponse createMainMission(@PathVariable("categoryId") Long categoryId, @RequestBody PostMainMissionReq postMainMissionReq) throws BaseException {
+
+        Long userId = (long) jwtService.getUserIdx();
+        mainMissionService.createMainMission(userId, categoryId, postMainMissionReq);
+        return new BaseResponse<>(categoryId + "번 카테고리 메인미션 생성완료되었습니다");
     }
 
 }

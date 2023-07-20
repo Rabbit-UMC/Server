@@ -20,10 +20,16 @@ public class CategoryService {
 
     public void editCategoryImage(Long userId, Long categoryId, CategoryController.PatchCategoryImageReq patchCategoryImageReq) throws BaseException {
         User user = userRepository.getReferenceById(userId);
+        // 유저 권한 (묘집사인지) 확인
         if (user.getUserPermission() != HOST) {
             throw new BaseException(INVALID_USER_JWT);
         }
+
         Category category = categoryRepository.getReferenceById(categoryId);
+        //해당 카테고리의 묘집사인지 확인
+        if(category.getUserId() != userId){
+            throw new BaseException(INVALID_USER_JWT);
+        }
         category.setImage(patchCategoryImageReq.getFilePath());
         categoryRepository.save(category);
 

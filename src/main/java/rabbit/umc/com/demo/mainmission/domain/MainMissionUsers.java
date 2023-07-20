@@ -25,7 +25,6 @@ public class MainMissionUsers extends BaseTimeEntity {
     @JoinColumn(name = "main_mission_id")
     private MainMission mainMission;
 
-    private int score;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;

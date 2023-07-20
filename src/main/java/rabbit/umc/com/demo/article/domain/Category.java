@@ -24,9 +24,7 @@ public class Category extends BaseTimeEntity {
     @Column(nullable = false)
     private String image;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;

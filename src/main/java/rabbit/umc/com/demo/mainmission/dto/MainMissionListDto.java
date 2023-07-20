@@ -4,6 +4,7 @@ import lombok.*;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -24,10 +25,9 @@ public class MainMissionListDto {
 
 
     public static MainMissionListDto toMainMissionListDto(MainMission mainMission) {
-        LocalDateTime currentDateTime = LocalDateTime.now().withMinute(0).withSecond(0);
-        LocalDateTime endDateTime = mainMission.getEndAt().withMinute(0).withSecond(0);
-
-        long daysRemaining = ChronoUnit.DAYS.between(currentDateTime.toLocalDate(), endDateTime.toLocalDate());
+        LocalDate currentDateTime = LocalDate.now();
+        LocalDate endDateTime = mainMission.getEndAt();
+        long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, endDateTime);
 
         String dDay;
         if (daysRemaining > 0) {

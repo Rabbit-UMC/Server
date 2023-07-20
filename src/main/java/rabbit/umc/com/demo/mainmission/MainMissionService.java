@@ -7,15 +7,19 @@ import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.article.CategoryRepository;
+import rabbit.umc.com.demo.article.domain.Category;
 import rabbit.umc.com.demo.mainmission.domain.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.MainMissionProof;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
 import rabbit.umc.com.demo.mainmission.dto.MissionProofImageDto;
+import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
 import rabbit.umc.com.demo.mainmission.dto.RankDto;
 import rabbit.umc.com.demo.report.Report;
 import rabbit.umc.com.demo.report.ReportRepository;
 import rabbit.umc.com.demo.user.Domain.User;
+import rabbit.umc.com.demo.user.Domain.UserPermision;
 import rabbit.umc.com.demo.user.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
@@ -28,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static rabbit.umc.com.config.BaseResponseStatus.*;
 import static rabbit.umc.com.demo.Status.*;
+import static rabbit.umc.com.demo.user.Domain.UserPermision.*;
 
 @Service
 @RequiredArgsConstructor
@@ -38,18 +43,26 @@ public class MainMissionService {
     private final UserRepository userRepository;
     private final LikeMissionProofRepository likeMissionProofRepository;
     private final ReportRepository reportRepository;
+    private final CategoryRepository categoryRepository;
 
-    public GetMainMissionRes getMainMission(Long mainMissionId) throws BaseException {
+    public GetMainMissionRes getMainMission(Long mainMissionId, int day) throws BaseException {
         try {
+            // 메인 미션 찾기
             MainMission mainMission = mainMissionRepository.getReferenceById(mainMissionId);
-            List<MainMissionProof> mainMissionProofs = mainMissionProofRepository.findAllByMainMissionId(mainMissionId);
 
+            // 해당 일차의 인증 사진 가져오기
+            LocalDateTime startDate = mainMission.getStartAt().atStartOfDay();
+            LocalDateTime targetDate = startDate.plusDays(day -1);
+            LocalDateTime endDate = targetDate.plusDays(1);
+
+            List<MainMissionProof> mainMissionProofs = mainMissionProofRepository.findAllByMainMissionIdAndCreatedAtBetween(mainMissionId, targetDate, endDate);
             List<MissionProofImageDto> missionProofImages = mainMissionProofs.stream()
                     .map(MissionProofImageDto::toMissionProofImageDto)
                     .collect(Collectors.toList());
             GetMainMissionRes getMainMissionRes = new GetMainMissionRes(mainMission);
             getMainMissionRes.setMissionProofImages(missionProofImages);
 
+            //메인 미션 랭킹 가져오기
             List<MainMissionProof> top3 = mainMissionProofRepository.findTop3ByMainMissionIdOrderByLikeCountDesc(mainMissionId);
             List<RankDto> rankList = new ArrayList<>();
             for (MainMissionProof proof : top3) {
@@ -132,6 +145,35 @@ public class MainMissionService {
         }catch (EntityNotFoundException e){
             throw new BaseException(DONT_EXIST_MISSION_PROOF);
         }
+
+    }
+
+    @Transactional
+    public void createMainMission(Long userId, Long categoryId, PostMainMissionReq postMainMissionReq) throws BaseException {
+
+        //유저 자격 확인
+        User user = userRepository.getReferenceById(userId);
+        if(user.getUserPermission() != HOST){
+            throw new  BaseException(INVALID_JWT);
+        }
+
+        //해당 카테고리 자격 확인
+        Category category = categoryRepository.getReferenceById(categoryId);
+        if(category.getUserId() != userId) {
+            throw new BaseException(INVALID_JWT);
+        }
+
+        //이전 미션 비활성화
+        MainMission lastMission = mainMissionRepository.findMainMissionByCategoryAndStatus(category, ACTIVE);
+        lastMission.setStatus(INACTIVE);
+        mainMissionRepository.save(lastMission);
+
+        //메인 미션 생성
+        MainMission mainMission = new MainMission();
+        mainMission.setMainMission(postMainMissionReq,category);
+
+        //db저장
+        mainMissionRepository.save(mainMission);
 
     }
 }

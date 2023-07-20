@@ -53,9 +53,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsMainMissionUserByUserIdAndCategoryId(@Param("userId") Long userId, @Param("categoryId") Long categoryId);
 
     //유저 랭킹 조회
-    @Query("SELECT COUNT(*) + 1 " +
-            "FROM MainMissionUsers mmu " +
-            "WHERE mmu.mainMission.category.id = :categoryId " +
-            "AND mmu.score > (SELECT mmu2.score FROM MainMissionUsers mmu2 WHERE mmu2.user.id = :userId)")
-    Long getRankByScoreForMainMissionByUserIdAndCategoryId(@Param("userId") Long userId, @Param("categoryId") Long categoryId);
+//    @Query("SELECT COUNT(*) + 1 " +
+//            "FROM MainMissionUsers mmu " +
+//            "WHERE mmu.mainMission.category.id = :categoryId " +
+//            "AND mmu.score > (SELECT mmu2.score FROM MainMissionUsers mmu2 WHERE mmu2.user.id = :userId)")
+//    Long getRankByScoreForMainMissionByUserIdAndCategoryId(@Param("userId") Long userId, @Param("categoryId") Long categoryId);
 }
