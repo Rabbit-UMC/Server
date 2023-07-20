@@ -13,6 +13,7 @@ import rabbit.umc.com.demo.article.domain.Article;
 import rabbit.umc.com.demo.article.dto.ArticleListRes;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.UserArticleListResDto;
+import rabbit.umc.com.demo.user.Dto.UserCommentedArticleListResDto;
 import rabbit.umc.com.demo.user.Dto.UserEmailNicknameDto;
 import rabbit.umc.com.demo.user.Dto.UserGetProfileResDto;
 
@@ -24,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static rabbit.umc.com.config.BaseResponseStatus.POST_USERS_EXISTS_NICKNAME;
 import static rabbit.umc.com.config.BaseResponseStatus.POST_USERS_INVALID_EMAIL;
 
 @Service
@@ -35,7 +37,6 @@ public class UserService {
     //유저 아이디로 User 객체 찾기
     public User findUser(Long id) throws BaseException {
         Optional<User> optionalUser = userRepository.findById(id);
-//        User user = optionalUser.orElseThrow(() -> new BaseException(BaseResponseStatus.RESPONSE_ERROR));
         User user;
         if (optionalUser.isPresent()) {
             user = optionalUser.get();
@@ -52,12 +53,24 @@ public class UserService {
     }
 
     //유저 email, nickname 저장
-    public void getEmailandNickname(UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
-        User user = findUser(userEmailNicknameReqDto.getId());
+
+    public void getEmailandNickname(Long userId,UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
+        User user = findUser(userId);
+
+        if(isExistSameNickname(userEmailNicknameReqDto.getUserName())){
+            log.info("중복된 닉네임입니다.");
+            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+        }
+
         user.setUserName(userEmailNicknameReqDto.getUserName());
         user.setUserEmail(userEmailNicknameReqDto.getUserEmail());
 
         userRepository.save(user);
+    }
+
+    private boolean isExistSameNickname(String nickname){
+        boolean isExistSameName = userRepository.existsByUserName(nickname);
+        return isExistSameName;
     }
 
     //이메일 형식 검증
@@ -79,14 +92,22 @@ public class UserService {
 
     //프로필 이미지 수정
     @Transactional
-    public void updateProfileImage(Long id, String newProfileImage) throws BaseException {
-        userRepository.updateUserUserProfileImageById(id, newProfileImage);
+    public void updateProfileImage(Long userId, String newProfileImage) throws BaseException {
+        //userRepository.updateUserUserProfileImageById(id, newProfileImage);
+
+        User user = findUser(userId);
+        user.setUserProfileImage(newProfileImage);
+        //userRepository.save(user);
     }
 
     //닉네임 수정
     @Transactional
-    public void updateNickname(Long id, String newNickname){
-        userRepository.updateUserUserNameById(id, newNickname);
+    public void updateNickname(Long userId, String newNickname) throws BaseException {
+        //userRepository.updateUserUserNameById(id, newNickname);
+
+        User user = findUser(userId);
+        user.setUserProfileImage(newNickname);
+        //userRepository.save(user);
     }
 
     //유저 프로필 조회
@@ -104,9 +125,6 @@ public class UserService {
 
         List<Article> articlePage = userRepository.findArticlesByUserIdOrderByCreatedAtDesc(userId, pageRequest);
 
-        //status가 active인 글만 나오게?
-        //List<Article> articlePage = userRepository.findAllByCategoryIdAndStatusOrderByCreatedAtDesc(userId, Status.ACTIVE, pageRequest);
-
         List<UserArticleListResDto> userArticleListResDtos = articlePage.stream()
                 .map(UserArticleListResDto::toArticleListRes)
                 .collect(Collectors.toList());
@@ -119,35 +137,20 @@ public class UserService {
 
         PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
-        List<Object[]> articlePageAndCreatedAt = userRepository.findCommentedArticlesByUserId(userId, pageRequest);
+        List<UserCommentedArticleListResDto> articlePage = userRepository.findCommentedArticlesByUserId(userId, pageRequest);
+//        List<Object[]> articlePageAndCreatedAt = userRepository.findCommentedArticlesByUserId(userId, pageRequest);
 
-        List<Article> articlePage = new ArrayList<>();
-        for (Object[] objArr : articlePageAndCreatedAt) {
-            Article article = (Article) objArr[0];
-            articlePage.add(article);
-        }
+//        List<Article> articlePage = new ArrayList<>();
+//        for (Object[] objArr : articlePageAndCreatedAt) {
+//            Article article = (Article) objArr[0];
+//            articlePage.add(article);
+//        }
 
         List<UserArticleListResDto> userArticleListResDtos = articlePage.stream()
-                .map(UserArticleListResDto::toArticleListRes)
+                .map(UserCommentedArticleListResDto::toArticleListRes)
                 .collect(Collectors.toList());
 
         return userArticleListResDtos;
     }
 
-    //카테고리별 랭킹
-    public Long getRank(Long userId, Long categoryId) throws BaseException {
-        //먼저 해당 카테고리의 메인 미션 유저인지 확인
-        //mainMissionUser 값들 중에 해당 userId랑 일치한 값이 있는지
-        Boolean isMainMissionUser = userRepository.existsMainMissionUserByUserIdAndCategoryId(userId, categoryId);
-        Long rank;
-        if(isMainMissionUser){
-            //순위 확인
-            rank = userRepository.getRankByScoreForMainMissionByUserIdAndCategoryId(userId, categoryId);
-        }
-        else{
-            log.info("해당 카테고리의 메인 미션에 참여하지 않았습니다.");
-            throw new BaseException(BaseResponseStatus.RESPONSE_ERROR);
-        }
-        return rank;
-    }
 }

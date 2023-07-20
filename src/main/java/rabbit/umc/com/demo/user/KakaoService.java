@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,6 +19,7 @@ import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.KakaoDto;
 import rabbit.umc.com.demo.user.property.JwtAndKakaoProperties;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
@@ -85,9 +87,6 @@ public class KakaoService {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(responseBody);
             accessToken= jsonNode.get("access_token").asText();
-            //String refreshToken = jsonNode.get("refresh_token").asText();
-            //long expires_in = jsonNode.get("expires_in").asLong();
-            //long refresh_token_expires_in = jsonNode.get("refresh_token_expires_in").asLong();
         }else{
             log.info("요청에 실패하였습니다");
             String responseBody = response.getBody();
@@ -117,7 +116,8 @@ public class KakaoService {
     }
 
     // 토큰으로 카카오 API 호출
-    private KakaoDto findProfile(String accessToken) throws JsonProcessingException {
+    @Transactional
+    public KakaoDto findProfile(String accessToken) throws JsonProcessingException {
         KakaoDto kakaoDto = new KakaoDto();
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
@@ -148,15 +148,14 @@ public class KakaoService {
         boolean hasBirthday = jsonNode.get("kakao_account").get("has_birthday").asBoolean();
         boolean hasGender = jsonNode.get("kakao_account").get("has_gender").asBoolean();
 
-        System.out.println("kakao_id: " + kakao_id);
-        System.out.println("profile_image: " + profile_image);
         kakaoDto.setKakaoId(kakao_id);
         kakaoDto.setUserProfileImage(profile_image);
 
         if (hasAgeRange) {
             String ageRange = jsonNode.get("kakao_account").get("age_range").asText();
             kakaoDto.setAgeRange(ageRange);
-            System.out.println("AgeRange: " + ageRange);
+            System.out.println("카카오에서 가져온 AgeRange: " + ageRange);
+
         } else {
             kakaoDto.setAgeRange(null);
         }
@@ -164,15 +163,17 @@ public class KakaoService {
         if (hasBirthday) {
             String birthday = jsonNode.get("kakao_account").get("birthday").asText();
             kakaoDto.setBirthday(birthday);
-            System.out.println("birthday: " + birthday);
         } else {
             kakaoDto.setBirthday(null);
         }
 
         if (hasGender) {
             String gender = jsonNode.get("kakao_account").get("gender").asText();
-            kakaoDto.setAgeRange(gender);
-            System.out.println("Gender: " + gender);
+            kakaoDto.setGender(gender);
+
+
+            System.out.println("카카오에서 가져온 Gender: " + gender);
+
         } else {
             kakaoDto.setGender(null);
         }
@@ -183,7 +184,7 @@ public class KakaoService {
     //유저 회원가입 or 로그인
     public User saveUser(KakaoDto kakaoDto) {
         User user = new User();
-        //같은 카카오 아이디있는지 확인
+
         boolean isUser = userRepository.existsByKakaoId(kakaoDto.getKakaoId());
 
         //회원이 아닌 경우
@@ -199,6 +200,8 @@ public class KakaoService {
         else{
             log.info("로그인을 진행하겠습니다.");
             user.setStatus(ACTIVE);
+            //userRepository.save(user);
+
             user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
         }
         return user;

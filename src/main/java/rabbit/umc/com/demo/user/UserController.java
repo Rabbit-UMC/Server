@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+import static rabbit.umc.com.config.BaseResponseStatus.INVALID_USER_JWT;
 import static rabbit.umc.com.config.BaseResponseStatus.RESPONSE_ERROR;
 
 
@@ -138,21 +139,33 @@ public class UserController {
      * @throws BaseException
      */
     @PostMapping("/sign-up")
-    public BaseResponse<UserEmailNicknameDto> getEmailandNickname(@RequestBody UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
+    public BaseResponse<UserEmailNicknameDto> getEmailandNickname(@CookieValue(value = "jwtToken", required = false) String jwtToken,
+                                                                  @RequestBody UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
+        if(jwtToken == null){
+            log.info("쿠키가 존재하지 않습니다.");
+            throw new BaseException(RESPONSE_ERROR);
+        }
+        Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
         userService.isEmailVerified(userEmailNicknameReqDto);
-        userService.getEmailandNickname(userEmailNicknameReqDto);
+        userService.getEmailandNickname(userId, userEmailNicknameReqDto);
         return new BaseResponse<>(userEmailNicknameReqDto);
     }
 
     /**
      * 이메일 인증 메일 발송
-     * @param email
+     * @param jwtToken
      * @return
      * @throws Exception
      */
     @PostMapping("/emailConfirm")
-    public BaseResponse<String> emailConfirm(@RequestParam String email) throws Exception {
-
+    public BaseResponse<String> emailConfirm(/*@RequestParam String email*/@CookieValue(value = "jwtToken", required = false) String jwtToken) throws Exception {
+        if(jwtToken == null){
+            log.info("쿠키가 존재하지 않습니다.");
+            throw new BaseException(RESPONSE_ERROR);
+        }
+        Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
+        User user = userService.findUser(userId);
+        String email = user.getUserEmail();
         String authenticationCode = emailService.sendSimpleMessage(email);
 
         return new BaseResponse<>(authenticationCode);
@@ -160,26 +173,41 @@ public class UserController {
 
     /**
      * 이메일 인증 코드 일치
+     * @param jwtToken
      * @param emailAuthenticationDto
      * @return
      * @throws BaseException
      */
     @PostMapping("/email-check")
-    public BaseResponse<String> emailCheck(@RequestBody EmailAuthenticationDto emailAuthenticationDto) throws BaseException{
+    public BaseResponse<String> emailCheck(@CookieValue(value = "jwtToken", required = false) String jwtToken,
+                                           @RequestBody EmailAuthenticationDto emailAuthenticationDto) throws BaseException{
+        if(jwtToken == null){
+            log.info("쿠키가 존재하지 않습니다.");
+            throw new BaseException(RESPONSE_ERROR);
+        }
+        Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
+        if(userId != emailAuthenticationDto.getUserId()){
+            throw new BaseException(INVALID_USER_JWT);
+        }
         emailService.emailCheck(emailAuthenticationDto);
-        return new BaseResponse<>("");
+        return new BaseResponse<>("인증 성공!");
     }
 
     /**
      * 프로필 이미지 수정
-     * @param userId
+     * @param jwtToken
      * @param userProfileImage
      * @return
      * @throws BaseException
      */
     @PatchMapping("/profileImage")
-    public BaseResponse<Long> updateProfileImage(@RequestParam Long userId,
+    public BaseResponse<Long> updateProfileImage(@CookieValue(value = "jwtToken", required = false) String jwtToken,/*, @RequestParam Long userId,*/
                                                  @RequestParam String userProfileImage) throws BaseException {
+        if(jwtToken == null){
+            log.info("쿠키가 존재하지 않습니다.");
+            throw new BaseException(RESPONSE_ERROR);
+        }
+        Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
         userService.updateProfileImage(userId, userProfileImage);
         return new BaseResponse<>(userId);
     }
@@ -187,14 +215,19 @@ public class UserController {
 
     /**
      * 닉네임 수정
-     * @param userId
+     * @param jwtToken
      * @param userName
      * @return
      * @throws BaseException
      */
     @PatchMapping("/nickname")
-    public BaseResponse<Long> updateNickname(@RequestParam Long userId,
-                                         @RequestParam String userName) throws BaseException{
+    public BaseResponse<Long> updateNickname(@CookieValue(value = "jwtToken", required = false) String jwtToken, /*@RequestParam Long userId,*/
+                                             @RequestParam String userName) throws BaseException{
+        if(jwtToken == null){
+            log.info("쿠키가 존재하지 않습니다.");
+            throw new BaseException(RESPONSE_ERROR);
+        }
+        Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
         userService.updateNickname(userId, userName);
         return new BaseResponse<>(userId);
     }
@@ -206,8 +239,17 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/profile/{userId}")
-    public BaseResponse<UserGetProfileResDto> getProfile(@PathVariable Long userId) throws BaseException {
-        UserGetProfileResDto userGetProfileResDto = userService.getProfile(userId);
+    public BaseResponse<UserGetProfileResDto> getProfile(@CookieValue(value = "jwtToken", required = false) String jwtToken,
+                                                         @PathVariable Long userId) throws BaseException {
+        if(jwtToken == null){
+            log.info("쿠키가 존재하지 않습니다.");
+            throw new BaseException(RESPONSE_ERROR);
+        }
+        Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
+        if(jwtUserId != userId){
+            throw new BaseException(INVALID_USER_JWT);
+        }
+        UserGetProfileResDto userGetProfileResDto = userService.getProfile(jwtUserId);
         return new BaseResponse(userGetProfileResDto);
     }
 
@@ -219,37 +261,42 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/articleList")
-    public BaseResponse<List<UserArticleListResDto>> getArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam Long userId) throws BaseException{
-        List<UserArticleListResDto> userArticleListResDtos = userService.getArticles(page, userId);
-
+    public BaseResponse<List<UserArticleListResDto>> getArticles(@CookieValue(value = "jwtToken", required = false) String jwtToken,
+                                                                 @RequestParam(defaultValue = "0", name = "page") int page,
+                                                                 @RequestParam Long userId) throws BaseException {
+        if (jwtToken == null) {
+            log.info("쿠키가 존재하지 않습니다.");
+            throw new BaseException(RESPONSE_ERROR);
+        }
+        Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
+        if (jwtUserId != userId) {
+            throw new BaseException(INVALID_USER_JWT);
+        }
+        List<UserArticleListResDto> userArticleListResDtos = userService.getArticles(page, jwtUserId);
         return new BaseResponse<>(userArticleListResDtos);
     }
 
-    /**
-     * 유저가 댓글을 작성한 글 리스트 조회
-     * @param page
-     * @param userId
-     * @return
-     * @throws BaseException
-     */
+
+
+
     @GetMapping("/commented-articles")
-    public BaseResponse<List<UserArticleListResDto>> getCommentedArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam Long userId) throws BaseException{
-        List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, userId);
+    public BaseResponse<List<UserArticleListResDto>> getCommentedArticles(@CookieValue(value = "jwtToken", required = false) String jwtToken,
+                                                                          @RequestParam(defaultValue = "0", name = "page") int page,
+                                                                          @RequestParam Long userId) throws BaseException
+        {
+            if (jwtToken == null) {
+                log.info("쿠키가 존재하지 않습니다.");
+                throw new BaseException(RESPONSE_ERROR);
+            }
+            Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
+            if (jwtUserId != userId) {
+                throw new BaseException(INVALID_USER_JWT);
+            }
+            List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, jwtUserId);
+            return new BaseResponse<>(userArticleListResDtos);
+        }
 
-        return new BaseResponse<>(userArticleListResDtos);
-    }
 
-    /**
-     * 유저 랭킹 조회
-     * @param userId
-     * @param categoryId
-     * @return
-     * @throws BaseException
-     */
-    @GetMapping("/rank")
-    public BaseResponse<UserRankResDto> getRank(@RequestParam Long userId, @RequestParam Long categoryId) throws BaseException {
-        long rank = userService.getRank(userId, categoryId);
-        UserRankResDto userRankResDto = new UserRankResDto(categoryId, userId, rank);
-        return new BaseResponse<>(userRankResDto);
-    }
+
+
 }
