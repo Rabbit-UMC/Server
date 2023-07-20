@@ -53,8 +53,13 @@ public class UserService {
     }
 
     //유저 email, nickname 저장
+
     public void getEmailandNickname(Long userId,UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
         User user = findUser(userId);
+
+//    public void getEmailandNickname(UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
+//        User user = findUser(userEmailNicknameReqDto.getId());
+
         if(isExistSameNickname(userEmailNicknameReqDto.getUserName())){
             log.info("중복된 닉네임입니다.");
             throw new BaseException(POST_USERS_EXISTS_NICKNAME);
@@ -165,4 +170,19 @@ public class UserService {
 //        }
 //        return rank;
 //    }
+
+//    public Long getRank(Long userId, Long categoryId) throws BaseException {
+//
+//        Boolean isMainMissionUser = userRepository.existsMainMissionUserByUserIdAndCategoryId(userId, categoryId);
+//        Long rank;
+//        if(isMainMissionUser){
+//            rank = userRepository.getRankByScoreForMainMissionByUserIdAndCategoryId(userId, categoryId);
+//        }
+//        else{
+//            log.info("해당 카테고리의 메인 미션에 참여하지 않았습니다.");
+//            throw new BaseException(BaseResponseStatus.RESPONSE_ERROR);
+//        }
+//        return rank;
+//    }
+
 }

@@ -21,13 +21,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByKakaoId(Long kakaoId);
     boolean existsByKakaoId(Long kakaoId);
     boolean existsByUserName(String userName);
+
 //    @Modifying
 //    @Query("UPDATE User u SET u.userProfileImage = :newProfileImage WHERE u.id = :userId")
 //    void updateUserUserProfileImageById(@Param("userId") Long userId, @Param("newProfileImage") String newProfileImage);
-
-//    @Modifying
-//    @Query("UPDATE User u SET u.userName = :newNickname WHERE u.id = :userId")
-//    void updateUserUserNameById(@Param("userId") Long userId, @Param("newNickname") String newNickname);
 
     //유저가 쓴 글 조회
     @Query("SELECT a FROM Article a " +
