@@ -21,11 +21,12 @@ public class MainMissionUsers extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private int score;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "main_mission_id")
     private MainMission mainMission;
 
-    private int score;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;

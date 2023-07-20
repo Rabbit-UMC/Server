@@ -8,8 +8,6 @@ import java.util.List;
 public interface MissionService {
     List<MissionHomeRes> getMissionHome();
 
-    
-
     void postMission(PostMissionReq postMissionReq, Long userId);
 
     List<MissionHomeRes> getMissionByMissionCategoryId(Long categoryId);
@@ -29,4 +27,6 @@ public interface MissionService {
     void togetherMission(long missionId, long userId) throws BaseException;
 
     GetMissionDetailDto getMissionDetail(Long missionId) throws BaseException;
+
+    List<MissionHomeRes> getFailureMissions(Long userId);
 }

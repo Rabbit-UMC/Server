@@ -31,6 +31,7 @@ public enum BaseResponseStatus {
     POST_USERS_EMPTY_EMAIL(false, HttpStatus.BAD_REQUEST.value(), "이메일을 입력해주세요."),
     POST_USERS_INVALID_EMAIL(false, HttpStatus.BAD_REQUEST.value(), "이메일 형식을 확인해주세요."),
     POST_USERS_EXISTS_EMAIL(false,HttpStatus.BAD_REQUEST.value(),"중복된 이메일입니다."),
+    POST_USERS_EXISTS_NICKNAME(false,HttpStatus.BAD_REQUEST.value(),"중복된 닉네임입니다."),
     FAILED_TO_LOGIN(false,HttpStatus.NOT_FOUND.value(),"없는 아이디거나 비밀번호가 틀렸습니다."),
 
     FAILED_TO_AUTHENTICATION(false, HttpStatus.BAD_REQUEST.value(),"올바른 인증이 아닙니다."),
@@ -51,7 +52,8 @@ public enum BaseResponseStatus {
 
     FAILED_TO_SCHEDULE(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 일정입니다."),
     FAILED_TO_MISSION(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 미션입니다."),
-    FALIED_TO_TOGETHER_MISSION(false,HttpStatus.BAD_REQUEST.value(), "이미 같이하고 있는 미션입니다."),
+    FAILED_TO_TOGETHER_MISSION(false,HttpStatus.BAD_REQUEST.value(), "이미 같이하고 있는 미션입니다."),
+    FAILED_TO_POST_SCHEDULE(false,HttpStatus.BAD_REQUEST.value(), "해당 미션에 대한 일정이 같은 날짜에 있습니다."),
 
 
     /**

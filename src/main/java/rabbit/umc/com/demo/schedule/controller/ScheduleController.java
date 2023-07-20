@@ -36,9 +36,14 @@ public class ScheduleController {
      */
     @GetMapping()
     public BaseResponse<ScheduleHomeRes> getHome(){
-        ScheduleHomeRes scheduleHomeRes = scheduleService.getHome();
+        try {
+            long userId = (long) jwtService.getUserIdx();
+            ScheduleHomeRes scheduleHomeRes = scheduleService.getHome(userId);
+            return new BaseResponse<>(scheduleHomeRes);
+        } catch (BaseException e) {
+            throw new RuntimeException(e);
+        }
 
-        return new BaseResponse<>(scheduleHomeRes);
     }
 
     /**
@@ -77,12 +82,15 @@ public class ScheduleController {
      * 일정 등록
      */
     @PostMapping()
-    public BaseResponse postSchedule(@RequestBody PostScheduleReq postScheduleReq) throws BaseException {
+    public BaseResponse postSchedule(@RequestBody PostScheduleReq postScheduleReq){
+        try {
+            Long userId = (long) jwtService.getUserIdx();
+           Long scheduleId = scheduleService.postSchedule(postScheduleReq,userId);
+            return new BaseResponse<>(scheduleId);
+        } catch (BaseException e) {
+            return new BaseResponse<>(BaseResponseStatus.FAILED_TO_POST_SCHEDULE);
+        }
 
-        Long userId = (long) jwtService.getUserIdx();
-        Long scheduleId = scheduleService.postSchedule(postScheduleReq,userId);
-
-        return new BaseResponse<>(scheduleId);
     }
 
     /**

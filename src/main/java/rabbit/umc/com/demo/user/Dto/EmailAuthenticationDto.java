@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class EmailAuthenticationDto {
+    private Long userId;
     private String authenticationCode;
     private String enteredCode;
 }

@@ -5,7 +5,10 @@ import lombok.Setter;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.article.domain.Category;
+import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
+
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -31,15 +34,22 @@ public class MainMission extends BaseTimeEntity {
     private String content;
 
     @Column(nullable = false)
-    private LocalDateTime startAt;
+    private LocalDate startAt;
     @Column(nullable = false)
-    private LocalDateTime endAt;
+    private LocalDate endAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status= Status.ACTIVE;
 
-
+    public void setMainMission(PostMainMissionReq postMainMissionReq, Category category){
+        this.category = category;
+        this.startAt = postMainMissionReq.getMissionStartTime();
+        this.endAt = postMainMissionReq.getMissionEndTime();
+        this.title = postMainMissionReq.getMainMissionTitle();
+        this.content = postMainMissionReq.getMainMissionContent();
+        this.lastMission = postMainMissionReq.getLastMission();
+    }
 
 
 

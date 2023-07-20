@@ -42,18 +42,18 @@ public class ScheduleServiceImpl implements ScheduleService {
      * 일정 홈
      */
     @Override
-    public ScheduleHomeRes getHome() {
+    public ScheduleHomeRes getHome(Long userId) {
         ScheduleHomeRes scheduleHomeRes = new ScheduleHomeRes();
 
-        List<Schedule> scheduleList = scheduleRepository.getHome();
-        System.out.println("scheduleList = " + scheduleList);
+        List<Schedule> scheduleList = scheduleRepository.getSchedulesByUserIdOrderByEndAt(userId);
+
         scheduleHomeRes.setScheduleList(
                 scheduleList.stream().map(ScheduleListDto::toScheduleDto).collect(Collectors.toList())
         );
 
+        LocalDateTime now =  LocalDateTime.now();
+        List<Mission> missionList = missionRepository.getMissionsByEndAtAfterAndIsOpenOrderByEndAt(now,0);
 
-        List<Mission> missionList = missionRepository.getHome();
-        System.out.println("missionList = " + missionList);
         scheduleHomeRes.setMissionList(
                 missionList.stream().map(MissionListDto::toMissionListDto).collect(Collectors.toList())
         );
@@ -89,27 +89,50 @@ public class ScheduleServiceImpl implements ScheduleService {
         return ScheduleDetailRes.setMissionSchedule(missionSchedule);
     }
 
+    /**
+     * 일정 등록
+     */
     @Override
     @Transactional
-    public Long postSchedule(PostScheduleReq postScheduleReq, Long userId) {
+    public Long postSchedule(PostScheduleReq postScheduleReq, Long userId) throws BaseException {
+
         Schedule schedule = new Schedule();
-        System.out.println("userId = " + userId);
         User user = userRepository.getReferenceById(userId);
         schedule.setSchedule(postScheduleReq);
         schedule.setUser(user);
-        System.out.println("schedule = " + schedule.getId());
-        // schedule에 내용들 저장
-        scheduleRepository.save(schedule);
+
 
         MissionSchedule missionSchedule = new MissionSchedule();
         Mission mission = new Mission();
+
+        System.out.println("postScheduleReq = " + postScheduleReq.getMissionId());
+        System.out.println("userId = " + userId);
+        // 미션 아이디가 있을 때
         if(postScheduleReq.getMissionId() != null){
-            mission.setId(postScheduleReq.getMissionId());
+            List<MissionSchedule> missionScheduleList = missionScheduleRepository.getMissionScheduleByMissionId(postScheduleReq.getMissionId());
+            System.out.println("missionScheduleList.size() = " + missionScheduleList.size());
+            for (MissionSchedule ms: missionScheduleList) {
+                Schedule findSchedule = scheduleRepository.getScheduleByIdAndUserId(ms.getSchedule().getId(),userId);
+
+                if(findSchedule != null){
+                    System.out.println(postScheduleReq.getStartAt().substring(0,10).equals(findSchedule.getStartAt().toString().substring(0,10)));
+                    if (postScheduleReq.getStartAt().substring(0,10).equals(findSchedule.getStartAt().toString().substring(0,10))){
+                        throw new BaseException(BaseResponseStatus.FAILED_TO_POST_SCHEDULE);
+                    }
+                }
+                
+            }
+
+//            mission.setId(postScheduleReq.getMissionId());
+            mission = missionRepository.getMissionById(postScheduleReq.getMissionId());
             missionSchedule.setMission(mission);
         }
 
-        missionSchedule.setSchedule(schedule);
 
+        // schedule에 내용들 저장
+        scheduleRepository.save(schedule);
+
+        missionSchedule.setSchedule(schedule);
 
         // missionSchedule 테이블에 일정 아이디랑 미션 아이디 저장
         missionScheduleRepository.save(missionSchedule);

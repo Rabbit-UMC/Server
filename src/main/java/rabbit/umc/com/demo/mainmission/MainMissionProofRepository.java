@@ -7,11 +7,13 @@ import org.springframework.stereotype.Repository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.MainMissionProof;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface MainMissionProofRepository extends JpaRepository<MainMissionProof, Long> {
-    List<MainMissionProof> findAllByMainMissionId(Long mainMissionId);
+    List<MainMissionProof> findAllByMainMissionIdAndCreatedAtBetween(Long mainMissionId, LocalDateTime startTime, LocalDateTime endTime);
+
 
     @Query("SELECT DISTINCT m FROM MainMissionProof m " +
             "JOIN FETCH m.likeMissionProofs l " +

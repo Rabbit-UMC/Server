@@ -5,6 +5,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
@@ -122,7 +123,7 @@ public class ArticleService {
     }
 
     @Transactional
-    public Long postArticle(PostArticleReq postArticleReq, Long userId , Long categoryId) {
+    public Long postArticle(PostArticleReq postArticleReq, Long userId , Long categoryId ) {
         User user = userRepository.getReferenceById(userId);
         Category category = categoryRepository.getReferenceById(categoryId);
         Article article = new Article();
@@ -276,7 +277,7 @@ public class ArticleService {
                 .collect(Collectors.toList());
 
         // 더 이상 페이지가 없을 때
-        if (popularArticles.size() < pageSize) {
+        if (popularArticles.size() ==0 ) {
             throw new BaseException(END_PAGE);
         }
 

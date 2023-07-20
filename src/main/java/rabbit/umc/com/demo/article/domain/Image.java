@@ -15,6 +15,9 @@ public class Image extends BaseTimeEntity {
     @Column(name = "image_id")
     private Long id;
 
+    private String imageName;
+    private String s3ImageName;
+
     @Column(nullable = false)
     private String filePath;
 
