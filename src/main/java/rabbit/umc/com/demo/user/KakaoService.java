@@ -154,9 +154,9 @@ public class KakaoService {
         if (hasAgeRange) {
             String ageRange = jsonNode.get("kakao_account").get("age_range").asText();
             kakaoDto.setAgeRange(ageRange);
-            System.out.println("카카오에서 가져온 AgeRange: " + ageRange);
 
             System.out.println("카카오에서 가져온 AgeRange: " + ageRange);
+
         } else {
             kakaoDto.setAgeRange(null);
         }
@@ -172,9 +172,9 @@ public class KakaoService {
             String gender = jsonNode.get("kakao_account").get("gender").asText();
             kakaoDto.setGender(gender);
 
-            System.out.println("카카오에서 가져온 Gender: " + gender);
 
             System.out.println("카카오에서 가져온 Gender: " + gender);
+
         } else {
             kakaoDto.setGender(null);
         }
