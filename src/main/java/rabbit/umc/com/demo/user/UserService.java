@@ -57,10 +57,6 @@ public class UserService {
     public void getEmailandNickname(Long userId,UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
         User user = findUser(userId);
 
-//    public void getEmailandNickname(UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
-//        User user = findUser(userEmailNicknameReqDto.getId());
-
-
         if(isExistSameNickname(userEmailNicknameReqDto.getUserName())){
             log.info("중복된 닉네임입니다.");
             throw new BaseException(POST_USERS_EXISTS_NICKNAME);

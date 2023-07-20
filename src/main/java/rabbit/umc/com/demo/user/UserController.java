@@ -56,6 +56,8 @@ public class UserController {
         HttpHeaders headers = new HttpHeaders();
         headers.add(JwtAndKakaoProperties.HEADER_STRING, JwtAndKakaoProperties.TOKEN_PREFIX + jwtToken);
         Cookie cookie = new Cookie("jwtToken",jwtToken);
+        cookie.setDomain("localhost");
+        log.info("localhost로 도메인 설정");
 
         response.addCookie(cookie);
 
@@ -261,57 +263,41 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/articleList")
+
     public BaseResponse<List<UserArticleListResDto>> getArticles(@CookieValue(value = "jwtToken", required = false) String jwtToken,
                                                                  @RequestParam(defaultValue = "0", name = "page") int page,
-                                                                 @RequestParam Long userId) throws BaseException{
-        if(jwtToken == null){
+                                                                 @RequestParam Long userId) throws BaseException {
+        if (jwtToken == null) {
             log.info("쿠키가 존재하지 않습니다.");
             throw new BaseException(RESPONSE_ERROR);
         }
         Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
-        if(jwtUserId != userId){
+        if (jwtUserId != userId) {
             throw new BaseException(INVALID_USER_JWT);
         }
         List<UserArticleListResDto> userArticleListResDtos = userService.getArticles(page, jwtUserId);
-
         return new BaseResponse<>(userArticleListResDtos);
     }
 
-    /**
-     * 유저가 댓글을 작성한 글 리스트 조회
-     * @param page
-     * @param userId
-     * @return
-     * @throws BaseException
-     */
+
+
     @GetMapping("/commented-articles")
     public BaseResponse<List<UserArticleListResDto>> getCommentedArticles(@CookieValue(value = "jwtToken", required = false) String jwtToken,
                                                                           @RequestParam(defaultValue = "0", name = "page") int page,
-                                                                          @RequestParam Long userId) throws BaseException{
-        if(jwtToken == null){
-            log.info("쿠키가 존재하지 않습니다.");
-            throw new BaseException(RESPONSE_ERROR);
+                                                                          @RequestParam Long userId) throws BaseException
+        {
+            if (jwtToken == null) {
+                log.info("쿠키가 존재하지 않습니다.");
+                throw new BaseException(RESPONSE_ERROR);
+            }
+            Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
+            if (jwtUserId != userId) {
+                throw new BaseException(INVALID_USER_JWT);
+            }
+            List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, jwtUserId);
+            return new BaseResponse<>(userArticleListResDtos);
         }
-        Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
-        if(jwtUserId != userId){
-            throw new BaseException(INVALID_USER_JWT);
-        }
-        List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, jwtUserId);
 
-        return new BaseResponse<>(userArticleListResDtos);
-    }
 
-//    /**
-//     * 유저 랭킹 조회
-//     * @param userId
-//     * @param categoryId
-//     * @return
-//     * @throws BaseException
-//     */
-//    @GetMapping("/rank")
-//    public BaseResponse<UserRankResDto> getRank(@RequestParam Long userId, @RequestParam Long categoryId) throws BaseException {
-//        long rank = userService.getRank(userId, categoryId);
-//        UserRankResDto userRankResDto = new UserRankResDto(categoryId, userId, rank);
-//        return new BaseResponse<>(userRankResDto);
-//    }
+
 }
