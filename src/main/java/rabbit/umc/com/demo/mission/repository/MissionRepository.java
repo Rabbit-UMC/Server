@@ -19,7 +19,7 @@ public interface MissionRepository extends JpaRepository<Mission,Long> {
     List<Mission> getHome(@Param(value = "now") LocalDateTime now);
 
     List<Mission> getMissionByMissionCategoryIdOrderByEndAt(@Param("missionCategoryId") Long missionCategryId);
-    Mission getMissionByIdAndEndAtIsAfterOrderByEndAt(Long id, LocalDateTime currentDateTime);
+    Mission getMissionByIdAndEndAtIsBeforeOrderByEndAt(Long id, LocalDateTime currentDateTime);
 
     Mission getMissionById(long missionId);
 
@@ -28,4 +28,6 @@ public interface MissionRepository extends JpaRepository<Mission,Long> {
     Mission getMissionByIdAndEndAtIsBefore(Long id, LocalDateTime now);
 
     List<Mission> getMissionsByEndAtAfterAndIsOpenOrderByEndAt(LocalDateTime now,int isOpen);
+
+    Mission getMissionByIdAndEndAtIsAfterOrderByEndAt(Long id, LocalDateTime currentDateTime);
 }

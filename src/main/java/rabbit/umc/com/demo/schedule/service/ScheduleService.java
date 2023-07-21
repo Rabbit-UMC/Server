@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface ScheduleService {
     ScheduleHomeRes getHome(Long userId);
 
-    ScheduleDetailRes getScheduleDetail(Long scheduleId) throws BaseException;
+    ScheduleDetailRes getScheduleDetail(Long scheduleId, Long userId) throws BaseException;
     Long postSchedule(PostScheduleReq postScheduleReq,Long userId) throws BaseException;
 
     void deleteSchedule(Long scheduleId,Long userId) throws BaseException;
