@@ -42,8 +42,7 @@ public class UserController {
      */
     @GetMapping("/kakao-login")
     public BaseResponse<UserLoginResDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
-        //System.out.println("kakao code: "+ code);
-        //api
+
         //엑세스 토큰 받기
         String accessToken = kakaoService.getAccessToken(code);
 
@@ -158,7 +157,7 @@ public class UserController {
      * @throws Exception
      */
     @PostMapping("/emailConfirm")
-    public BaseResponse<String> emailConfirm(/*@RequestParam String email*/@CookieValue(value = "jwtToken", required = false) String jwtToken) throws Exception {
+    public BaseResponse<String> emailConfirm(@CookieValue(value = "jwtToken", required = false) String jwtToken) throws Exception {
         if(jwtToken == null){
             log.info("쿠키가 존재하지 않습니다.");
             throw new BaseException(RESPONSE_ERROR);
@@ -201,7 +200,7 @@ public class UserController {
      * @throws BaseException
      */
     @PatchMapping("/profileImage")
-    public BaseResponse<Long> updateProfileImage(@CookieValue(value = "jwtToken", required = false) String jwtToken,/*, @RequestParam Long userId,*/
+    public BaseResponse<Long> updateProfileImage(@CookieValue(value = "jwtToken", required = false) String jwtToken,
                                                  @RequestParam String userProfileImage) throws BaseException {
         if(jwtToken == null){
             log.info("쿠키가 존재하지 않습니다.");
@@ -221,7 +220,7 @@ public class UserController {
      * @throws BaseException
      */
     @PatchMapping("/nickname")
-    public BaseResponse<Long> updateNickname(@CookieValue(value = "jwtToken", required = false) String jwtToken, /*@RequestParam Long userId,*/
+    public BaseResponse<Long> updateNickname(@CookieValue(value = "jwtToken", required = false) String jwtToken,
                                              @RequestParam String userName) throws BaseException{
         if(jwtToken == null){
             log.info("쿠키가 존재하지 않습니다.");
