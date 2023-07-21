@@ -185,4 +185,13 @@ public class MissionController {
             return new BaseResponse<>(BaseResponseStatus.FAILED_TO_TOGETHER_MISSION);
         }
     }
+
+    /**
+     *  미션 등록시 주제명 리스트
+     */
+    @GetMapping("/category")
+    public BaseResponse<List<MissionCategoryRes>> getMissionCategoryList(){
+        List<MissionCategoryRes> resultList = missionService.getMissionCategory();
+        return new BaseResponse<>(resultList);
+    }
 }

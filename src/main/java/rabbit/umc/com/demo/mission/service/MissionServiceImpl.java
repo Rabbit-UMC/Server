@@ -93,13 +93,15 @@ public class MissionServiceImpl implements MissionService{
                     successCnt++;
             }
 
-            Mission mission = missionRepository.getMissionByIdAndEndAtIsAfterOrderByEndAt(missionUser.getMission().getId(), now);
+            Mission mission = missionRepository.getMissionByIdAndEndAtIsBeforeOrderByEndAt(missionUser.getMission().getId(), now);
             if(mission != null){
                 LocalDate targetDate = mission.getEndAt().toLocalDate();
                 LocalDate currentDate = mission.getStartAt().toLocalDate();
                 int targetCnt; // 현재 날짜와 대상 날짜 사이의 일 수 계산
                 targetCnt = (int) ChronoUnit.DAYS.between(currentDate,targetDate);
-
+                System.out.println("missionUser.getMission().getId() = " + missionUser.getMission().getId());
+                System.out.println("successCnt = " + successCnt);
+                System.out.println("targetCnt = " + targetCnt);
                 if(successCnt >= targetCnt+1){
                     ids.add(missionUser.getMission().getId());
                 }
@@ -283,6 +285,22 @@ public class MissionServiceImpl implements MissionService{
         List<Mission> missionList = missionRepository.getMissionsByIdIsIn(ids);
         List<MissionHomeRes> resultList = missionList.stream()
                 .map(MissionHomeRes::toMissionHomeRes)
+                .collect(Collectors.toList());
+
+        return resultList;
+    }
+
+    /**
+     * 미션 등록시 미션 카테고리명 리스트 보기
+     * @return
+     */
+    @Override
+    public List<MissionCategoryRes> getMissionCategory() {
+        Status status = Status.valueOf("ACTIVE");
+        List<MissionCategory> missionCategoryList = missionCategoryRepository.getAllByStatusIs(status);
+
+        List<MissionCategoryRes> resultList = missionCategoryList.stream()
+                .map(MissionCategoryRes::toMissionCategoryRes)
                 .collect(Collectors.toList());
 
         return resultList;

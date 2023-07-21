@@ -53,7 +53,8 @@ public class ScheduleController {
     public BaseResponse<ScheduleDetailRes> getScheduleDetail(@PathVariable("scheduleId") Long scheduleId){
         ScheduleDetailRes scheduleDetailRes = null;
         try {
-            scheduleDetailRes = scheduleService.getScheduleDetail(scheduleId);
+            Long userId = (long) jwtService.getUserIdx();
+            scheduleDetailRes = scheduleService.getScheduleDetail(scheduleId, userId);
         } catch (BaseException e) {
             return new BaseResponse<>(BaseResponseStatus.FAILED_TO_SCHEDULE);
         }
