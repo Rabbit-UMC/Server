@@ -16,6 +16,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ArticleRes {
+    private String categoryName;
     private Long articleId;
     private Long authorId;
     private String authorProfileImage;
@@ -33,6 +34,7 @@ public class ArticleRes {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String uploadTime = article.getCreatedAt().format(formatter);
         return new ArticleRes(
+                article.getCategory().getName(),
                 article.getId(),
                 article.getUser().getId(),
                 article.getUser().getUserProfileImage(),
