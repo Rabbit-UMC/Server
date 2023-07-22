@@ -96,10 +96,13 @@ public class MainMissionController {
      */
     @PostMapping("/app/host/main-mission/{categoryId}")
     public BaseResponse createMainMission(@PathVariable("categoryId") Long categoryId, @RequestBody PostMainMissionReq postMainMissionReq) throws BaseException {
-
-        Long userId = (long) jwtService.getUserIdx();
-        mainMissionService.createMainMission(userId, categoryId, postMainMissionReq);
-        return new BaseResponse<>(categoryId + "번 카테고리 메인미션 생성완료되었습니다");
+        try {
+            Long userId = (long) jwtService.getUserIdx();
+            mainMissionService.createMainMission(userId, categoryId, postMainMissionReq);
+            return new BaseResponse<>(categoryId + "번 카테고리 메인미션 생성완료되었습니다");
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
 }
