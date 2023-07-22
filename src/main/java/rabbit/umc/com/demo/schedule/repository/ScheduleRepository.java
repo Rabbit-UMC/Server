@@ -30,6 +30,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule,Long> {
 
     Schedule findScheduleById(Long id);
 
+    Schedule findScheduleByIdAndUserId(Long id,Long userId);
+
     Schedule getScheduleByIdAndUserId(Long id, Long userId);
 
 }

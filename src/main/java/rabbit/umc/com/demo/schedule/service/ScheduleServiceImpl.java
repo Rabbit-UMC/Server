@@ -66,15 +66,15 @@ public class ScheduleServiceImpl implements ScheduleService {
      * 일정 상제 페이지
      */
     @Override
-    public ScheduleDetailRes getScheduleDetail(Long scheduleId) throws BaseException {
+    public ScheduleDetailRes getScheduleDetail(Long scheduleId,Long userId) throws BaseException {
 
         MissionSchedule missionSchedule = missionScheduleRepository.getMissionScheduleByScheduleId(scheduleId);
         Schedule schedule = scheduleRepository.findScheduleById(scheduleId);
 
         // 해당 일정이 없을 때
-        if(schedule == null){
+        if(schedule == null || schedule.getUser().getId() != userId){
             throw new BaseException(BaseResponseStatus.FAILED_TO_SCHEDULE);
-        }else{
+        } else{
             missionSchedule.setSchedule(schedule);
         }
 
@@ -115,8 +115,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 Schedule findSchedule = scheduleRepository.getScheduleByIdAndUserId(ms.getSchedule().getId(),userId);
 
                 if(findSchedule != null){
-                    System.out.println(postScheduleReq.getStartAt().substring(0,10).equals(findSchedule.getStartAt().toString().substring(0,10)));
-                    if (postScheduleReq.getStartAt().substring(0,10).equals(findSchedule.getStartAt().toString().substring(0,10))){
+                    System.out.println(postScheduleReq.getWhen().equals(findSchedule.getStartAt().toString().substring(0,10)));
+                    if (postScheduleReq.getWhen().equals(findSchedule.getStartAt().toString().substring(0,10))){
                         throw new BaseException(BaseResponseStatus.FAILED_TO_POST_SCHEDULE);
                     }
                 }
@@ -143,7 +143,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     @Transactional
     public void deleteSchedule(Long scheduleId,Long userId) throws BaseException {
-        Schedule findSchedule = scheduleRepository.findScheduleById(scheduleId);
+        Schedule findSchedule = scheduleRepository.findScheduleByIdAndUserId(scheduleId,userId);
 
         if (findSchedule==null){
             throw new BaseException(BaseResponseStatus.FAILED_TO_SCHEDULE);

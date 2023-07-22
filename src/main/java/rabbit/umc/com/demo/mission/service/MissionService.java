@@ -29,4 +29,6 @@ public interface MissionService {
     GetMissionDetailDto getMissionDetail(Long missionId) throws BaseException;
 
     List<MissionHomeRes> getFailureMissions(Long userId);
+
+    List<MissionCategoryRes> getMissionCategory();
 }

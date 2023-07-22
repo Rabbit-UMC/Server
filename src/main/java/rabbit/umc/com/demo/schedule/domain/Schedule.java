@@ -42,8 +42,8 @@ public class Schedule extends BaseTimeEntity {
     public void setSchedule(PostScheduleReq postScheduleReq){
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime startAt = LocalDateTime.parse(postScheduleReq.getStartAt(),formatter);
-        LocalDateTime endAt = LocalDateTime.parse(postScheduleReq.getEndAt(),formatter);
+        LocalDateTime startAt = LocalDateTime.parse(postScheduleReq.getWhen()+ " " +postScheduleReq.getStartAt(),formatter);
+        LocalDateTime endAt = LocalDateTime.parse(postScheduleReq.getWhen()+ " " +postScheduleReq.getEndAt(),formatter);
 
         this.content = postScheduleReq.getContent();
         this.title = postScheduleReq.getTitle();
