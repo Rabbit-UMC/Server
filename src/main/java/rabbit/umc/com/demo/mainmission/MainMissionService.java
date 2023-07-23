@@ -12,6 +12,7 @@ import rabbit.umc.com.demo.article.domain.Category;
 import rabbit.umc.com.demo.mainmission.domain.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.MainMissionProof;
+import rabbit.umc.com.demo.mainmission.domain.MainMissionUsers;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
 import rabbit.umc.com.demo.mainmission.dto.MissionProofImageDto;
 import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
@@ -23,7 +24,9 @@ import rabbit.umc.com.demo.user.Domain.UserPermision;
 import rabbit.umc.com.demo.user.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -44,6 +47,7 @@ public class MainMissionService {
     private final LikeMissionProofRepository likeMissionProofRepository;
     private final ReportRepository reportRepository;
     private final CategoryRepository categoryRepository;
+    private final MainMissionUsersRepository mainMissionUsersRepository;
 
     public GetMainMissionRes getMainMission(Long mainMissionId, int day) throws BaseException {
         try {
@@ -63,14 +67,20 @@ public class MainMissionService {
             getMainMissionRes.setMissionProofImages(missionProofImages);
 
             //메인 미션 랭킹 가져오기
-            List<MainMissionProof> top3 = mainMissionProofRepository.findTop3ByMainMissionIdOrderByLikeCountDesc(mainMissionId);
+//            List<MainMissionProof> top3 = mainMissionProofRepository.findTop3ByMainMissionIdOrderByLikeCountDesc(mainMissionId);
+
+            List<MainMissionUsers> top3 = mainMissionUsersRepository.findTop3OByMainMissionIdOrderByScoreDesc(mainMissionId);
             List<RankDto> rankList = new ArrayList<>();
-            for (MainMissionProof proof : top3) {
+            for (MainMissionUsers user : top3) {
                 RankDto rankDto = new RankDto();
-                rankDto.setUserId(proof.getUser().getId());
-                rankDto.setUserName(proof.getUser().getUserName());
+                rankDto.setUserId(user.getUser().getId());
+                rankDto.setUserName(user.getUser().getUserName());
                 rankList.add(rankDto);
             }
+
+
+
+
             getMainMissionRes.setRank(rankList);
             return getMainMissionRes;
         }catch (EntityNotFoundException e){
@@ -90,11 +100,20 @@ public class MainMissionService {
             if(findLikeMissionProof !=null){
                 throw new BaseException(FAILED_TO_LIKE_MISSION);
             }
+
+
+            // 1점 추가
+            MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(mainMissionProof.getUser(), mainMissionProof.getMainMission());
+            missionUsers.addLikeScore();
+            mainMissionUsersRepository.save(missionUsers);
+
             LikeMissionProof likeMissionProof = new LikeMissionProof();
             likeMissionProof.setUser(user);
             likeMissionProof.setMainMissionProof(mainMissionProof);
 
             likeMissionProofRepository.save(likeMissionProof);
+
+
         }catch (EntityNotFoundException e){
             throw new BaseException(DONT_EXIST_MISSION_PROOF);
         }
@@ -112,6 +131,12 @@ public class MainMissionService {
             if(findLikeMissionProof == null){
                 throw new BaseException(FAILED_TO_UNLIKE_MISSION);
             }
+
+            //1점 삭제
+            MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(mainMissionProof.getUser(), mainMissionProof.getMainMission());
+            missionUsers.unLikeScore();
+            mainMissionUsersRepository.save(missionUsers);
+
             likeMissionProofRepository.delete(findLikeMissionProof);
         }catch (EntityNotFoundException e){
             throw new BaseException(DONT_EXIST_MISSION_PROOF);
@@ -174,6 +199,39 @@ public class MainMissionService {
 
         //db저장
         mainMissionRepository.save(mainMission);
+
+    }
+
+    @Transactional
+    public void uploadProofImage(Long categoryId, Long userId, String filePath) throws BaseException {
+        MainMission mainMission = mainMissionRepository.findMainMissionByCategoryIdAndStatus(categoryId, ACTIVE);
+        User user = userRepository.getReferenceById(userId);
+
+        // 메인 미션 참여 아직 안했으면 참여
+        MainMissionUsers findUser = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(user, mainMission);
+        if (findUser == null){
+            MainMissionUsers mainMissionUsers = new MainMissionUsers();
+            mainMissionUsers.setMainMissionUsers(user, mainMission);
+            mainMissionUsersRepository.save(mainMissionUsers);
+        }
+
+        //만약 당일 이미 사진을 올렸으면 리젝
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX);
+        List<MainMissionProof> proof = mainMissionProofRepository.findAllByUserAndCreatedAtBetween(user, startOfDay, endOfDay);
+        if(!proof.isEmpty()){
+            throw new BaseException(FAILED_TO_UPLOAD);
+        }
+
+        // 10점 점수 획득
+        MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(user, mainMission);
+        missionUsers.addProofScore();
+        mainMissionUsersRepository.save(missionUsers);
+
+        //인증 사진 저장
+        MainMissionProof saveProof = new MainMissionProof();
+        saveProof.setMainMissionProof(filePath, user, mainMission);
+        mainMissionProofRepository.save(saveProof);
 
     }
 }

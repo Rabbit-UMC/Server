@@ -31,4 +31,25 @@ public class MainMissionUsers extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
 
+    public void setMainMissionUsers(User user, MainMission mainMission){
+        this.user = user;
+        this.mainMission = mainMission;
+    }
+
+    //인증 이미지 작성
+    public void addProofScore(){
+        this.score += 10;
+    }
+
+    public void deleteProofScore(){
+        this.score -= 10;
+    }
+
+    public void addLikeScore(){
+        this.score += 1;
+    }
+    public void unLikeScore(){
+        this.score -= 1;
+    }
+
 }

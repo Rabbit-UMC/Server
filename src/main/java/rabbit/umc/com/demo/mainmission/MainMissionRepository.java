@@ -27,4 +27,6 @@ public interface MainMissionRepository extends JpaRepository<MainMission, Long> 
 
     MainMission findMainMissionByCategoryAndStatus(Category category, Status status);
 
+    MainMission findMainMissionByCategoryIdAndStatus(Long categoryId, Status status);
+
 }
