@@ -64,14 +64,12 @@ public class ScheduleController {
     /**
      * 날짜 별 일정 리스트 조회
      */
-    @GetMapping("/when")
-    public BaseResponse<List<ScheduleListDto>> getScheduleByWhen(@RequestBody String when) throws ParseException {
+    @GetMapping("/when/{when}")
+    public BaseResponse<List<ScheduleListDto>> getScheduleByWhen(@PathVariable(name = "when") String when) throws ParseException {
         try {
             long userId = (long)jwtService.getUserIdx();
-            JsonObject jsonObject = JsonParser.parseString(when).getAsJsonObject();
-            String whenStr = jsonObject.get("when").getAsString();
-            System.out.println("when = " + when);
-            List<ScheduleListDto> resultList = scheduleService.getScheduleByWhen(whenStr,userId);
+
+            List<ScheduleListDto> resultList = scheduleService.getScheduleByWhen(when,userId);
             return new BaseResponse<>(resultList);
         } catch (BaseException e) {
             throw new RuntimeException(e);
