@@ -105,4 +105,24 @@ public class MainMissionController {
         }
     }
 
+    /**
+     * 메인 미션 인증 사진 업로드
+     * @param categoryId
+     * @param filePath
+     * @return
+     * @throws BaseException
+     */
+    @PostMapping("/app/main-mission/upload/{categoryId}")
+    public BaseResponse uploadProofImage(@PathVariable("categoryId") Long categoryId, @RequestParam("filePath")String filePath)throws BaseException{
+        try{
+            Long userId = (long) jwtService.getUserIdx();
+            mainMissionService.uploadProofImage(categoryId, userId, filePath);
+            return new BaseResponse<>("인증 사진 업로드 완료");
+        } catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+
+
+    }
+
 }
