@@ -47,7 +47,8 @@ public class JwtService {
         HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
         System.out.println("request: "+request);
         System.out.println("access token: "+request.getHeader("Authorization"));
-        return request.getHeader("X-ACCESS-TOKEN");
+        //return request.getHeader("X-ACCESS-TOKEN");
+        return request.getHeader("Authorization");
     }
 
     /*

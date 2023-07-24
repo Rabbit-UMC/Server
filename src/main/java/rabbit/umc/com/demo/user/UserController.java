@@ -17,8 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-import static rabbit.umc.com.config.BaseResponseStatus.INVALID_USER_JWT;
-import static rabbit.umc.com.config.BaseResponseStatus.RESPONSE_ERROR;
+import static rabbit.umc.com.config.BaseResponseStatus.*;
 
 
 @RestController
@@ -42,25 +41,40 @@ public class UserController {
      */
     @GetMapping("/kakao-login")
     public BaseResponse<UserLoginResDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
+        try {
+            //엑세스 토큰 받기
+            String accessToken = kakaoService.getAccessToken(code);
 
-        //엑세스 토큰 받기
-        String accessToken = kakaoService.getAccessToken(code);
+            //User user = kakaoService.kakaoLogin(accessToken);
 
-        User user = kakaoService.kakaoLogin(accessToken);
+            //토큰으로 카카오 API 호출
+            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
 
-        //jwt 토큰 생성(로그인 처리)
-        String jwtToken = jwtService.createJwt(Math.toIntExact(user.getId()));
-        System.out.println(jwtToken);
+            //카카오ID로 회원가입 처리
+            User user = kakaoService.saveUser(kakaoDto);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(JwtAndKakaoProperties.HEADER_STRING, JwtAndKakaoProperties.TOKEN_PREFIX + jwtToken);
-        Cookie cookie = new Cookie("jwtToken",jwtToken);
+            //jwt 토큰 생성(로그인 처리)
+            String jwtToken = jwtService.createJwt(Math.toIntExact(user.getId()));
+            System.out.println(jwtToken);
+//            System.out.println("jwt 토큰 헤더에 되는지 확인");
+//
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.add(JwtAndKakaoProperties.HEADER_STRING, JwtAndKakaoProperties.TOKEN_PREFIX + jwtToken);
 
-        response.addCookie(cookie);
+//            Long userId = (long) jwtService.getUserIdx();
+//            System.out.println("jwt 토큰으로 가져온 user id: "+userId);
 
-        UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtToken);
+            Cookie cookie = new Cookie("jwtToken", jwtToken);
 
-        return new BaseResponse<>(userLoginResDto);
+            response.addCookie(cookie);
+
+            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtToken);
+
+            return new BaseResponse<>(userLoginResDto);
+        }
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
 
@@ -72,27 +86,37 @@ public class UserController {
      */
     @GetMapping("/kakao-logout")
     public BaseResponse<Long> kakaoLogout(@CookieValue(value = "jwtToken", required = false) String jwtToken, HttpServletResponse response) throws BaseException, IOException {
-        //쿠키가 없을 때
-        if(jwtToken == null){
-            log.info("쿠키가 존재하지 않습니다.");
-            throw new BaseException(RESPONSE_ERROR);
+        try {
+//            쿠키가 없을 때
+            if (jwtToken == null) {
+                log.info("쿠키가 존재하지 않습니다.");
+                throw new BaseException(EMPTY_JWT);
+            }
+//
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.add(JwtAndKakaoProperties.HEADER_STRING, JwtAndKakaoProperties.TOKEN_PREFIX + jwtToken);
+            //userService.addAuthorizationHeaderWithJwtToken(jwtToken);
+
+            //jwt 토큰으로 로그아웃할 유저 아이디 받아오기
+            int userId = jwtService.getUserIdByCookie(jwtToken);
+//            int userId = jwtService.getUserIdx();
+
+            //유저 아이디로 카카오 아이디 받아오기
+            User user = userService.findUser(Long.valueOf(userId));
+            Long kakaoId = user.getKakaoId();
+            Long logout_kakaoId = kakaoService.logout(kakaoId);
+
+            //쿠키 삭제
+            Cookie cookie = new Cookie("jwtToken", null);
+            cookie.setMaxAge(0);
+            response.addCookie(cookie);
+
+            log.info("로그아웃이 완료되었습니다.");
+            return new BaseResponse<>(logout_kakaoId);
         }
-
-        //jwt 토큰으로 로그아웃할 유저 아이디 받아오기
-        int userId = jwtService.getUserIdByCookie(jwtToken);
-
-        //유저 아이디로 카카오 아이디 받아오기
-        User user = userService.findUser(Long.valueOf(userId));
-        Long kakaoId = user.getKakaoId();
-        Long logout_kakaoId = kakaoService.logout(kakaoId);
-
-        //쿠키 삭제
-        Cookie cookie = new Cookie("jwtToken",null);
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-
-        log.info("로그아웃이 완료되었습니다.");
-        return new BaseResponse<>(logout_kakaoId);
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
     /**
@@ -105,30 +129,35 @@ public class UserController {
      */
     @GetMapping("/kakao-unlink")
     public BaseResponse<Long> kakaoUnlink(@CookieValue(value = "jwtToken", required = false) String jwtToken, HttpServletResponse response) throws BaseException, IOException {
-        //쿠키가 없을 때
-        if(jwtToken == null){
-            log.info("쿠키가 존재하지 않습니다.");
-            throw new BaseException(RESPONSE_ERROR);
+        try {
+            //쿠키가 없을 때
+            if (jwtToken == null) {
+                log.info("쿠키가 존재하지 않습니다.");
+                throw new BaseException(EMPTY_JWT);
+            }
+
+            //jwt 토큰으로 로그아웃할 유저 아이디 받아오기
+            int userId = jwtService.getUserIdByCookie(jwtToken);
+
+            //유저 아이디로 카카오 아이디 받아오기
+            User user = userService.findUser(Long.valueOf(userId));
+            Long kakaoId = user.getKakaoId();
+            Long logout_kakaoId = kakaoService.unlink(kakaoId);
+
+            //status inactive로 바꾸기
+            user.setStatus(Status.INACTIVE);
+
+            //쿠키 삭제
+            Cookie cookie = new Cookie("jwtToken", null);
+            cookie.setMaxAge(0);
+            response.addCookie(cookie);
+
+            log.info("회원 탈퇴가 완료되었습니다.");
+            return new BaseResponse<>(logout_kakaoId);
         }
-
-        //jwt 토큰으로 로그아웃할 유저 아이디 받아오기
-        int userId = jwtService.getUserIdByCookie(jwtToken);
-
-        //유저 아이디로 카카오 아이디 받아오기
-        User user = userService.findUser(Long.valueOf(userId));
-        Long kakaoId = user.getKakaoId();
-        Long logout_kakaoId = kakaoService.unlink(kakaoId);
-
-        //status inactive로 바꾸기
-        user.setStatus(Status.INACTIVE);
-
-        //쿠키 삭제
-        Cookie cookie = new Cookie("jwtToken",null);
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-
-        log.info("회원 탈퇴가 완료되었습니다.");
-        return new BaseResponse<>(logout_kakaoId);
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
     /**
@@ -140,14 +169,21 @@ public class UserController {
     @PostMapping("/sign-up")
     public BaseResponse<UserEmailNicknameDto> getEmailandNickname(@CookieValue(value = "jwtToken", required = false) String jwtToken,
                                                                   @RequestBody UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
+        try{
         if(jwtToken == null){
             log.info("쿠키가 존재하지 않습니다.");
-            throw new BaseException(RESPONSE_ERROR);
+            throw new BaseException(EMPTY_JWT);
         }
         Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
         userService.isEmailVerified(userEmailNicknameReqDto);
+
         userService.getEmailandNickname(userId, userEmailNicknameReqDto);
         return new BaseResponse<>(userEmailNicknameReqDto);
+        }
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+
     }
 
     /**
@@ -158,16 +194,21 @@ public class UserController {
      */
     @PostMapping("/emailConfirm")
     public BaseResponse<String> emailConfirm(@CookieValue(value = "jwtToken", required = false) String jwtToken) throws Exception {
-        if(jwtToken == null){
-            log.info("쿠키가 존재하지 않습니다.");
-            throw new BaseException(RESPONSE_ERROR);
-        }
-        Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
-        User user = userService.findUser(userId);
-        String email = user.getUserEmail();
-        String authenticationCode = emailService.sendSimpleMessage(email);
+        try {
+            if (jwtToken == null) {
+                log.info("쿠키가 존재하지 않습니다.");
+                throw new BaseException(EMPTY_JWT);
+            }
+            Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
+            User user = userService.findUser(userId);
+            String email = user.getUserEmail();
+            String authenticationCode = emailService.sendSimpleMessage(email);
 
-        return new BaseResponse<>(authenticationCode);
+            return new BaseResponse<>(authenticationCode);
+        }
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
     /**
@@ -180,16 +221,21 @@ public class UserController {
     @PostMapping("/email-check")
     public BaseResponse<String> emailCheck(@CookieValue(value = "jwtToken", required = false) String jwtToken,
                                            @RequestBody EmailAuthenticationDto emailAuthenticationDto) throws BaseException{
-        if(jwtToken == null){
-            log.info("쿠키가 존재하지 않습니다.");
-            throw new BaseException(RESPONSE_ERROR);
+        try {
+            if (jwtToken == null) {
+                log.info("쿠키가 존재하지 않습니다.");
+                throw new BaseException(EMPTY_JWT);
+            }
+            Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
+            if (userId != emailAuthenticationDto.getUserId()) {
+                throw new BaseException(INVALID_USER_JWT);
+            }
+            emailService.emailCheck(emailAuthenticationDto);
+            return new BaseResponse<>("인증 성공!");
         }
-        Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
-        if(userId != emailAuthenticationDto.getUserId()){
-            throw new BaseException(INVALID_USER_JWT);
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
         }
-        emailService.emailCheck(emailAuthenticationDto);
-        return new BaseResponse<>("인증 성공!");
     }
 
     /**
@@ -202,13 +248,18 @@ public class UserController {
     @PatchMapping("/profileImage")
     public BaseResponse<Long> updateProfileImage(@CookieValue(value = "jwtToken", required = false) String jwtToken,
                                                  @RequestParam String userProfileImage) throws BaseException {
-        if(jwtToken == null){
-            log.info("쿠키가 존재하지 않습니다.");
-            throw new BaseException(RESPONSE_ERROR);
+        try {
+            if (jwtToken == null) {
+                log.info("쿠키가 존재하지 않습니다.");
+                throw new BaseException(EMPTY_JWT);
+            }
+            Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
+            userService.updateProfileImage(userId, userProfileImage);
+            return new BaseResponse<>(userId);
         }
-        Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
-        userService.updateProfileImage(userId, userProfileImage);
-        return new BaseResponse<>(userId);
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
 
@@ -222,13 +273,18 @@ public class UserController {
     @PatchMapping("/nickname")
     public BaseResponse<Long> updateNickname(@CookieValue(value = "jwtToken", required = false) String jwtToken,
                                              @RequestParam String userName) throws BaseException{
-        if(jwtToken == null){
-            log.info("쿠키가 존재하지 않습니다.");
-            throw new BaseException(RESPONSE_ERROR);
+        try {
+            if (jwtToken == null) {
+                log.info("쿠키가 존재하지 않습니다.");
+                throw new BaseException(EMPTY_JWT);
+            }
+            Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
+            userService.updateNickname(userId, userName);
+            return new BaseResponse<>(userId);
         }
-        Long userId = (long) jwtService.getUserIdByCookie(jwtToken);
-        userService.updateNickname(userId, userName);
-        return new BaseResponse<>(userId);
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
     /**
@@ -240,16 +296,21 @@ public class UserController {
     @GetMapping("/profile/{userId}")
     public BaseResponse<UserGetProfileResDto> getProfile(@CookieValue(value = "jwtToken", required = false) String jwtToken,
                                                          @PathVariable Long userId) throws BaseException {
-        if(jwtToken == null){
-            log.info("쿠키가 존재하지 않습니다.");
-            throw new BaseException(RESPONSE_ERROR);
+        try {
+            if (jwtToken == null) {
+                log.info("쿠키가 존재하지 않습니다.");
+                throw new BaseException(EMPTY_JWT);
+            }
+            Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
+            if (jwtUserId != userId) {
+                throw new BaseException(INVALID_USER_JWT);
+            }
+            UserGetProfileResDto userGetProfileResDto = userService.getProfile(jwtUserId);
+            return new BaseResponse(userGetProfileResDto);
         }
-        Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
-        if(jwtUserId != userId){
-            throw new BaseException(INVALID_USER_JWT);
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
         }
-        UserGetProfileResDto userGetProfileResDto = userService.getProfile(jwtUserId);
-        return new BaseResponse(userGetProfileResDto);
     }
 
     /**
@@ -263,36 +324,43 @@ public class UserController {
     public BaseResponse<List<UserArticleListResDto>> getArticles(@CookieValue(value = "jwtToken", required = false) String jwtToken,
                                                                  @RequestParam(defaultValue = "0", name = "page") int page,
                                                                  @RequestParam Long userId) throws BaseException {
-        if (jwtToken == null) {
-            log.info("쿠키가 존재하지 않습니다.");
-            throw new BaseException(RESPONSE_ERROR);
+        try {
+            if (jwtToken == null) {
+                log.info("쿠키가 존재하지 않습니다.");
+                throw new BaseException(EMPTY_JWT);
+            }
+            Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
+            if (jwtUserId != userId) {
+                throw new BaseException(INVALID_USER_JWT);
+            }
+            List<UserArticleListResDto> userArticleListResDtos = userService.getArticles(page, jwtUserId);
+            return new BaseResponse<>(userArticleListResDtos);
         }
-        Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
-        if (jwtUserId != userId) {
-            throw new BaseException(INVALID_USER_JWT);
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
         }
-        List<UserArticleListResDto> userArticleListResDtos = userService.getArticles(page, jwtUserId);
-        return new BaseResponse<>(userArticleListResDtos);
     }
-
-
-
 
     @GetMapping("/commented-articles")
     public BaseResponse<List<UserArticleListResDto>> getCommentedArticles(@CookieValue(value = "jwtToken", required = false) String jwtToken,
                                                                           @RequestParam(defaultValue = "0", name = "page") int page,
                                                                           @RequestParam Long userId) throws BaseException
         {
-            if (jwtToken == null) {
-                log.info("쿠키가 존재하지 않습니다.");
-                throw new BaseException(RESPONSE_ERROR);
+            try {
+                if (jwtToken == null) {
+                    log.info("쿠키가 존재하지 않습니다.");
+                    throw new BaseException(EMPTY_JWT);
+                }
+                Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
+                if (jwtUserId != userId) {
+                    throw new BaseException(INVALID_USER_JWT);
+                }
+                List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, jwtUserId);
+                return new BaseResponse<>(userArticleListResDtos);
             }
-            Long jwtUserId = (long) jwtService.getUserIdByCookie(jwtToken);
-            if (jwtUserId != userId) {
-                throw new BaseException(INVALID_USER_JWT);
+            catch (BaseException exception) {
+                return new BaseResponse<>(exception.getStatus());
             }
-            List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, jwtUserId);
-            return new BaseResponse<>(userArticleListResDtos);
         }
 
 

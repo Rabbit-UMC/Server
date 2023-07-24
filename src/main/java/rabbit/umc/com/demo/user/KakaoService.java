@@ -23,8 +23,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
-import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_AUTHENTICATION;
-import static rabbit.umc.com.config.BaseResponseStatus.REQUEST_ERROR;
+import static rabbit.umc.com.config.BaseResponseStatus.*;
 import static rabbit.umc.com.demo.Status.ACTIVE;
 import static rabbit.umc.com.demo.user.Domain.UserPermision.USER;
 
@@ -154,8 +153,6 @@ public class KakaoService {
         if (hasAgeRange) {
             String ageRange = jsonNode.get("kakao_account").get("age_range").asText();
             kakaoDto.setAgeRange(ageRange);
-            System.out.println("카카오에서 가져온 AgeRange: " + ageRange);
-
         } else {
             kakaoDto.setAgeRange(null);
         }
@@ -170,10 +167,6 @@ public class KakaoService {
         if (hasGender) {
             String gender = jsonNode.get("kakao_account").get("gender").asText();
             kakaoDto.setGender(gender);
-
-
-            System.out.println("카카오에서 가져온 Gender: " + gender);
-
         } else {
             kakaoDto.setGender(null);
         }
@@ -244,8 +237,8 @@ public class KakaoService {
             kakaoId = jsonNode.get("id").asLong();
         }
         else{
-            log.info("요청에 실패하였습니다");
-            throw new BaseException(REQUEST_ERROR);
+            log.info("서버 응답 오류");
+            throw new BaseException(SERVER_ERROR);
         }
 
         return kakaoId;
@@ -288,8 +281,8 @@ public class KakaoService {
             kakaoId = jsonNode.get("id").asLong();
         }
         else{
-            log.info("요청에 실패하였습니다");
-            throw new BaseException(REQUEST_ERROR);
+            log.info("서버 응답 오류");
+            throw new BaseException(SERVER_ERROR);
         }
 
         return kakaoId;
