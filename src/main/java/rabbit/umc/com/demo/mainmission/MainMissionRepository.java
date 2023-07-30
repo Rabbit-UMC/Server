@@ -9,6 +9,9 @@ import rabbit.umc.com.demo.article.domain.Category;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 
 import rabbit.umc.com.demo.Status;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 @Repository
 public interface MainMissionRepository extends JpaRepository<MainMission, Long> {
@@ -28,5 +31,6 @@ public interface MainMissionRepository extends JpaRepository<MainMission, Long> 
     MainMission findMainMissionByCategoryAndStatus(Category category, Status status);
 
     MainMission findMainMissionByCategoryIdAndStatus(Long categoryId, Status status);
+    List<MainMission> findMainMissionsByEndAtBeforeAndLastMissionTrue(LocalDate now);
 
 }

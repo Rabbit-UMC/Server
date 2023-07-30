@@ -1,23 +1,17 @@
 package rabbit.umc.com.demo.article;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
-import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.article.dto.*;
 import rabbit.umc.com.utils.JwtService;
 import rabbit.umc.com.utils.S3Uploader;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,8 +39,8 @@ public class ArticleController {
      * @throws BaseException
      */
     @GetMapping("/app/article")
-    public BaseResponse<List<ArticleListRes>> getArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam(name = "categoryId") Long categoryId) throws BaseException{
-        List<ArticleListRes> articleListRes = articleService.getArticles(page, categoryId);
+    public BaseResponse<ArticleListsRes> getArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam(name = "categoryId") Long categoryId) throws BaseException{
+        ArticleListsRes articleListRes = articleService.getArticles(page, categoryId);
 
         return new BaseResponse<>(articleListRes);
     }

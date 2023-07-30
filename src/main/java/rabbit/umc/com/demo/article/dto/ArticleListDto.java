@@ -6,15 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.demo.article.domain.Article;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
 @Data
 @AllArgsConstructor
-public class ArticleListRes {
+public class ArticleListDto {
 
     private Long articleId;
     private String articleTitle;
@@ -22,10 +20,11 @@ public class ArticleListRes {
     private int likeCount;
     private int commentCount;
 
-    public static ArticleListRes toArticleListRes(Article article){
+
+    public static ArticleListDto toArticleListRes(Article article){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String uploadTime = article.getCreatedAt().format(formatter);
-        return new ArticleListRes(
+        return new ArticleListDto(
                 article.getId(),
                 article.getTitle(),
                 uploadTime,
