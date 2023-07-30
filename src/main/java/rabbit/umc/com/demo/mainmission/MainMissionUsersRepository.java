@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.mainmission;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
@@ -13,5 +14,7 @@ public interface MainMissionUsersRepository extends JpaRepository<MainMissionUse
     MainMissionUsers findMainMissionUsersByUserAndAndMainMission(User user, MainMission mainMission);
 
     List<MainMissionUsers> findTop3OByMainMissionIdOrderByScoreDesc(Long mainMissionId);
+
+    List<MainMissionUsers> findTopScorersByMainMissionOrderByScoreDesc(MainMission mainMission, PageRequest of);
 
 }

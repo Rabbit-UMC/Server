@@ -5,7 +5,6 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
@@ -69,19 +68,22 @@ public class ArticleService {
         return communityHomeRes;
     }
 
-    public List<ArticleListRes> getArticles(int page, Long categoryId){
+    public ArticleListsRes getArticles(int page, Long categoryId){
 
+        ArticleListsRes articleLists = new ArticleListsRes();
+        Category category = categoryRepository.getReferenceById(categoryId);
         int pageSize = 20;
-
         PageRequest pageRequest =PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
-        List<Article> articlePage = articleRepository.findAllByCategoryIdAndStatusOrderByCreatedAtDesc(categoryId,Status.ACTIVE, pageRequest);
+        List<Article> articlePage = articleRepository.findAllByCategoryIdAndStatusOrderByCreatedAtDesc(categoryId, Status.ACTIVE, pageRequest);
 
-        List<ArticleListRes> articleListRes = articlePage.stream()
-                .map(ArticleListRes::toArticleListRes)
+        List<ArticleListDto> articleListRes = articlePage.stream()
+                .map(ArticleListDto::toArticleListRes)
                 .collect(Collectors.toList());
 
-        return articleListRes;
+        articleLists.setArticleLists(category.getUserId(), articleListRes);
+
+        return articleLists;
     }
 
     //쿼리 최적화 완료
