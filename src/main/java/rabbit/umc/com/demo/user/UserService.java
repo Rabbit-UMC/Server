@@ -11,9 +11,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.article.ArticleRepository;
 import rabbit.umc.com.demo.article.domain.Article;
-import rabbit.umc.com.demo.article.dto.ArticleListRes;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.UserArticleListResDto;
 import rabbit.umc.com.demo.user.Dto.UserCommentedArticleListResDto;
@@ -23,7 +21,6 @@ import rabbit.umc.com.demo.user.property.JwtAndKakaoProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
