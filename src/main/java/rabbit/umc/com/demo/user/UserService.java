@@ -4,7 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.Status;
@@ -16,7 +19,9 @@ import rabbit.umc.com.demo.user.Dto.UserArticleListResDto;
 import rabbit.umc.com.demo.user.Dto.UserCommentedArticleListResDto;
 import rabbit.umc.com.demo.user.Dto.UserEmailNicknameDto;
 import rabbit.umc.com.demo.user.Dto.UserGetProfileResDto;
+import rabbit.umc.com.demo.user.property.JwtAndKakaoProperties;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static rabbit.umc.com.config.BaseResponseStatus.POST_USERS_EXISTS_NICKNAME;
-import static rabbit.umc.com.config.BaseResponseStatus.POST_USERS_INVALID_EMAIL;
+import static rabbit.umc.com.config.BaseResponseStatus.*;
 
 @Service
 @Slf4j
@@ -42,12 +46,12 @@ public class UserService {
             user = optionalUser.get();
         } else {
             log.info("데이터 베이스에서 찾을 수 없는 user id입니다.");
-            throw new BaseException(BaseResponseStatus.RESPONSE_ERROR);
+            throw new BaseException(BaseResponseStatus.USERS_EMPTY_USER_ID);
         }
 
         if(user.getStatus() == Status.INACTIVE){
             log.info("탈퇴한 회원입니다.");
-            throw new BaseException(BaseResponseStatus.RESPONSE_ERROR);
+            throw new BaseException(BaseResponseStatus.INVALID_USER_ID);
         }
         return user;
     }
@@ -68,7 +72,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    private boolean isExistSameNickname(String nickname){
+    public boolean isExistSameNickname(String nickname){
         boolean isExistSameName = userRepository.existsByUserName(nickname);
         return isExistSameName;
     }
@@ -106,6 +110,11 @@ public class UserService {
         //userRepository.updateUserUserNameById(id, newNickname);
 
         User user = findUser(userId);
+        if(isExistSameNickname(user.getUserName())){
+            log.info("중복된 닉네임입니다.");
+            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+        }
+
         user.setUserProfileImage(newNickname);
         //userRepository.save(user);
     }
@@ -138,13 +147,6 @@ public class UserService {
         PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
         List<UserCommentedArticleListResDto> articlePage = userRepository.findCommentedArticlesByUserId(userId, pageRequest);
-//        List<Object[]> articlePageAndCreatedAt = userRepository.findCommentedArticlesByUserId(userId, pageRequest);
-
-//        List<Article> articlePage = new ArrayList<>();
-//        for (Object[] objArr : articlePageAndCreatedAt) {
-//            Article article = (Article) objArr[0];
-//            articlePage.add(article);
-//        }
 
         List<UserArticleListResDto> userArticleListResDtos = articlePage.stream()
                 .map(UserCommentedArticleListResDto::toArticleListRes)
@@ -152,5 +154,22 @@ public class UserService {
 
         return userArticleListResDtos;
     }
+
+//    public void addAuthorizationHeaderWithJwtToken(String jwtToken) throws BaseException{
+//        //쿠키가 없을 때
+//        if (jwtToken == null) {
+//            log.info("쿠키가 존재하지 않습니다.");
+//            throw new BaseException(RESPONSE_ERROR);
+//        }
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add(JwtAndKakaoProperties.HEADER_STRING, JwtAndKakaoProperties.TOKEN_PREFIX + jwtToken);
+//        System.out.println("jwt 토큰값: "+jwtToken);
+//
+//        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+//        System.out.println("request: "+request);
+//        System.out.println("헤더에 추가된 jwt token: "+request.getHeader("Authorization"));
+//        System.out.println("헤더에 잘 추가됨");
+//    }
 
 }
