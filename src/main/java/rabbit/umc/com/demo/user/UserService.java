@@ -169,4 +169,11 @@ public class UserService {
 //        System.out.println("헤더에 잘 추가됨");
 //    }
 
+    //access token 재발급
+    //access token, refresh token을 인자로 받음
+    //access token이 만료된 경우만 재발급 가능
+    //엑세스 토큰에 있는 user id 이용해서 해당 유저 찾기
+    //인자로 받은 refresh token과 db에 있는 refresh token이 일치한지 검사
+    //refresh token이 유효한지 검사(토큰 유효성 검사, 만료됬는지 검사)
+
 }

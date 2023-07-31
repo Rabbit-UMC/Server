@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -17,7 +19,6 @@ import org.springframework.web.client.RestTemplate;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.KakaoDto;
-import rabbit.umc.com.demo.user.property.JwtAndKakaoProperties;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -31,6 +32,15 @@ import static rabbit.umc.com.demo.user.Domain.UserPermision.USER;
 @Service
 @RequiredArgsConstructor
 public class KakaoService {
+    @Value("kakao-client-id")
+    private String kakao_client_id;
+
+    @Value("kakao-admin-key")
+    private String kakao_admin_key;
+
+    @Value("kakao-secret-key")
+    private String kakao_secret_key;
+
     private final UserRepository userRepository;
 
     //카카오 로그인
@@ -61,9 +71,10 @@ public class KakaoService {
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", "4d27e2c3e437fa46e403f80e72efe932");
-        body.add("client_secret", JwtAndKakaoProperties.Client_Secret);
-        body.add("redirect_uri", "http://localhost:8080/app/users/kakao-login");
+        body.add("client_id", kakao_client_id);
+        body.add("client_secret", kakao_secret_key);
+        //body.add("redirect_uri", "http://localhost:8080/app/users/kakao-login");
+        body.add("redirect_uri", "http://3.39.96.137/app/users/kakao-login");
         body.add("code", code);
 
         // HTTP 요청 보내기
@@ -202,13 +213,13 @@ public class KakaoService {
 
     //카카오 로그아웃
     public Long logout(Long kakaoId) throws IOException, BaseException {
-        String adminKey= JwtAndKakaoProperties.Admin;
+        //String adminKey= JwtAndKakaoProperties.Admin;
 
         String str_kakaoId = String.valueOf(kakaoId);
 
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "KakaoAK "+adminKey);
+        headers.add("Authorization", "KakaoAK "+kakao_admin_key);
 
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
@@ -246,13 +257,13 @@ public class KakaoService {
 
     //카카오 연결끊기
     public Long unlink(Long kakaoId) throws IOException, BaseException {
-        String adminKey= JwtAndKakaoProperties.Admin;
+        //String adminKey= JwtAndKakaoProperties.Admin;
 
         String str_kakaoId = String.valueOf(kakaoId);
 
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "KakaoAK "+adminKey);
+        headers.add("Authorization", "KakaoAK "+kakao_admin_key);
 
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
