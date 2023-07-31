@@ -17,7 +17,6 @@ import rabbit.umc.com.demo.user.Dto.UserArticleListResDto;
 import rabbit.umc.com.demo.user.Dto.UserCommentedArticleListResDto;
 import rabbit.umc.com.demo.user.Dto.UserEmailNicknameDto;
 import rabbit.umc.com.demo.user.Dto.UserGetProfileResDto;
-import rabbit.umc.com.demo.user.property.JwtAndKakaoProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
