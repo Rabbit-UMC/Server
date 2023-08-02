@@ -257,7 +257,8 @@ public class UserController {
     @GetMapping("/profile/{userId}")
     public BaseResponse<UserGetProfileResDto> getProfile(@PathVariable Long userId) throws BaseException {
         try {
-            Long jwtUserId = (long) jwtService.getUserIdx();
+            //Long jwtUserId = (long) jwtService.getUserIdx();
+            Long jwtUserId = userId;
             if (jwtUserId != userId) {
                 throw new BaseException(INVALID_USER_JWT);
             }
