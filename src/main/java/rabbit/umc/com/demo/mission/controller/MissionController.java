@@ -52,7 +52,7 @@ public class MissionController {
             missionService.postMission(postMissionReq,userId);
             return new BaseResponse<>("미션 생성 완료");
         } catch (BaseException e) {
-            throw new RuntimeException(e);
+            return new BaseResponse(BaseResponseStatus.EXIST_MISSION_TITLE);
         }
 
 
@@ -62,11 +62,11 @@ public class MissionController {
      * 미션 성공 리스트 페이지
      */
     @GetMapping("/success")
-    public BaseResponse<List<MissionHomeRes>> getSuccessMissions(){
+    public BaseResponse<MissionHistoryRes> getSuccessMissions(){
         try {
             Long userId = (long) jwtService.getUserIdx();
-            List<MissionHomeRes> resultList = missionService.getSuccessMissions(userId);
-            return new BaseResponse<>(resultList);
+            MissionHistoryRes result = missionService.getSuccessMissions(userId);
+            return new BaseResponse<>(result);
         } catch (BaseException e) {
             throw new RuntimeException(e);
         }
@@ -77,11 +77,11 @@ public class MissionController {
      * 미션 실패 리스트
      */
     @GetMapping("/failures")
-    public BaseResponse<List<MissionHomeRes>> getFailureMissions(){
+    public BaseResponse<MissionHistoryRes> getFailureMissions(){
         try {
             Long userId = (long) jwtService.getUserIdx();
-            List<MissionHomeRes> resultList = missionService.getFailureMissions(userId);
-            return new BaseResponse<>(resultList);
+            MissionHistoryRes result = missionService.getFailureMissions(userId);
+            return new BaseResponse<>(result);
         } catch (BaseException e) {
             return new BaseResponse(e.getMessage());
         }

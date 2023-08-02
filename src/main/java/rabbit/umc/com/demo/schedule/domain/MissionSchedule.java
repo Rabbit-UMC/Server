@@ -29,8 +29,8 @@ public class MissionSchedule extends BaseTimeEntity {
     private Mission mission;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "varchar(20) default 'ACTIVE'")
-    private Status status;
+    @Column(name = "status")
+    private Status status = Status.ACTIVE;
 
 
 }

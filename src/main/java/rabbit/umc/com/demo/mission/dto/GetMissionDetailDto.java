@@ -28,8 +28,7 @@ public class GetMissionDetailDto {
                 startAt,
                 endAt,
                 mission.getContent(),
-                mission.getMissionCategory().getTitle()
-
+                mission.getCategory().getName()
         );
     }
 }
