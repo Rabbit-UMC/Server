@@ -8,7 +8,6 @@ build/
 !**/src/test/**/build/
 src/main/java/rabbit/umc/com/config/Secret.java
 
-
 ### STS ###
 .apt_generated
 .classpath
