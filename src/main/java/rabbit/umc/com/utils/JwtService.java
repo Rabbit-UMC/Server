@@ -88,18 +88,18 @@ public class JwtService {
         return claims.getBody().get("userIdx",Integer.class);
     }
 
-//    public int getUserIdByCookie (String jwtToken)throws BaseException {
-//        Jws<Claims> claims;
-//        try{
-//            claims = Jwts.parser()
-//                    .setSigningKey(Secret.JWT_SECRET_KEY)
-//                    .parseClaimsJws(jwtToken);
-//        } catch (Exception ignored) {
-//            throw new BaseException(INVALID_JWT);
-//        }
-//
-//        // 3. userIdx 추출
-//        return claims.getBody().get("userIdx",Integer.class);
-//    }
+    public int getUserIdByCookie (String jwtToken)throws BaseException {
+        Jws<Claims> claims;
+        try{
+            claims = Jwts.parser()
+                    .setSigningKey(Secret.JWT_SECRET_KEY)
+                    .parseClaimsJws(jwtToken);
+        } catch (Exception ignored) {
+            throw new BaseException(INVALID_JWT);
+        }
+
+        // 3. userIdx 추출
+        return claims.getBody().get("userIdx",Integer.class);
+    }
 
 }

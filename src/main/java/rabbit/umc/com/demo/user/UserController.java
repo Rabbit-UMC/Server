@@ -62,9 +62,9 @@ public class UserController {
 //            Long userId = (long) jwtService.getUserIdx();
 //            System.out.println("jwt 토큰으로 가져온 user id: "+userId);
 
-//            Cookie cookie = new Cookie("jwtToken", jwtToken);
-//
-//            response.addCookie(cookie);
+            Cookie cookie = new Cookie("jwtToken", jwtToken);
+
+            response.addCookie(cookie);
 
             UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtToken);
 
@@ -83,7 +83,7 @@ public class UserController {
      * @throws IOException
      */
     @GetMapping("/kakao-logout")
-    public BaseResponse<Long> kakaoLogout(HttpServletResponse response) throws BaseException, IOException {
+    public BaseResponse<Long> kakaoLogout(HttpServletResponse response/*, @CookieValue(value = "jwtToken", required = false) String jwtToken*/) throws BaseException, IOException {
         try {//
 //            HttpHeaders headers = new HttpHeaders();
 //            headers.add(JwtAndKakaoProperties.HEADER_STRING, JwtAndKakaoProperties.TOKEN_PREFIX + jwtToken);
@@ -91,7 +91,8 @@ public class UserController {
 
             //jwt 토큰으로 로그아웃할 유저 아이디 받아오기
             int userId = jwtService.getUserIdx();
-//            int userId = jwtService.getUserIdx();
+//            int userId = jwtService.getUserIdByCookie(jwtToken);
+            System.out.println(userId);
 
             //유저 아이디로 카카오 아이디 받아오기
             User user = userService.findUser(Long.valueOf(userId));
@@ -99,9 +100,9 @@ public class UserController {
             Long logout_kakaoId = kakaoService.logout(kakaoId);
 
             //쿠키 삭제
-            Cookie cookie = new Cookie("jwtToken", null);
-            cookie.setMaxAge(0);
-            response.addCookie(cookie);
+//            Cookie cookie = new Cookie("jwtToken", null);
+//            cookie.setMaxAge(0);
+//            response.addCookie(cookie);
 
             log.info("로그아웃이 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
@@ -257,8 +258,7 @@ public class UserController {
     @GetMapping("/profile/{userId}")
     public BaseResponse<UserGetProfileResDto> getProfile(@PathVariable Long userId) throws BaseException {
         try {
-            //Long jwtUserId = (long) jwtService.getUserIdx();
-            Long jwtUserId = userId;
+            Long jwtUserId = (long) jwtService.getUserIdx();
             if (jwtUserId != userId) {
                 throw new BaseException(INVALID_USER_JWT);
             }
@@ -283,6 +283,7 @@ public class UserController {
                                                                  @RequestParam Long userId) throws BaseException {
         try {
             Long jwtUserId = (long) jwtService.getUserIdx();
+            System.out.println("user id: "+jwtUserId);
             if (jwtUserId != userId) {
                 throw new BaseException(INVALID_USER_JWT);
             }
