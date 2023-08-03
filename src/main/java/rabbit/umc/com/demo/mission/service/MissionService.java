@@ -8,11 +8,11 @@ import java.util.List;
 public interface MissionService {
     List<MissionHomeRes> getMissionHome();
 
-    void postMission(PostMissionReq postMissionReq, Long userId);
+    void postMission(PostMissionReq postMissionReq, Long userId) throws BaseException;
 
     List<MissionHomeRes> getMissionByMissionCategoryId(Long categoryId);
 
-    List<MissionHomeRes> getSuccessMissions(Long userId);
+    MissionHistoryRes getSuccessMissions(Long userId);
 
     List<GetMyMissionRes> getMyMissions(long userId);
 
@@ -28,7 +28,7 @@ public interface MissionService {
 
     GetMissionDetailDto getMissionDetail(Long missionId) throws BaseException;
 
-    List<MissionHomeRes> getFailureMissions(Long userId);
+    MissionHistoryRes getFailureMissions(Long userId);
 
     List<MissionCategoryRes> getMissionCategory();
 }

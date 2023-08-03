@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.user.config;
+package rabbit.umc.com.config;
 
 import java.util.Properties;
 
@@ -11,7 +11,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 
 @Configuration
-@PropertySource("classpath:email.properties")
+@PropertySource("classpath:application-API-KEY.properties")
 public class EmailConfig {
 
     @Value("${mail.smtp.port}")

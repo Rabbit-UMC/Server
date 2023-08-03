@@ -2,6 +2,7 @@ package rabbit.umc.com.demo.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,9 @@ import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_AUTHENTICATION;
 @Slf4j
 @Service
 public class EmailServiceImpl implements EmailService{
+
+    @Value("{AdminMail.id}")
+    private String adminMailId;
 
     @Autowired
     JavaMailSender emailSender;
@@ -46,7 +50,7 @@ public class EmailServiceImpl implements EmailService{
         msgg+= ePw+"</strong><div><br/> ";
         msgg+= "</div>";
         message.setText(msgg, "utf-8", "html");//내용
-        message.setFrom(new InternetAddress("bjm040364@gmail.com","묘집사"));//보내는 사람
+        message.setFrom(new InternetAddress(adminMailId,"묘집사"));//보내는 사람
 
         return message;
     }

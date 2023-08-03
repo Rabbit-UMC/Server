@@ -22,6 +22,9 @@ public class MissionHomeRes {
     private String startAt;
     private String endAt;
     private Long categoryId;
+    private String image;
+
+    private int successCnt;
 
     public static MissionHomeRes toMissionHomeRes(Mission mission){
 
@@ -35,7 +38,9 @@ public class MissionHomeRes {
                 mission.getMissionUsers().size(),
                 startAt,
                 endAt,
-                mission.getMissionCategory().getId()
+                mission.getCategory().getId(),
+                mission.getCategory().getImage(),
+                mission.getMissionUserSuccessList().size()
         );
     }
 

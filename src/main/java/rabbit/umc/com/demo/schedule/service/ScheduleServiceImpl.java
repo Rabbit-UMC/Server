@@ -17,13 +17,12 @@ import rabbit.umc.com.demo.user.UserRepository;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static rabbit.umc.com.demo.Status.ACTIVE;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +51,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         );
 
         LocalDateTime now =  LocalDateTime.now();
-        List<Mission> missionList = missionRepository.getMissionsByEndAtAfterAndIsOpenOrderByEndAt(now,0);
+        List<Mission> missionList = missionRepository.getMissions(now,0, ACTIVE);
 
         scheduleHomeRes.setMissionList(
                 missionList.stream().map(MissionListDto::toMissionListDto).collect(Collectors.toList())

@@ -9,7 +9,6 @@ import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.*;
-import rabbit.umc.com.demo.user.property.JwtAndKakaoProperties;
 import rabbit.umc.com.utils.JwtService;
 
 import javax.servlet.http.Cookie;
@@ -58,7 +57,7 @@ public class UserController {
             System.out.println(jwtToken);
 
 //            HttpHeaders headers = new HttpHeaders();
-//            headers.add(JwtAndKakaoProperties.HEADER_STRING, JwtAndKakaoProperties.TOKEN_PREFIX + jwtToken);
+//            headers.add("Authorization", "Bearer " + jwtToken);
 //
 //            Long userId = (long) jwtService.getUserIdx();
 //            System.out.println("jwt 토큰으로 가져온 user id: "+userId);

@@ -3,7 +3,7 @@ package rabbit.umc.com.demo.mission.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import rabbit.umc.com.demo.mission.MissionCategory;
+import rabbit.umc.com.demo.article.domain.Category;
 
 @Getter
 @Setter
@@ -12,10 +12,10 @@ public class MissionCategoryRes {
     private Long id;
     private String title;
 
-    public static MissionCategoryRes toMissionCategoryRes(MissionCategory missionCategory) {
+    public static MissionCategoryRes toMissionCategoryRes(Category category) {
         return new MissionCategoryRes(
-                missionCategory.getId(),
-                missionCategory.getTitle()
+                category.getId(),
+                category.getName()
         );
     }
 }

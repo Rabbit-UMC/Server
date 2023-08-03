@@ -24,30 +24,32 @@ public class Mission extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "missions_id")
     private Long id;
-
     private String title;
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mission_category_id")
-    private MissionCategory missionCategory;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id",nullable = false)
+    private Category category;
 
     @OneToMany(mappedBy = "mission",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MissionUsers> missionUsers;
+
+    @OneToMany(mappedBy = "mission",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<MissionUserSuccess> missionUserSuccessList;
 
     @Column
     private int isOpen;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "varchar(20) default 'ACTIVE'")
-    private Status status;
+    @Column(name = "status")
+    private Status status = Status.ACTIVE;
 
     @Column(nullable = false)
     private LocalDateTime startAt;
     @Column(nullable = false)
     private LocalDateTime endAt;
 
-    public void setMission(PostMissionReq postMissionReq){
+    public void setMission(PostMissionReq postMissionReq, Category category){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDateTime startAt = LocalDate.parse(postMissionReq.getStartAt(),formatter).atStartOfDay();
         LocalDateTime endAt = LocalDate.parse(postMissionReq.getEndAt(),formatter).atStartOfDay();
@@ -57,7 +59,7 @@ public class Mission extends BaseTimeEntity {
         this.startAt = startAt;
         this.endAt = endAt;
         this.isOpen = postMissionReq.getIsOpen();
-        this.status = Status.valueOf(postMissionReq.getStatus());
+        this.category = category;
     }
 
 
