@@ -62,9 +62,9 @@ public class UserController {
 //            Long userId = (long) jwtService.getUserIdx();
 //            System.out.println("jwt 토큰으로 가져온 user id: "+userId);
 
-            Cookie cookie = new Cookie("jwtToken", jwtToken);
-
-            response.addCookie(cookie);
+//            Cookie cookie = new Cookie("jwtToken", jwtToken);
+//
+//            response.addCookie(cookie);
 
             UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtToken);
 
@@ -83,7 +83,7 @@ public class UserController {
      * @throws IOException
      */
     @GetMapping("/kakao-logout")
-    public BaseResponse<Long> kakaoLogout(HttpServletResponse response/*, @CookieValue(value = "jwtToken", required = false) String jwtToken*/) throws BaseException, IOException {
+    public BaseResponse<Long> kakaoLogout(HttpServletResponse response) throws BaseException, IOException {
         try {//
 //            HttpHeaders headers = new HttpHeaders();
 //            headers.add(JwtAndKakaoProperties.HEADER_STRING, JwtAndKakaoProperties.TOKEN_PREFIX + jwtToken);
@@ -103,6 +103,8 @@ public class UserController {
 //            Cookie cookie = new Cookie("jwtToken", null);
 //            cookie.setMaxAge(0);
 //            response.addCookie(cookie);
+            //refresh token 남은 시간 0으로 만들기
+            //refresh token db에서 삭제
 
             log.info("로그아웃이 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
@@ -134,9 +136,11 @@ public class UserController {
             user.setStatus(Status.INACTIVE);
 
             //쿠키 삭제
-            Cookie cookie = new Cookie("jwtToken", null);
-            cookie.setMaxAge(0);
-            response.addCookie(cookie);
+//            Cookie cookie = new Cookie("jwtToken", null);
+//            cookie.setMaxAge(0);
+//            response.addCookie(cookie);
+
+            //refresh token 남은 시간 0으로 만들고 refresh token db에서 삭제
 
             log.info("회원 탈퇴가 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
