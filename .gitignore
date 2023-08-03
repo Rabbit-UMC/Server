@@ -1,13 +1,12 @@
 HELP.md
 .gradle
 application.yml
-application-API-KEY.properties
 build/
 !../gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-src/main/java/rabbit/umc/com/config/Secret.java
-
+application.yml
+application-API-KEY.properties
 
 ### STS ###
 .apt_generated

@@ -7,11 +7,10 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.Secret;
+import rabbit.umc.com.config.secret.Secret;
 
 
 import javax.servlet.http.HttpServletRequest;
