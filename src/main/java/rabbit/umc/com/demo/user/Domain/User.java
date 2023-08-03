@@ -40,6 +40,8 @@ public class User extends BaseTimeEntity {
     @JoinColumn(nullable = false)
     private Status status;
 
+    private String jwtRefreshToken;
+
     public User(Long kakaoId, String profile_image, UserPermision userPermission, String ageRange,
                 String gender, String birthday, Status status) {
         this.kakaoId = kakaoId;
