@@ -37,6 +37,7 @@ public class ScheduleController {
     @GetMapping()
     public BaseResponse<ScheduleHomeRes> getHome(){
         try {
+            jwtService.createJwt(1);
             long userId = (long) jwtService.getUserIdx();
             ScheduleHomeRes scheduleHomeRes = scheduleService.getHome(userId);
             return new BaseResponse<>(scheduleHomeRes);
