@@ -36,8 +36,8 @@ public class Schedule extends BaseTimeEntity {
     private LocalDateTime endAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "varchar(20) default 'ACTIVE'")
-    private Status status;
+    @Column(name = "status")
+    private Status status = Status.ACTIVE;
 
     public void setSchedule(PostScheduleReq postScheduleReq){
 
@@ -49,7 +49,6 @@ public class Schedule extends BaseTimeEntity {
         this.title = postScheduleReq.getTitle();
         this.endAt = endAt;
         this.startAt = startAt;
-        this.status = Status.valueOf(postScheduleReq.getStatus());
     }
 
 

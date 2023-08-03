@@ -21,6 +21,7 @@ public class GetMyMissionRes {
     private String dDay;
     private int challengerCnt;
     private Long categoryId;
+    private String image;
 
     public static GetMyMissionRes toMyMissions(Mission mission) {
         LocalDate targetDateTime = mission.getEndAt().toLocalDate();
@@ -40,7 +41,8 @@ public class GetMyMissionRes {
                 mission.getTitle(),
                 dDay,
                 mission.getMissionUsers().size(),
-                mission.getMissionCategory().getId()
+                mission.getCategory().getId(),
+                mission.getCategory().getImage()
         );
     }
 }

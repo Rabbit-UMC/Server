@@ -13,7 +13,6 @@ public class PostScheduleReq extends BaseTimeEntity {
     private String endAt;
     private String startAt;
     private String when;
-    private String status;
     private String title;
     private Long missionId;
 }
