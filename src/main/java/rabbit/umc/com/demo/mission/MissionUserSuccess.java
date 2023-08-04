@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Setter
 @Table(name = "mission_user_success")
 public class MissionUserSuccess extends BaseTimeEntity {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
