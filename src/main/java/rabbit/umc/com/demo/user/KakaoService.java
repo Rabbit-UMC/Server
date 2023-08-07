@@ -60,9 +60,10 @@ public class KakaoService {
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakao_client_id);
         body.add("client_secret", kakao_secret_key);
-        //body.add("redirect_uri", "http://localhost:8080/app/users/kakao-login");
         body.add("redirect_uri", "http://3.39.96.137/app/users/kakao-login");
         body.add("code", code);
+
+        //body.add("redirect_uri", "http://localhost:8080/app/users/kakao-login");
 
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
