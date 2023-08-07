@@ -91,7 +91,8 @@ public class UserController {
 
             //jwt 토큰으로 로그아웃할 유저 아이디 받아오기
             int userId = jwtService.getUserIdx();
-//            int userId = jwtService.getUserIdx();
+//            int userId = jwtService.getUserIdByCookie(jwtToken);
+            System.out.println(userId);
 
             //유저 아이디로 카카오 아이디 받아오기
             User user = userService.findUser(Long.valueOf(userId));
@@ -99,9 +100,11 @@ public class UserController {
             Long logout_kakaoId = kakaoService.logout(kakaoId);
 
             //쿠키 삭제
-            Cookie cookie = new Cookie("jwtToken", null);
-            cookie.setMaxAge(0);
-            response.addCookie(cookie);
+//            Cookie cookie = new Cookie("jwtToken", null);
+//            cookie.setMaxAge(0);
+//            response.addCookie(cookie);
+            //refresh token 남은 시간 0으로 만들기
+            //refresh token db에서 삭제
 
             log.info("로그아웃이 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
@@ -133,9 +136,11 @@ public class UserController {
             user.setStatus(Status.INACTIVE);
 
             //쿠키 삭제
-            Cookie cookie = new Cookie("jwtToken", null);
-            cookie.setMaxAge(0);
-            response.addCookie(cookie);
+//            Cookie cookie = new Cookie("jwtToken", null);
+//            cookie.setMaxAge(0);
+//            response.addCookie(cookie);
+
+            //refresh token 남은 시간 0으로 만들고 refresh token db에서 삭제
 
             log.info("회원 탈퇴가 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
@@ -282,6 +287,7 @@ public class UserController {
                                                                  @RequestParam Long userId) throws BaseException {
         try {
             Long jwtUserId = (long) jwtService.getUserIdx();
+            System.out.println("user id: "+jwtUserId);
             if (jwtUserId != userId) {
                 throw new BaseException(INVALID_USER_JWT);
             }

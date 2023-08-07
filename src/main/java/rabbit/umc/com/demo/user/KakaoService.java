@@ -32,33 +32,32 @@ import static rabbit.umc.com.demo.user.Domain.UserPermision.USER;
 @Service
 @RequiredArgsConstructor
 public class KakaoService {
-    @Value("kakao-client-id")
+    @Value("${kakao-client-id}")
     private String kakao_client_id;
 
-    @Value("kakao-admin-key")
+    @Value("${kakao-admin-key}")
     private String kakao_admin_key;
 
-    @Value("kakao-secret-key")
+    @Value("${kakao-secret-key}")
     private String kakao_secret_key;
 
     private final UserRepository userRepository;
 
     //카카오 로그인
-    public User kakaoLogin(String accessToken) throws JsonProcessingException {
-
-        //토큰으로 카카오 API 호출
-        KakaoDto kakaoDto = findProfile(accessToken);
-
-        //카카오ID로 회원가입 처리
-        User user = saveUser(kakaoDto);
-
-        return user;
-    }
+//    public User kakaoLogin(String accessToken) throws JsonProcessingException {
+//
+//        //토큰으로 카카오 API 호출
+//        KakaoDto kakaoDto = findProfile(accessToken);
+//
+//        //카카오ID로 회원가입 처리
+//        User user = saveUser(kakaoDto);
+//
+//        return user;
+//    }
 
     //카카오 엑세스 토큰 얻기
     public String getAccessToken(String code) throws IOException, BaseException {
         String accessToken="";
-
         if (code == null) {
             log.info("인증 코드가 존재하지 않습니다.");
             throw new BaseException(FAILED_TO_AUTHENTICATION);
@@ -73,8 +72,8 @@ public class KakaoService {
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakao_client_id);
         body.add("client_secret", kakao_secret_key);
-        //body.add("redirect_uri", "http://localhost:8080/app/users/kakao-login");
-        body.add("redirect_uri", "http://3.39.96.137/app/users/kakao-login");
+        body.add("redirect_uri", "http://localhost:8080/app/users/kakao-login");
+        //body.add("redirect_uri", "http://3.39.96.137/app/users/kakao-login");
         body.add("code", code);
 
         // HTTP 요청 보내기

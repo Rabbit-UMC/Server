@@ -106,12 +106,12 @@ public class UserService {
         //userRepository.updateUserUserNameById(id, newNickname);
 
         User user = findUser(userId);
-        if(isExistSameNickname(user.getUserName())){
+        if(isExistSameNickname(newNickname)){
             log.info("중복된 닉네임입니다.");
             throw new BaseException(POST_USERS_EXISTS_NICKNAME);
         }
 
-        user.setUserProfileImage(newNickname);
+        user.setUserName(newNickname);
         //userRepository.save(user);
     }
 
