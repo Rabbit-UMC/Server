@@ -1,24 +1,22 @@
 package rabbit.umc.com.demo.user;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponseStatus;
+import rabbit.umc.com.config.secret.Secret;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.article.domain.Article;
 import rabbit.umc.com.demo.user.Domain.User;
-import rabbit.umc.com.demo.user.Dto.UserArticleListResDto;
-import rabbit.umc.com.demo.user.Dto.UserCommentedArticleListResDto;
-import rabbit.umc.com.demo.user.Dto.UserEmailNicknameDto;
-import rabbit.umc.com.demo.user.Dto.UserGetProfileResDto;
+import rabbit.umc.com.demo.user.Dto.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -169,10 +167,28 @@ public class UserService {
 //    }
 
     //access token 재발급
-    //access token, refresh token을 인자로 받음
     //access token이 만료된 경우만 재발급 가능
-    //엑세스 토큰에 있는 user id 이용해서 해당 유저 찾기
-    //인자로 받은 refresh token과 db에 있는 refresh token이 일치한지 검사
-    //refresh token이 유효한지 검사(토큰 유효성 검사, 만료됬는지 검사)
+    public boolean isReissueAllowed (Long userId, String refreshToken) throws BaseException {
+        //ReissueTokenDto reissueTokenDto = new ReissueTokenDto();
+        //인자로 받은 refresh token과 해당 user id의db에 있는 refresh token이 일치한지 검사
+        userRepository.checkJwtRefreshTokenMatch(userId, refreshToken);
+
+        //refresh token이 유효한지 검사(토큰 유효성 검사, 만료되었는지 검사)
+        try{
+            /*Jws<Claims> claims = */
+            Jwts.parser().parseClaimsJws(refreshToken);
+        } catch (Exception ignored) {
+            //여기 들어가면 바로 로그아웃되게...
+            throw new BaseException(INVALID_JWT_REFRESH);
+        }
+        return true;
+    }
+
+    //refresh token db에 저장
+    public void saveRefreshToken(Long userId, String token) throws BaseException {
+        User user = findUser(userId);
+        user.setJwtRefreshToken(token);
+        userRepository.save(user);
+    }
 
 }

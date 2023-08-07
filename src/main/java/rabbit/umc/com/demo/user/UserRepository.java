@@ -39,6 +39,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "ORDER BY maxCreatedAt DESC")
     List<UserCommentedArticleListResDto> findCommentedArticlesByUserId(@Param("userId") Long userId, PageRequest pageRequest);
 
+    @Query("SELECT CASE WHEN u.jwtRefreshToken = :token " +
+            "THEN true ELSE false END " +
+            "FROM User u WHERE u.id = :userId")
+    boolean checkJwtRefreshTokenMatch(@Param("userId") Long userId, @Param("token") String token);
+
 //    //해당 유저가 해당 메인 미션 유저인지 확인
 //    @Query("SELECT CASE WHEN COUNT(mmu) > 0 THEN true ELSE false END " +
 //            "FROM MainMissionUsers mmu " +

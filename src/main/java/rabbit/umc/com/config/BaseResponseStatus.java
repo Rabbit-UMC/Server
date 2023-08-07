@@ -21,6 +21,8 @@ public enum BaseResponseStatus {
     REQUEST_ERROR(false, HttpStatus.BAD_REQUEST.value(), "입력값을 확인해주세요."),
     EMPTY_JWT(false, HttpStatus.UNAUTHORIZED.value(), "JWT를 입력해주세요."),
     INVALID_JWT(false, HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 JWT입니다."),
+    EXPIRED_JWT_ACCESS(false, HttpStatus.UNAUTHORIZED.value(), "ACCESS TOKEN의 유효 기간이 만료되었습니다."),
+    INVALID_JWT_REFRESH(false, HttpStatus.UNAUTHORIZED.value(), "REFRESH TOKEN의 유효하지 않습니다."),
     INVALID_USER_JWT(false,HttpStatus.FORBIDDEN.value(),"권한이 없는 유저의 접근입니다."),
     RESPONSE_ERROR(false, HttpStatus.NOT_FOUND.value(), "값을 불러오는데 실패하였습니다."),
     END_PAGE(false, HttpStatus.NOT_FOUND.value(), "마지막 페이지입니다."),
