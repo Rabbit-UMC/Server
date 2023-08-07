@@ -43,18 +43,6 @@ public class KakaoService {
 
     private final UserRepository userRepository;
 
-    //카카오 로그인
-//    public User kakaoLogin(String accessToken) throws JsonProcessingException {
-//
-//        //토큰으로 카카오 API 호출
-//        KakaoDto kakaoDto = findProfile(accessToken);
-//
-//        //카카오ID로 회원가입 처리
-//        User user = saveUser(kakaoDto);
-//
-//        return user;
-//    }
-
     //카카오 엑세스 토큰 얻기
     public String getAccessToken(String code) throws IOException, BaseException {
         String accessToken="";
