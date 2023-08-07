@@ -14,6 +14,7 @@ import rabbit.umc.com.utils.JwtService;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import static rabbit.umc.com.config.BaseResponseStatus.*;
@@ -53,11 +54,15 @@ public class UserController {
             User user = kakaoService.saveUser(kakaoDto);
 
             //jwt 토큰 생성(로그인 처리)
-            String jwtToken = jwtService.createJwt(Math.toIntExact(user.getId()));
-            System.out.println(jwtToken);
+            String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
+            String jwtRefreshToken = jwtService.createRefreshToken();
+            System.out.println(jwtAccessToken);
+            System.out.println(jwtRefreshToken);
+
+            userService.saveRefreshToken(user.getId(), jwtRefreshToken);
 
 //            HttpHeaders headers = new HttpHeaders();
-//            headers.add("Authorization", "Bearer " + jwtToken);
+//            headers.add("ACCESS_TOKEN", "Bearer " + jwtToken);
 //
 //            Long userId = (long) jwtService.getUserIdx();
 //            System.out.println("jwt 토큰으로 가져온 user id: "+userId);
@@ -66,7 +71,7 @@ public class UserController {
 //
 //            response.addCookie(cookie);
 
-            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtToken);
+            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
 
             return new BaseResponse<>(userLoginResDto);
         }
@@ -323,7 +328,28 @@ public class UserController {
             }
         }
 
+    @GetMapping("/reissue")
+    public BaseResponse<ReissueTokenDto> reissueToken(@RequestHeader("X-ACCESS-TOKEN") String accessToken, @RequestHeader("X-REFRESH-TOKEN") String refreshToken) throws BaseException{
+        try{
+            ReissueTokenDto reissueTokenDto = new ReissueTokenDto();
+            //access token 만료된거 맞는지 확인
+            if(jwtService.getExpirationDate(accessToken).before(new Date())){
+                //만료된 accessToken 이용해서 user id 알아내기
+                Long userId = jwtService.getUserIdFromToken(accessToken);
+                boolean canReissue = userService.isReissueAllowed(userId, refreshToken);
 
+                if(canReissue){
+                    String jwtToken = jwtService.createJwt(Math.toIntExact(userId));
+                    System.out.println(jwtToken);
+                }
+            }else{
+                throw new BaseException(INVALID_JWT);
+            }
+            return new BaseResponse<>(reissueTokenDto);
+        } catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 
 
 }

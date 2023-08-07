@@ -10,5 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserLoginResDto {
     private long id;
-    private String jwtToken;
+    private String jwtAccessToken;
+    private String jwtRefreshToken;
 }
