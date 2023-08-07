@@ -14,6 +14,7 @@ import rabbit.umc.com.utils.JwtService;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import static rabbit.umc.com.config.BaseResponseStatus.*;
@@ -53,11 +54,15 @@ public class UserController {
             User user = kakaoService.saveUser(kakaoDto);
 
             //jwt 토큰 생성(로그인 처리)
-            String jwtToken = jwtService.createJwt(Math.toIntExact(user.getId()));
-            System.out.println(jwtToken);
+            String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
+            String jwtRefreshToken = jwtService.createRefreshToken();
+            System.out.println(jwtAccessToken);
+            System.out.println(jwtRefreshToken);
+
+            userService.saveRefreshToken(user.getId(), jwtRefreshToken);
 
 //            HttpHeaders headers = new HttpHeaders();
-//            headers.add("Authorization", "Bearer " + jwtToken);
+//            headers.add("ACCESS_TOKEN", "Bearer " + jwtToken);
 //
 //            Long userId = (long) jwtService.getUserIdx();
 //            System.out.println("jwt 토큰으로 가져온 user id: "+userId);
@@ -66,7 +71,7 @@ public class UserController {
 //
 //            response.addCookie(cookie);
 
-            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtToken);
+            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
 
             return new BaseResponse<>(userLoginResDto);
         }
@@ -91,7 +96,8 @@ public class UserController {
 
             //jwt 토큰으로 로그아웃할 유저 아이디 받아오기
             int userId = jwtService.getUserIdx();
-//            int userId = jwtService.getUserIdx();
+//            int userId = jwtService.getUserIdByCookie(jwtToken);
+            System.out.println(userId);
 
             //유저 아이디로 카카오 아이디 받아오기
             User user = userService.findUser(Long.valueOf(userId));
@@ -99,9 +105,11 @@ public class UserController {
             Long logout_kakaoId = kakaoService.logout(kakaoId);
 
             //쿠키 삭제
-            Cookie cookie = new Cookie("jwtToken", null);
-            cookie.setMaxAge(0);
-            response.addCookie(cookie);
+//            Cookie cookie = new Cookie("jwtToken", null);
+//            cookie.setMaxAge(0);
+//            response.addCookie(cookie);
+            //refresh token 남은 시간 0으로 만들기
+            //refresh token db에서 삭제
 
             log.info("로그아웃이 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
@@ -133,9 +141,11 @@ public class UserController {
             user.setStatus(Status.INACTIVE);
 
             //쿠키 삭제
-            Cookie cookie = new Cookie("jwtToken", null);
-            cookie.setMaxAge(0);
-            response.addCookie(cookie);
+//            Cookie cookie = new Cookie("jwtToken", null);
+//            cookie.setMaxAge(0);
+//            response.addCookie(cookie);
+
+            //refresh token 남은 시간 0으로 만들고 refresh token db에서 삭제
 
             log.info("회원 탈퇴가 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
@@ -282,6 +292,7 @@ public class UserController {
                                                                  @RequestParam Long userId) throws BaseException {
         try {
             Long jwtUserId = (long) jwtService.getUserIdx();
+            System.out.println("user id: "+jwtUserId);
             if (jwtUserId != userId) {
                 throw new BaseException(INVALID_USER_JWT);
             }
@@ -317,7 +328,28 @@ public class UserController {
             }
         }
 
+    @GetMapping("/reissue")
+    public BaseResponse<ReissueTokenDto> reissueToken(@RequestHeader("X-ACCESS-TOKEN") String accessToken, @RequestHeader("X-REFRESH-TOKEN") String refreshToken) throws BaseException{
+        try{
+            ReissueTokenDto reissueTokenDto = new ReissueTokenDto();
+            //access token 만료된거 맞는지 확인
+            if(jwtService.getExpirationDate(accessToken).before(new Date())){
+                //만료된 accessToken 이용해서 user id 알아내기
+                Long userId = jwtService.getUserIdFromToken(accessToken);
+                boolean canReissue = userService.isReissueAllowed(userId, refreshToken);
 
+                if(canReissue){
+                    String jwtToken = jwtService.createJwt(Math.toIntExact(userId));
+                    System.out.println(jwtToken);
+                }
+            }else{
+                throw new BaseException(INVALID_JWT);
+            }
+            return new BaseResponse<>(reissueTokenDto);
+        } catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 
 
 }
