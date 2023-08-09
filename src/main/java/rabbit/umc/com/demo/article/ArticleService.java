@@ -81,7 +81,10 @@ public class ArticleService {
                 .map(ArticleListDto::toArticleListRes)
                 .collect(Collectors.toList());
 
-        articleLists.setArticleLists(category.getUserId(), articleListRes);
+        //해당 카테고리에 해당하는 메인 미션 ID 가져오기
+        MainMission mainMission = mainMissionRepository.findMainMissionsByCategoryIdAndStatus(categoryId, ACTIVE);
+
+        articleLists.setArticleLists(category.getImage(), mainMission.getId(), category.getUserId(), articleListRes);
 
         return articleLists;
     }
