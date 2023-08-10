@@ -16,7 +16,7 @@ public interface ScheduleService {
     ScheduleDetailRes getScheduleDetail(Long scheduleId, Long userId) throws BaseException;
     Long postSchedule(PostScheduleReq postScheduleReq,Long userId) throws BaseException;
 
-    void deleteSchedule(Long scheduleId,Long userId) throws BaseException;
+    void deleteSchedule(List<Long> scheduleIds,Long userId) throws BaseException;
 
     List<ScheduleListDto> getScheduleByWhen(String when, long userId) throws ParseException;
 

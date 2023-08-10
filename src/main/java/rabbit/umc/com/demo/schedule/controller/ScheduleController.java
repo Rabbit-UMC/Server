@@ -96,15 +96,15 @@ public class ScheduleController {
     /**
      *  일정 삭제
      */
-    @DeleteMapping("/{scheduleId}")
-    public BaseResponse deleteSchedule(@PathVariable(name = "scheduleId") Long scheduleId){
+    @DeleteMapping("/{scheduleIds}")
+    public BaseResponse deleteSchedule(@PathVariable List<Long> scheduleIds){
         try {
             Long userId = (long) jwtService.getUserIdx();
-            scheduleService.deleteSchedule(scheduleId,userId);
+            scheduleService.deleteSchedule(scheduleIds,userId);
         } catch (BaseException e) {
             return new BaseResponse(BaseResponseStatus.FAILED_TO_SCHEDULE);
         }
-        return new BaseResponse<>(scheduleId + "번 일정 삭제됨");
+        return new BaseResponse<>(scheduleIds + "번 일정 삭제됨");
     }
 
 
