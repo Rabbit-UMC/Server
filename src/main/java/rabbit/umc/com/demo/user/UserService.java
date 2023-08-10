@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.config.secret.Secret;
 import rabbit.umc.com.demo.Status;
@@ -167,20 +168,30 @@ public class UserService {
 //    }
 
     //access token 재발급
-    //access token이 만료된 경우만 재발급 가능
     public boolean isReissueAllowed (Long userId, String refreshToken) throws BaseException {
         //ReissueTokenDto reissueTokenDto = new ReissueTokenDto();
         //인자로 받은 refresh token과 해당 user id의db에 있는 refresh token이 일치한지 검사
-        userRepository.checkJwtRefreshTokenMatch(userId, refreshToken);
-
-        //refresh token이 유효한지 검사(토큰 유효성 검사, 만료되었는지 검사)
-        try{
-            /*Jws<Claims> claims = */
-            Jwts.parser().parseClaimsJws(refreshToken);
-        } catch (Exception ignored) {
-            //여기 들어가면 바로 로그아웃되게...
+        boolean tokenMatch = userRepository.checkJwtRefreshTokenMatch(userId, refreshToken);
+        if(tokenMatch){
+            try{
+                Jwts.parser()
+                        .setSigningKey(Secret.JWT_SECRET_KEY) // 서명 키 지정
+                        .parseClaimsJws(refreshToken);
+            } catch (Exception ex) {
+                log.error("An exception occurred: {}", ex.getMessage());
+                log.info("로그아웃 후, 다시 로그인해주세요.");
+                log.info("로그아웃이 진행됩니다.");
+//                User user = findUser(Long.valueOf(userId));
+//                user.setJwtRefreshToken(null);
+//                userRepository.save(user);
+                return false;
+            }
+        } else{
+            log.info("데이터베이스의 리프레시 토큰과 일치하지 않습니다.");
             throw new BaseException(INVALID_JWT_REFRESH);
         }
+        //refresh token이 유효한지 검사(토큰 유효성 검사, 만료되었는지 검사)
+
         return true;
     }
 
@@ -188,6 +199,11 @@ public class UserService {
     public void saveRefreshToken(Long userId, String token) throws BaseException {
         User user = findUser(userId);
         user.setJwtRefreshToken(token);
+        userRepository.save(user);
+    }
+
+    public void delRefreshToken(User user){
+        user.setJwtRefreshToken(null);
         userRepository.save(user);
     }
 
