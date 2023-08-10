@@ -181,17 +181,12 @@ public class UserService {
                 log.error("An exception occurred: {}", ex.getMessage());
                 log.info("로그아웃 후, 다시 로그인해주세요.");
                 log.info("로그아웃이 진행됩니다.");
-//                User user = findUser(Long.valueOf(userId));
-//                user.setJwtRefreshToken(null);
-//                userRepository.save(user);
                 return false;
             }
         } else{
             log.info("데이터베이스의 리프레시 토큰과 일치하지 않습니다.");
             throw new BaseException(INVALID_JWT_REFRESH);
         }
-        //refresh token이 유효한지 검사(토큰 유효성 검사, 만료되었는지 검사)
-
         return true;
     }
 
