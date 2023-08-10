@@ -155,7 +155,7 @@ public class MissionController {
             missionService.deleteMyMissoin(missionsIds,userId);
             return new BaseResponse<>(missionsIds + " 미션 삭제 완료");
         } catch (BaseException e) {
-            throw new RuntimeException(e);
+            return new BaseResponse<>(e.getStatus());
         }
     }
 

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.article.CategoryRepository;
 import rabbit.umc.com.demo.article.domain.Category;
@@ -148,8 +149,10 @@ public class MissionServiceImpl implements MissionService{
 
     @Override
     @Transactional
-    public void deleteMyMissoin(List<Long> missionIds, long userId) {
+    public void deleteMyMissoin(List<Long> missionIds, long userId) throws BaseException {
         List<MissionUsers> missionUsers = missionUserRepository.getMissionUsersByMissionIdAndUserId(missionIds,userId);
+        if(missionUsers.size() == 0 || missionUsers.size() != missionIds.size())
+            throw new BaseException(FAILED_TO_MISSION);
         missionUsers.forEach(id -> missionUserRepository.delete(id));
     }
 

@@ -20,7 +20,7 @@ public interface MissionService {
 
     List<GetMyMissionSchedule> getMyMissionSchedules(long userId, long missionId);
 
-    void deleteMyMissoin(List<Long> missionIds, long userId);
+    void deleteMyMissoin(List<Long> missionIds, long userId) throws BaseException;
 
     void reportMission(long missionId,long userId) throws Exception;
 
