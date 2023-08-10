@@ -141,19 +141,32 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     @Transactional
-    public void deleteSchedule(Long scheduleId,Long userId) throws BaseException {
-        Schedule findSchedule = scheduleRepository.findScheduleByIdAndUserId(scheduleId,userId);
+    public void deleteSchedule(List<Long> scheduleIds,Long userId) throws BaseException {
+        List<Schedule> findSchedules = scheduleRepository.findSchedulesByIdsAndUserId(scheduleIds,userId);
+        System.out.println("findSchedules.size() = " + findSchedules.size());
 
-        if (findSchedule==null){
+        if(findSchedules.size() == 0 || findSchedules.size() != scheduleIds.size())
             throw new BaseException(BaseResponseStatus.FAILED_TO_SCHEDULE);
+
+        for(Schedule schedule : findSchedules){
+            if (!schedule.getUser().getId().equals(userId)) {
+                throw new BaseException(BaseResponseStatus.INVALID_USER_JWT);
+            }
         }
 
-        if(!findSchedule.getUser().getId().equals(userId)){
-            throw new BaseException(BaseResponseStatus.INVALID_USER_JWT);
-        }
 
-        missionScheduleRepository.deleteByScheduleId(scheduleId);
-        scheduleRepository.deleteById(scheduleId);
+        findSchedules.forEach(
+                schedule ->
+                {
+                    missionScheduleRepository.deleteByScheduleId(schedule.getId());
+                    System.out.println("schedule.getId() = " + schedule.getId());
+                    scheduleRepository.deleteById(schedule.getId());
+                }
+        );
+
+
+
+
 
     }
 

@@ -148,9 +148,9 @@ public class MissionServiceImpl implements MissionService{
 
     @Override
     @Transactional
-    public void deleteMyMissoin(long missionId, long userId) {
-        MissionUsers missionUsers = missionUserRepository.getMissionUsersByMissionIdAndUserId(missionId,userId);
-        missionUserRepository.delete(missionUsers);
+    public void deleteMyMissoin(List<Long> missionIds, long userId) {
+        List<MissionUsers> missionUsers = missionUserRepository.getMissionUsersByMissionIdAndUserId(missionIds,userId);
+        missionUsers.forEach(id -> missionUserRepository.delete(id));
     }
 
     @Override
@@ -182,16 +182,26 @@ public class MissionServiceImpl implements MissionService{
     public void togetherMission(long missionId, long userId) throws BaseException {
         User user = userRepository.getReferenceById(userId);
 
-        Mission mission = missionRepository.getReferenceById(missionId);
-        MissionUsers missionUsers = new MissionUsers();
+        if (user == null) {
+            throw new BaseException(USERS_EMPTY_USER_ID);
+        }
 
-        if(missionUserRepository.getMissionUsersByMissionIdAndUserId(missionId,userId) == null){
-            missionUsers.setUser(user);
-            missionUsers.setMission(mission);
-            missionUserRepository.save(missionUsers);
-        }else{
+        Mission mission = missionRepository.getMissionById(missionId);
+        System.out.println("mission == null = " + mission == null);
+
+        if (mission == null) {
+            throw new BaseException(DONT_EXIST_MISSION);
+        }
+
+        if (missionUserRepository.getMissionUsersByMissionIdAndUserId(missionId, userId) != null) {
             throw new BaseException(FAILED_TO_TOGETHER_MISSION);
         }
+
+
+        MissionUsers missionUsers = new MissionUsers();
+        missionUsers.setUser(user);
+        missionUsers.setMission(mission);
+        missionUserRepository.save(missionUsers);
     }
 
     @Override

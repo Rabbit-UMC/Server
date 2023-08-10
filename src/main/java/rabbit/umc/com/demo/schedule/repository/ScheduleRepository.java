@@ -1,21 +1,13 @@
 package rabbit.umc.com.demo.schedule.repository;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 import rabbit.umc.com.demo.schedule.domain.Schedule;
-import rabbit.umc.com.demo.schedule.dto.PatchScheduleReq;
-import rabbit.umc.com.demo.schedule.dto.ScheduleDetailRes;
-import rabbit.umc.com.demo.schedule.dto.ScheduleListDto;
 
-import java.awt.print.Pageable;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -30,7 +22,9 @@ public interface ScheduleRepository extends JpaRepository<Schedule,Long> {
 
     Schedule findScheduleById(Long id);
 
-    Schedule findScheduleByIdAndUserId(Long id,Long userId);
+//    Schedule findScheduleByIdAndUserId(Long id,Long userId);
+    @Query("select s from Schedule s where s.id in :scheduleIds and s.user.id = :userId")
+    List<Schedule> findSchedulesByIdsAndUserId(@Param(value = "scheduleIds") List<Long> scheduleIds, @Param(value = "userId") long userId);
 
     Schedule getScheduleByIdAndUserId(Long id, Long userId);
 
