@@ -96,11 +96,10 @@ public class UserController {
 
             //jwt 토큰으로 로그아웃할 유저 아이디 받아오기
             int userId = jwtService.getUserIdx();
-//            int userId = jwtService.getUserIdByCookie(jwtToken);
             System.out.println(userId);
 
-            //유저 아이디로 카카오 아이디 받아오기
             User user = userService.findUser(Long.valueOf(userId));
+            userService.delRefreshToken(user);
             Long kakaoId = user.getKakaoId();
             Long logout_kakaoId = kakaoService.logout(kakaoId);
 
@@ -108,8 +107,6 @@ public class UserController {
 //            Cookie cookie = new Cookie("jwtToken", null);
 //            cookie.setMaxAge(0);
 //            response.addCookie(cookie);
-            //refresh token 남은 시간 0으로 만들기
-            //refresh token db에서 삭제
 
             log.info("로그아웃이 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
@@ -134,19 +131,15 @@ public class UserController {
 
             //유저 아이디로 카카오 아이디 받아오기
             User user = userService.findUser(Long.valueOf(userId));
+            userService.delRefreshToken(user);
             Long kakaoId = user.getKakaoId();
             Long logout_kakaoId = kakaoService.unlink(kakaoId);
-
-            //status inactive로 바꾸기
             user.setStatus(Status.INACTIVE);
 
             //쿠키 삭제
 //            Cookie cookie = new Cookie("jwtToken", null);
 //            cookie.setMaxAge(0);
 //            response.addCookie(cookie);
-
-            //refresh token 남은 시간 0으로 만들고 refresh token db에서 삭제
-
             log.info("회원 탈퇴가 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
         }
@@ -328,10 +321,17 @@ public class UserController {
             }
         }
 
+    /**
+     * access token 재발급
+     * @param accessToken
+     * @param refreshToken
+     * @return
+     * @throws BaseException
+     */
     @GetMapping("/reissue")
     public BaseResponse<ReissueTokenDto> reissueToken(@RequestHeader("X-ACCESS-TOKEN") String accessToken, @RequestHeader("X-REFRESH-TOKEN") String refreshToken) throws BaseException{
         try{
-            ReissueTokenDto reissueTokenDto = new ReissueTokenDto();
+            ReissueTokenDto reissueTokenDto = null;
             //access token 만료된거 맞는지 확인
             if(jwtService.getExpirationDate(accessToken).before(new Date())){
                 //만료된 accessToken 이용해서 user id 알아내기
@@ -340,14 +340,25 @@ public class UserController {
 
                 if(canReissue){
                     String jwtToken = jwtService.createJwt(Math.toIntExact(userId));
+                    reissueTokenDto = new ReissueTokenDto(userId, jwtToken, refreshToken);
                     System.out.println(jwtToken);
+                } else{
+                    //로그아웃
+                    User user = userService.findUser(Long.valueOf(userId));
+                    userService.delRefreshToken(user);
+                    Long kakaoId = user.getKakaoId();
+                    Long logout_kakaoId = kakaoService.logout(kakaoId);
+                    log.info("로그아웃되었습니다. kakao id: "+logout_kakaoId);
                 }
             }else{
-                throw new BaseException(INVALID_JWT);
+                log.info("access token의 유효기간이 남아있어 재발급이 불가합니다.");
+                throw new BaseException(UNEXPIRED_JWT_ACCESS);
             }
             return new BaseResponse<>(reissueTokenDto);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
