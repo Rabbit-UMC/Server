@@ -9,6 +9,7 @@ import rabbit.umc.com.demo.mission.dto.*;
 import rabbit.umc.com.demo.mission.service.MissionService;
 import rabbit.umc.com.utils.JwtService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -95,6 +96,7 @@ public class MissionController {
         try {
             long userId = (long) jwtService.getUserIdx();
             List<GetMyMissionRes> resultList = missionService.getMyMissions(userId);
+
             return new BaseResponse<>(resultList);
         } catch (BaseException e) {
             throw new RuntimeException(e);
@@ -146,14 +148,14 @@ public class MissionController {
     /**
      *  도전중인 미션 삭제
      */
-    @DeleteMapping("/my-missions/{missionId}")
-    public BaseResponse deleteMyMission(@PathVariable(name = "missionId") long missionId){
+    @DeleteMapping("/my-missions/{missionsIds}")
+    public BaseResponse deleteMyMission(@PathVariable List<Long> missionsIds){
         try {
             long userId = (long) jwtService.getUserIdx();
-            missionService.deleteMyMissoin(missionId,userId);
-            return new BaseResponse<>("미션 삭제 완료");
+            missionService.deleteMyMissoin(missionsIds,userId);
+            return new BaseResponse<>(missionsIds + " 미션 삭제 완료");
         } catch (BaseException e) {
-            throw new RuntimeException(e);
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
@@ -176,13 +178,12 @@ public class MissionController {
      */
     @PostMapping("/{missionId}")
     public BaseResponse togetherMission(@PathVariable(name = "missionId") long missionId){
-        System.out.println("jwt token : " + jwtService.createJwt(2));
         try {
             long userId = (long) jwtService.getUserIdx();
             missionService.togetherMission(missionId,userId);
-            return new BaseResponse<>(missionId + "번 미션 같이하기 성공");
+            return new BaseResponse<>(missionId + " 미션 같이하기 성공");
         } catch (BaseException e) {
-            return new BaseResponse<>(BaseResponseStatus.FAILED_TO_TOGETHER_MISSION);
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
