@@ -1,8 +1,5 @@
 package rabbit.umc.com.demo.user;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +7,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.config.secret.Secret;
 import rabbit.umc.com.demo.Status;
@@ -53,7 +49,7 @@ public class UserService {
 
     //유저 email, nickname 저장
 
-    public void getEmailandNickname(Long userId,UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
+    public void getEmailandNickname(Long userId, UserEmailNicknameReqDto userEmailNicknameReqDto) throws BaseException {
         User user = findUser(userId);
 
         if(isExistSameNickname(userEmailNicknameReqDto.getUserName())){
@@ -73,7 +69,7 @@ public class UserService {
     }
 
     //이메일 형식 검증
-    public void isEmailVerified(UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
+    public void isEmailVerified(UserEmailNicknameReqDto userEmailNicknameReqDto) throws BaseException {
         String email = userEmailNicknameReqDto.getUserEmail();
 
         // 이메일 형식을 검증하기 위한 정규 표현식

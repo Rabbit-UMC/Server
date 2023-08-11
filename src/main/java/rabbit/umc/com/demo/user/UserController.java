@@ -2,7 +2,6 @@ package rabbit.umc.com.demo.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
@@ -11,7 +10,6 @@ import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.*;
 import rabbit.umc.com.utils.JwtService;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
@@ -33,19 +31,17 @@ public class UserController {
 
     /**
      * 카카오 로그인 api
-     * @param code
+     * @param accessToken
      * @param response
      * @return
      * @throws IOException
      * @throws BaseException
      */
     @GetMapping("/kakao-login")
-    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
+    public BaseResponse<UserLoginResDto> kakaoLogin(/*@RequestParam String code*/@RequestHeader("Authorization") String accessToken, HttpServletResponse response) throws IOException, BaseException {
         try {
             //엑세스 토큰 받기
-            String accessToken = kakaoService.getAccessToken(code);
-
-            //User user = kakaoService.kakaoLogin(accessToken);
+            //String accessToken = kakaoService.getAccessToken(code);
 
             //토큰으로 카카오 API 호출
             KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
@@ -95,7 +91,8 @@ public class UserController {
             //userService.addAuthorizationHeaderWithJwtToken(jwtToken);
 
             //jwt 토큰으로 로그아웃할 유저 아이디 받아오기
-            int userId = jwtService.getUserIdx();
+            //int userId = jwtService.getUserIdx();
+            int userId = 2;
             System.out.println(userId);
 
             User user = userService.findUser(Long.valueOf(userId));
@@ -155,14 +152,14 @@ public class UserController {
      * @throws BaseException
      */
     @PostMapping("/sign-up")
-    public BaseResponse<UserEmailNicknameDto> getEmailandNickname(/*@CookieValue(value = "jwtToken", required = false) String jwtToken,*/
-                                                                  @RequestBody UserEmailNicknameDto userEmailNicknameReqDto) throws BaseException {
+    public BaseResponse<UserEmailNicknameResDto> getEmailandNickname(/*@CookieValue(value = "jwtToken", required = false) String jwtToken,*/
+                                                                  @RequestBody UserEmailNicknameReqDto userEmailNicknameReqDto) throws BaseException {
         try{
         Long userId = (long) jwtService.getUserIdx();
         userService.isEmailVerified(userEmailNicknameReqDto);
-
         userService.getEmailandNickname(userId, userEmailNicknameReqDto);
-        return new BaseResponse<>(userEmailNicknameReqDto);
+        UserEmailNicknameResDto userEmailNicknameResDto = new UserEmailNicknameResDto(userId, userEmailNicknameReqDto.getUserEmail(), userEmailNicknameReqDto.getUserName());
+        return new BaseResponse<>(userEmailNicknameResDto);
         }
         catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
