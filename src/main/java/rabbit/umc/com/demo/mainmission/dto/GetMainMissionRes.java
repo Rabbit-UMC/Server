@@ -26,12 +26,10 @@ public class GetMainMissionRes {
         LocalDate endDateTime = mainMission.getEndAt();
         long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, endDateTime);
         String dDay;
-        if (daysRemaining > 0) {
-            dDay = "D-" + daysRemaining;
-        } else if (daysRemaining == 0) {
-            dDay = "D-day";
-        } else {
-            dDay = "D+" + Math.abs(daysRemaining);
+        if (daysRemaining >= 0) {
+            dDay =  daysRemaining + "일";
+        }  else {
+            dDay = "미션 종료";
         }
 
         this.mainMissionId = mainMission.getId();
