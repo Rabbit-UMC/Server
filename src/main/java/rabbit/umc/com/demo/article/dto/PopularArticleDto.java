@@ -29,7 +29,7 @@ public class PopularArticleDto {
 //        this.commentCount = Math.toIntExact(commentCount);
 //    }
     public static PopularArticleDto toPopularArticleDto(Article article){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
         String time = article.getCreatedAt().format(formatter);
         return new PopularArticleDto(
                 article.getId(),
