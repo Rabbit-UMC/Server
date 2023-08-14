@@ -31,7 +31,7 @@ public class ArticleRes {
         /**
          * 시간 포맷 (yyyy-MM-dd HH:mm)
          */
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
         String uploadTime = article.getCreatedAt().format(formatter);
         return new ArticleRes(
                 article.getCategory().getName(),

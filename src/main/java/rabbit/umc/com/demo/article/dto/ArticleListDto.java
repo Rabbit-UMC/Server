@@ -22,7 +22,7 @@ public class ArticleListDto {
 
 
     public static ArticleListDto toArticleListRes(Article article){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
         String uploadTime = article.getCreatedAt().format(formatter);
         return new ArticleListDto(
                 article.getId(),
