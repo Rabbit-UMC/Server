@@ -44,7 +44,6 @@ public class ArticleService {
     private final CategoryRepository categoryRepository;
     private final ReportRepository reportRepository;
 
-    // 쿼리 최적화 완료!!!!!!!!!!
     public CommunityHomeRes getHome() {
         CommunityHomeRes communityHomeRes = new CommunityHomeRes();
         //상위 4개만 페이징
@@ -239,7 +238,8 @@ public class ArticleService {
         try {
             User user = userRepository.getReferenceById(userId);
             Article article = articleRepository.getReferenceById(articleId);
-            if (article.getTitle() == null) {
+
+            if (article.getId() == null) {
                 throw new EntityNotFoundException("Unable to find article with id:" + articleId);
             }
             LikeArticle existlikeArticle = likeArticleRepository.findLikeArticleByArticleIdAndUserId(articleId, userId);

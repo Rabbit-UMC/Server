@@ -2,6 +2,8 @@ package rabbit.umc.com.demo.article;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,9 +61,14 @@ public class ArticleController {
     @ApiOperation(value = "게시물 조회 하는 메소드")
     @GetMapping("/article/{articleId}")
     public BaseResponse<ArticleRes> getArticle(@PathVariable(name = "articleId") Long articleId) throws BaseException{
-        Long userId = (long) jwtService.getUserIdx();
-        ArticleRes articleRes = articleService.getArticle(articleId, userId);
-        return new BaseResponse<>(articleRes);
+        try {
+            Long userId = (long) jwtService.getUserIdx();
+            ArticleRes articleRes = articleService.getArticle(articleId, userId);
+            return new BaseResponse<>(articleRes);
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+
     }
 
     /**
@@ -162,10 +169,14 @@ public class ArticleController {
      * @throws BaseException
      */
     @ApiOperation(value = "게시물 좋아요 하는 메소드")
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "이미 좋아요 한 게시물 입니다."),
+            @ApiResponse(code = 404, message = "존재하지 않은 게시물 입니다.")
+    })
     @PostMapping("/article/{articleId}/like")
     public BaseResponse likeArticle(@PathVariable("articleId") Long articleId) throws BaseException{
         try{
-            System.out.println(jwtService.createJwt(1));
+
             Long userId = (long) jwtService.getUserIdx();
             articleService.likeArticle(userId, articleId);
             return new BaseResponse<>("좋아요 완료되었습니다.");
@@ -181,10 +192,14 @@ public class ArticleController {
      * @throws BaseException
      */
     @ApiOperation(value = "게시물 좋아요 취소 하는 메소드")
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "좋아요하지 않은 게시물 입니다."),
+            @ApiResponse(code = 404, message = "존재하지 않은 게시물 입니다.")
+    })
     @DeleteMapping("/article/{articleId}/unlike")
     public BaseResponse unLikeArticle(@PathVariable("articleId")Long articleId) throws BaseException{
         try {
-            System.out.println(jwtService.createJwt(1));
+
             Long userId = (long) jwtService.getUserIdx();
             articleService.unLikeArticle(userId, articleId);
             return new BaseResponse<>(articleId + "번 게시물 좋아요 취소되었습니다");
