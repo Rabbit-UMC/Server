@@ -24,10 +24,11 @@ public class ArticleRes {
     private String uploadTime;
     private String articleTitle;
     private String articleContent;
+    private Boolean likeArticle;
     private List<ArticleImageDto> articleImage;
     private List<CommentListDto> commentList;
 
-    public static ArticleRes toArticleRes(Article article, List<ArticleImageDto> articleImage, List<CommentListDto> commentList){
+    public static ArticleRes toArticleRes(Article article, List<ArticleImageDto> articleImage, List<CommentListDto> commentList, Boolean isLike){
         /**
          * 시간 포맷 (yyyy-MM-dd HH:mm)
          */
@@ -42,6 +43,7 @@ public class ArticleRes {
                 uploadTime,
                 article.getTitle(),
                 article.getContent(),
+                isLike,
                 articleImage,
                 commentList
         );

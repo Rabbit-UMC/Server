@@ -1,18 +1,19 @@
 package rabbit.umc.com.demo.article;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.utils.JwtService;
 
+@Api(tags = {"카테고리 관련 Controller"})
 @RestController
+@RequestMapping("/app")
 @RequiredArgsConstructor
 public class CategoryController {
 
@@ -26,7 +27,8 @@ public class CategoryController {
      * @return
      * @throws BaseException
      */
-    @PatchMapping("/app/host/main-image/{categoryId}")
+    @ApiOperation(value = "카테고리 이미지 변경 하는 메소드 [메인 미션 사진동일]")
+    @PatchMapping("/host/main-image/{categoryId}")
     public BaseResponse editCategoryImage(@PathVariable("categoryId") Long categoryId,
                                           @RequestBody PatchCategoryImageReq patchCategoryImageReq) throws BaseException {
         try {

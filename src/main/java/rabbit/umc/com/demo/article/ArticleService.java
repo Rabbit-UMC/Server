@@ -90,7 +90,9 @@ public class ArticleService {
     }
 
     //쿼리 최적화 완료
-    public ArticleRes getArticle(Long articleId){
+    public ArticleRes getArticle(Long articleId, Long userId){
+
+        Boolean isLike = likeArticleRepository.existsByArticleIdAndUserId(articleId, userId);
 
         Article article = articleRepository.findArticleById(articleId);
 
@@ -104,7 +106,7 @@ public class ArticleService {
                 .map(CommentListDto::toCommentListDto)
                 .collect(Collectors.toList());
 
-        return ArticleRes.toArticleRes(article,articleImages,commentLists);
+        return ArticleRes.toArticleRes(article,articleImages,commentLists, isLike);
 
     }
 
