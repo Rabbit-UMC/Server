@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.article.domain;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,12 +37,16 @@ public class Article extends BaseTimeEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @ApiModelProperty(value="게시물 작성자", example = "idx", required = true)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ApiModelProperty(value="게시물 제목", example = "안녕하세요~", required = true)
     @Column(nullable = false)
     private String title;
+
+    @ApiModelProperty(value="게시물 내용", example = "안녕하세요 잘부탁드립니다!", required = true)
     @Column(nullable = false)
     private String content;
 

@@ -1,5 +1,7 @@
 package rabbit.umc.com.demo.article;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
@@ -7,8 +9,10 @@ import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.demo.article.dto.PostCommentReq;
 import rabbit.umc.com.utils.JwtService;
 
+@Api(tags = {"댓글 관련 Controller"})
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/app/comments")
 public class CommentController {
 
     private final CommentService commentService;
@@ -21,7 +25,8 @@ public class CommentController {
      * @return
      * @throws BaseException
      */
-    @PostMapping("/app/comments/{articleId}")
+    @ApiOperation(value = "댓글 작성 하는 메소드")
+    @PostMapping("/{articleId}")
     public BaseResponse postComment(@RequestBody PostCommentReq postCommentReq, @PathVariable("articleId") Long articleId) throws BaseException{
         try {
             System.out.println(jwtService.createJwt(1));
@@ -39,7 +44,8 @@ public class CommentController {
      * @return
      * @throws BaseException
      */
-    @DeleteMapping("/app/comments/{commentsId}")
+    @ApiOperation(value = "댓글 삭제 하는 메소드")
+    @DeleteMapping("/{commentsId}")
     public BaseResponse deleteComment(@PathVariable("commentsId") Long commentsId)throws BaseException{
         try {
             System.out.println(jwtService.createJwt(1));
@@ -52,8 +58,13 @@ public class CommentController {
         }
     }
 
-    // 댓글 잠금
-    @PatchMapping("app/comments/{commentsId}/lock")
+    /**
+     * 댓글 잠금 API
+     * @param commentsId
+     * @return
+     */
+    @ApiOperation(value = "댓글 잠금 기능 메소드")
+    @PatchMapping("/{commentsId}/lock")
     public BaseResponse lockComment(@PathVariable("commentsId") Long commentsId) {
         try {
             System.out.println(jwtService.createJwt(1));
