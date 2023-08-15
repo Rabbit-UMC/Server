@@ -1,5 +1,7 @@
 package rabbit.umc.com.demo.mainmission;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
@@ -8,8 +10,10 @@ import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
 import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
 import rabbit.umc.com.utils.JwtService;
 
+@Api(tags = {"메인 미션 관련 Controller"})
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/app")
 public class MainMissionController {
     private final MainMissionService mainMissionService;
     private final JwtService jwtService;
@@ -20,7 +24,8 @@ public class MainMissionController {
      * @return
      * @throws BaseException
      */
-    @GetMapping("/app/main-mission/{mainMissionId}")
+    @ApiOperation(value = "메인 미션 조회 하는 메소드")
+    @GetMapping("/main-mission/{mainMissionId}")
     public BaseResponse<GetMainMissionRes> getMainMission(@PathVariable("mainMissionId") Long mainMissionId, @RequestParam("day") int day) throws BaseException{
         try {
             GetMainMissionRes getMainMissionRes = mainMissionService.getMainMission(mainMissionId, day);
@@ -37,7 +42,8 @@ public class MainMissionController {
      * @return
      * @throws BaseException
      */
-    @PostMapping("/app/main-mission/proof/{mainMissionProofId}/like")
+    @ApiOperation(value = "메인 미션 인증 사진 좋아요 하는 메소드")
+    @PostMapping("/main-mission/proof/{mainMissionProofId}/like")
     public BaseResponse likeMissionProof(@PathVariable("mainMissionProofId")Long mainMissionProofId) throws BaseException{
         try {
             System.out.println(jwtService.createJwt(1));
@@ -55,7 +61,8 @@ public class MainMissionController {
      * @return
      * @throws BaseException
      */
-    @DeleteMapping("/app/main-mission/proof/{mainMissionProofId}/unlike")
+    @ApiOperation(value = "메인 미션 인증 사진 좋아요 취소 하는 메소드")
+    @DeleteMapping("/main-mission/proof/{mainMissionProofId}/unlike")
     public BaseResponse unLikeMissionProof(@PathVariable("mainMissionProofId")Long mainMissionProofId) throws BaseException{
         try {
             System.out.println(jwtService.createJwt(1));
@@ -74,7 +81,8 @@ public class MainMissionController {
      * @return
      * @throws BaseException
      */
-    @PostMapping("/app/main-mission/proof/{mainMissionProofId}/report")
+    @ApiOperation(value = "메인 미션 인증 사진 신고 하는 메소드")
+    @PostMapping("/main-mission/proof/{mainMissionProofId}/report")
     public BaseResponse reportMissionProof(@PathVariable("mainMissionProofId") Long mainMissionProofId) throws BaseException{
         try {
             System.out.println(jwtService.createJwt(1));
@@ -94,7 +102,8 @@ public class MainMissionController {
      * @return
      * @throws BaseException
      */
-    @PostMapping("/app/host/main-mission/{categoryId}")
+    @ApiOperation(value = "메인 미션 생성 하는 메소드")
+    @PostMapping("/host/main-mission/{categoryId}")
     public BaseResponse createMainMission(@PathVariable("categoryId") Long categoryId, @RequestBody PostMainMissionReq postMainMissionReq) throws BaseException {
         try {
             Long userId = (long) jwtService.getUserIdx();
@@ -112,7 +121,8 @@ public class MainMissionController {
      * @return
      * @throws BaseException
      */
-    @PostMapping("/app/main-mission/upload/{categoryId}")
+    @ApiOperation(value = "메인 미션 인증 사진 업로드 하는 메소드")
+    @PostMapping("/main-mission/upload/{categoryId}")
     public BaseResponse uploadProofImage(@PathVariable("categoryId") Long categoryId, @RequestParam("filePath")String filePath)throws BaseException{
         try{
             Long userId = (long) jwtService.getUserIdx();
@@ -121,10 +131,5 @@ public class MainMissionController {
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
-
-
     }
-
-
-
 }
