@@ -2,6 +2,7 @@ package rabbit.umc.com.demo.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
@@ -38,15 +39,13 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/kakao-login")
-    public BaseResponse<UserLoginResDto> kakaoLogin(/*@RequestParam String code*/@RequestHeader("Authorization") String accessToken, HttpServletResponse response) throws IOException, BaseException {
+    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken, HttpServletResponse response) throws IOException, BaseException {
         try {
-            //엑세스 토큰 받기
-            //String accessToken = kakaoService.getAccessToken(code);
+            if (accessToken == null) {
+                throw new BaseException(EMPTY_KAKAO_ACCESS);
+            }
 
-            //토큰으로 카카오 API 호출
             KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
-
-            //카카오ID로 회원가입 처리
             User user = kakaoService.saveUser(kakaoDto);
 
             //jwt 토큰 생성(로그인 처리)
@@ -54,19 +53,7 @@ public class UserController {
             String jwtRefreshToken = jwtService.createRefreshToken();
             System.out.println(jwtAccessToken);
             System.out.println(jwtRefreshToken);
-
             userService.saveRefreshToken(user.getId(), jwtRefreshToken);
-
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.add("ACCESS_TOKEN", "Bearer " + jwtToken);
-//
-//            Long userId = (long) jwtService.getUserIdx();
-//            System.out.println("jwt 토큰으로 가져온 user id: "+userId);
-
-//            Cookie cookie = new Cookie("jwtToken", jwtToken);
-//
-//            response.addCookie(cookie);
-
             UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
 
             return new BaseResponse<>(userLoginResDto);
@@ -85,25 +72,14 @@ public class UserController {
      */
     @GetMapping("/kakao-logout")
     public BaseResponse<Long> kakaoLogout(HttpServletResponse response) throws BaseException, IOException {
-        try {//
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.add(JwtAndKakaoProperties.HEADER_STRING, JwtAndKakaoProperties.TOKEN_PREFIX + jwtToken);
-            //userService.addAuthorizationHeaderWithJwtToken(jwtToken);
-
-            //jwt 토큰으로 로그아웃할 유저 아이디 받아오기
-            //int userId = jwtService.getUserIdx();
-            int userId = 2;
+        try {
+            int userId = jwtService.getUserIdx();
             System.out.println(userId);
 
             User user = userService.findUser(Long.valueOf(userId));
             userService.delRefreshToken(user);
             Long kakaoId = user.getKakaoId();
             Long logout_kakaoId = kakaoService.logout(kakaoId);
-
-            //쿠키 삭제
-//            Cookie cookie = new Cookie("jwtToken", null);
-//            cookie.setMaxAge(0);
-//            response.addCookie(cookie);
 
             log.info("로그아웃이 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
@@ -133,10 +109,6 @@ public class UserController {
             Long logout_kakaoId = kakaoService.unlink(kakaoId);
             user.setStatus(Status.INACTIVE);
 
-            //쿠키 삭제
-//            Cookie cookie = new Cookie("jwtToken", null);
-//            cookie.setMaxAge(0);
-//            response.addCookie(cookie);
             log.info("회원 탈퇴가 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
         }
@@ -152,8 +124,7 @@ public class UserController {
      * @throws BaseException
      */
     @PostMapping("/sign-up")
-    public BaseResponse<UserEmailNicknameResDto> getEmailandNickname(/*@CookieValue(value = "jwtToken", required = false) String jwtToken,*/
-                                                                  @RequestBody UserEmailNicknameReqDto userEmailNicknameReqDto) throws BaseException {
+    public BaseResponse<UserEmailNicknameResDto> getEmailandNickname(@RequestBody UserEmailNicknameReqDto userEmailNicknameReqDto) throws BaseException {
         try{
         Long userId = (long) jwtService.getUserIdx();
         userService.isEmailVerified(userEmailNicknameReqDto);
@@ -194,8 +165,7 @@ public class UserController {
      * @throws BaseException
      */
     @PostMapping("/email-check")
-    public BaseResponse<String> emailCheck(/*@CookieValue(value = "jwtToken", required = false) String jwtToken,*/
-                                           @RequestBody EmailAuthenticationDto emailAuthenticationDto) throws BaseException{
+    public BaseResponse<String> emailCheck(@RequestBody EmailAuthenticationDto emailAuthenticationDto) throws BaseException{
         try {
             Long userId = (long) jwtService.getUserIdx();
             if (userId != emailAuthenticationDto.getUserId()) {
@@ -216,8 +186,7 @@ public class UserController {
      * @throws BaseException
      */
     @PatchMapping("/profileImage")
-    public BaseResponse<Long> updateProfileImage(/*@CookieValue(value = "jwtToken", required = false) String jwtToken,*/
-                                                 @RequestParam String userProfileImage) throws BaseException {
+    public BaseResponse<Long> updateProfileImage(@RequestParam String userProfileImage) throws BaseException {
         try {
             Long userId = (long) jwtService.getUserIdx();
             userService.updateProfileImage(userId, userProfileImage);
@@ -236,8 +205,7 @@ public class UserController {
      * @throws BaseException
      */
     @PatchMapping("/nickname")
-    public BaseResponse<Long> updateNickname(/*@CookieValue(value = "jwtToken", required = false) String jwtToken,*/
-                                             @RequestParam String userName) throws BaseException{
+    public BaseResponse<Long> updateNickname(@RequestParam String userName) throws BaseException{
         try {
             Long userId = (long) jwtService.getUserIdx();
             userService.updateNickname(userId, userName);
@@ -277,8 +245,7 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/articleList")
-    public BaseResponse<List<UserArticleListResDto>> getArticles(/*@CookieValue(value = "jwtToken", required = false) String jwtToken,*/
-                                                                 @RequestParam(defaultValue = "0", name = "page") int page,
+    public BaseResponse<List<UserArticleListResDto>> getArticles(@RequestParam(defaultValue = "0", name = "page") int page,
                                                                  @RequestParam Long userId) throws BaseException {
         try {
             Long jwtUserId = (long) jwtService.getUserIdx();
