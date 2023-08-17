@@ -5,6 +5,7 @@ import rabbit.umc.com.demo.mainmission.domain.MainMission;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import java.util.List;
 public class GetMainMissionRes {
     private Long mainMissionId;
     private String mainMissionName;
+    private String startDay;
     private String dDay;
     private String mainMissionContent;
     private List<RankDto> rank;
@@ -32,6 +34,10 @@ public class GetMainMissionRes {
             dDay = "미션 종료";
         }
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String missionStartDay = mainMission.getStartAt().format(formatter);
+
+        this.startDay = missionStartDay;
         this.mainMissionId = mainMission.getId();
         this.mainMissionName = mainMission.getTitle();
         this.dDay = dDay;
