@@ -1,28 +1,17 @@
 package rabbit.umc.com.demo.schedule.controller;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.config.BaseResponseStatus;
-import rabbit.umc.com.demo.schedule.domain.MissionSchedule;
-import rabbit.umc.com.demo.schedule.domain.Schedule;
 import rabbit.umc.com.demo.schedule.dto.*;
 import rabbit.umc.com.demo.schedule.service.ScheduleService;
 import rabbit.umc.com.utils.JwtService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Negative;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_POST_SCHEDULE_DATE;
 import static rabbit.umc.com.utils.ValidationRegex.checkStartedAtAndEndedAt;
@@ -76,20 +65,34 @@ public class ScheduleController {
      */
     @GetMapping("/when/{when}")
     public BaseResponse<List<ScheduleListDto>> getScheduleByWhen(@PathVariable(name = "when") String when) {
-        
-        if(isRegexDate(when)){
+        if(!isRegexDate(when)){
+            System.out.println("when = " + when);
             return new BaseResponse<>(BaseResponseStatus.REQUEST_ERROR);
         }else {
             try {
                 long userId = (long)jwtService.getUserIdx();
+                System.out.println("userId = " + userId);
                 List<ScheduleListDto> resultList = scheduleService.getScheduleByWhen(when,userId);
                 return new BaseResponse<>(resultList);
             } catch (BaseException e) {
                 return new BaseResponse<>(e.getStatus());
             }
         }
+    }
 
-
+    /**
+     * 월 별 일정 날짜 리스트
+     */
+    @GetMapping("/month/{month}")
+    public BaseResponse<DayRes> getScheduleWhenMonth(@PathVariable(name = "month") String month){
+        try {
+            long userId = (long) jwtService.getUserIdx();
+            int monthValue = Integer.parseInt(month, 10); // 10진법으로 변환
+            DayRes result = scheduleService.getScheduleWhenMonth(monthValue,userId);
+            return new BaseResponse<>(result);
+        } catch (BaseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

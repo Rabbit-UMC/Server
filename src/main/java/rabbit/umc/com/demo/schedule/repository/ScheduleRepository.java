@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 import rabbit.umc.com.demo.schedule.domain.Schedule;
 
@@ -31,4 +32,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule,Long> {
     Schedule getScheduleByIdAndUserId(Long id, Long userId);
 
     Schedule findScheduleByIdAndUserId(Long scheduleId, Long userId);
+
+    @Query("select s from Schedule s where month(s.endAt) = :month and s.user.id = :userId order by s.endAt asc")
+    List<Schedule> findSchedulesByMonth(@Param(value = "month") Integer month, @Param(value = "userId") Long userId);
 }
