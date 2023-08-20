@@ -55,8 +55,9 @@ public enum BaseResponseStatus {
     FAILED_TO_SCHEDULE(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 일정입니다."),
 
     FAILED_TO_MISSION(false,HttpStatus.NOT_FOUND.value(),"존재하지 않는 미션입니다."),
-    
+
     FAILED_DELETE_MISSION(false,HttpStatus.NOT_FOUND.value(),"미션 삭제에 실패했습니다(존재하지 않는 미션을 삭제하는 경우)."),
+    FAILED_TO_POST_SCHEDULE_DATE(false,HttpStatus.BAD_REQUEST.value(), "종료 시간은 시작 시간보다 커야 합니다."),
 
 
     // mission
