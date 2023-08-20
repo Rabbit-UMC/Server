@@ -28,7 +28,6 @@ public class MissionController {
 
         List<MissionHomeRes> resultList = missionService.getMissionHome();
 
-
         return new BaseResponse<>(resultList);
     }
 
@@ -49,11 +48,13 @@ public class MissionController {
     @PostMapping()
     public BaseResponse postMission(@RequestBody PostMissionReq postMissionReq){
         try {
+            System.out.println("jwtService.createJwt(1) = " + jwtService.createJwt(1));
+
             Long userId = (long) jwtService.getUserIdx();
             missionService.postMission(postMissionReq,userId);
             return new BaseResponse<>("미션 생성 완료");
         } catch (BaseException e) {
-            return new BaseResponse(BaseResponseStatus.EXIST_MISSION_TITLE);
+            return new BaseResponse(e.getStatus());
         }
 
 
@@ -99,7 +100,7 @@ public class MissionController {
 
             return new BaseResponse<>(resultList);
         } catch (BaseException e) {
-            throw new RuntimeException(e);
+            return new BaseResponse<>(e.getStatus());
         }
 
     }
@@ -110,10 +111,10 @@ public class MissionController {
     @GetMapping("/{missionId}")
     public BaseResponse<GetMissionDetailDto> getMissionDetail(@PathVariable(name = "missionId") Long missionId){
         try {
-            GetMissionDetailDto getMissionDeatilRes = missionService.getMissionDetail(missionId);
-            return new BaseResponse<>(getMissionDeatilRes);
+            GetMissionDetailDto getMissionDetailRes = missionService.getMissionDetail(missionId);
+            return new BaseResponse<>(getMissionDetailRes);
         } catch (BaseException e) {
-            return new BaseResponse<>(BaseResponseStatus.FAILED_TO_MISSION);
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
@@ -127,7 +128,7 @@ public class MissionController {
             GetMissionDetailDto getMissionDeatilRes = missionService.getMyMissionDetail(userId,missionId);
             return new BaseResponse<>(getMissionDeatilRes);
         } catch (BaseException e) {
-            return new BaseResponse<>(BaseResponseStatus.FAILED_TO_MISSION);
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
@@ -141,7 +142,7 @@ public class MissionController {
             List<GetMyMissionSchedule> resultList = missionService.getMyMissionSchedules(userId,missionId);
             return new BaseResponse<>(resultList);
         } catch (BaseException e) {
-            throw new RuntimeException(e);
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
@@ -155,12 +156,12 @@ public class MissionController {
             missionService.deleteMyMissoin(missionsIds,userId);
             return new BaseResponse<>(missionsIds + " 미션 삭제 완료");
         } catch (BaseException e) {
-            return new BaseResponse<>(e.getStatus());
+            return new BaseResponse<>(e.getStatus().getMessage());
         }
     }
 
     /**
-     * 미션 신고 (여기 예외 처리)
+     * 미션 신고
      */
     @PostMapping("report/{missionId}")
     public BaseResponse reportMission(@PathVariable(name = "missionId") long missionId){
@@ -168,8 +169,8 @@ public class MissionController {
             long userId = (long) jwtService.getUserIdx();
             missionService.reportMission(missionId, userId);
             return new BaseResponse<>(missionId + "번 미션 신고됨");
-        } catch (Exception e) {
-            return new BaseResponse(e.getMessage());
+        } catch (BaseException e) {
+            return new BaseResponse(e.getStatus().getMessage());
         }
     }
 
@@ -183,7 +184,7 @@ public class MissionController {
             missionService.togetherMission(missionId,userId);
             return new BaseResponse<>(missionId + " 미션 같이하기 성공");
         } catch (BaseException e) {
-            return new BaseResponse<>(e.getStatus());
+            return new BaseResponse<>(e.getStatus().getMessage());
         }
     }
 

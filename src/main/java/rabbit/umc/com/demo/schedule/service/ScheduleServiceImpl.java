@@ -1,12 +1,17 @@
 package rabbit.umc.com.demo.schedule.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.mission.Mission;
+import rabbit.umc.com.demo.mission.MissionUsers;
+import rabbit.umc.com.demo.mission.dto.GetMyMissionRes;
 import rabbit.umc.com.demo.mission.repository.MissionRepository;
+import rabbit.umc.com.demo.mission.repository.MissionUsersRepository;
 import rabbit.umc.com.demo.schedule.domain.MissionSchedule;
 import rabbit.umc.com.demo.schedule.domain.Schedule;
 import rabbit.umc.com.demo.schedule.dto.*;
@@ -19,6 +24,10 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,32 +39,51 @@ import static rabbit.umc.com.demo.Status.ACTIVE;
 public class ScheduleServiceImpl implements ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
-
     private final MissionRepository missionRepository;
-
     private final MissionScheduleRepository missionScheduleRepository;
-
     private final UserRepository userRepository;
+    private final MissionUsersRepository missionUserRepository;
 
     /**
      * 일정 홈
      */
     @Override
-    public ScheduleHomeRes getHome(Long userId) {
+    public ScheduleHomeRes getHome(Long userId, Pageable pageable) {
         ScheduleHomeRes scheduleHomeRes = new ScheduleHomeRes();
-
+        // 일정 리스트
         List<Schedule> scheduleList = scheduleRepository.getSchedulesByUserIdOrderByEndAt(userId);
 
         scheduleHomeRes.setScheduleList(
                 scheduleList.stream().map(ScheduleListDto::toScheduleDto).collect(Collectors.toList())
         );
 
-        LocalDateTime now =  LocalDateTime.now();
-        List<Mission> missionList = missionRepository.getMissions(now,0, ACTIVE);
+        // 미션 유저 리스트
+        List<MissionUsers> missionUsersList = missionUserRepository.getMissionUsersByUserId(userId);
 
-        scheduleHomeRes.setMissionList(
-                missionList.stream().map(MissionListDto::toMissionListDto).collect(Collectors.toList())
-        );
+        List<Mission> missionList = new ArrayList<>();
+        LocalDateTime currentDateTime = LocalDateTime.now();
+
+
+        // 미션 유저 테이블의 미션 번호로 종료되지 않은 미션 찾기
+        for (MissionUsers mu :missionUsersList) {
+            Mission mission = missionRepository.getMissionByIdAndEndAtIsAfterOrderByEndAt(mu.getMission().getId(), currentDateTime);
+            if(mission != null)
+                missionList.add(mission);
+        }
+
+        if(missionList.isEmpty()){
+            return null;
+        }else{
+            // dDay 순으로 정렬
+            Collections.sort(missionList,Comparator.comparing(mission ->
+                    ChronoUnit.DAYS.between(currentDateTime, mission.getEndAt())));
+
+            scheduleHomeRes.setMissionList(
+                    missionList.stream()
+                            .map(MissionListDto::toMissionListDto)
+                            .collect(Collectors.toList())
+            );
+        }
 
 
         return scheduleHomeRes;
@@ -143,7 +171,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Transactional
     public void deleteSchedule(List<Long> scheduleIds,Long userId) throws BaseException {
         List<Schedule> findSchedules = scheduleRepository.findSchedulesByIdsAndUserId(scheduleIds,userId);
-        System.out.println("findSchedules.size() = " + findSchedules.size());
 
         if(findSchedules.size() == 0 || findSchedules.size() != scheduleIds.size())
             throw new BaseException(BaseResponseStatus.FAILED_TO_SCHEDULE);
@@ -172,7 +199,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 
     @Override
-    public List<ScheduleListDto> getScheduleByWhen(String when,long userId) throws ParseException {
+    public List<ScheduleListDto> getScheduleByWhen(String when,long userId) {
         LocalDate localDate = LocalDate.parse(when);
         LocalDateTime localDateTime = localDate.atStartOfDay();
         Timestamp timestamp = Timestamp.valueOf(localDateTime);
@@ -188,8 +215,11 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     @Transactional
-    public void updateSchedule(PostScheduleReq patchScheduleReq, Long userId, Long scheduleId) {
-        Schedule schedule = scheduleRepository.findScheduleById(scheduleId);
+    public void updateSchedule(PostScheduleReq patchScheduleReq, Long userId, Long scheduleId) throws BaseException {
+        Schedule schedule = scheduleRepository.findScheduleByIdAndUserId(scheduleId, userId);
+        if(schedule == null){
+            throw new BaseException(BaseResponseStatus.FAILED_TO_SCHEDULE);
+        }
         schedule.setSchedule(patchScheduleReq);
         MissionSchedule missionSchedule = missionScheduleRepository.findMissionScheduleByScheduleId(scheduleId);
         if(patchScheduleReq.getMissionId() != null){

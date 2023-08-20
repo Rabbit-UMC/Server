@@ -1,6 +1,7 @@
 package rabbit.umc.com.demo.mission.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
@@ -28,6 +29,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -54,7 +57,8 @@ public class MissionServiceImpl implements MissionService{
     @Override
     public List<MissionHomeRes> getMissionHome() {
         LocalDateTime now =  LocalDateTime.now();
-        List<Mission> missionList = missionRepository.getMissions(now,0, ACTIVE);
+        PageRequest pageRequest = PageRequest.of(0,5);
+        List<Mission> missionList = missionRepository.getMissions(now,0, ACTIVE,pageRequest);
 
 
 
@@ -82,7 +86,7 @@ public class MissionServiceImpl implements MissionService{
 
 
     /**
-     *
+     * 도전중인 미션리스트
      * @param userId
      * @return
      */
@@ -104,6 +108,9 @@ public class MissionServiceImpl implements MissionService{
         if(missionList.isEmpty()){
             return null;
         }else{
+            Collections.sort(missionList, Comparator.comparing(mission ->
+                    ChronoUnit.DAYS.between(currentDateTime, mission.getEndAt())));
+
             List<GetMyMissionRes> resultList = missionList.stream()
                     .map(GetMyMissionRes::toMyMissions)
                     .collect(Collectors.toList());
@@ -129,16 +136,22 @@ public class MissionServiceImpl implements MissionService{
     }
 
     @Override
-    public List<GetMyMissionSchedule> getMyMissionSchedules(long userId, long missionId) {
+    public List<GetMyMissionSchedule> getMyMissionSchedules(long userId, long missionId) throws BaseException {
+        MissionUsers findedMissionUser = missionUserRepository.getMissionUsersByMissionIdAndUserId(missionId,userId);
+        if(findedMissionUser == null)
+            throw new BaseException(FAILED_TO_MISSION);
+
         List<MissionSchedule> missionSchedules = missionScheduleRepository.findMissionSchedulesByMissionId(missionId);
 
         List<Schedule> schedules = new ArrayList<>();
-        Schedule schedule;
+
         for (MissionSchedule ms: missionSchedules) {
-            schedule = scheduleRepository.findScheduleById(ms.getSchedule().getId());
+            Schedule schedule = scheduleRepository.findScheduleById(ms.getSchedule().getId());
             if(schedule.getUser().getId() == userId)
                 schedules.add(schedule);
         }
+
+        Collections.sort(schedules,Comparator.comparing(schedule -> schedule.getEndAt()));
 
         List<GetMyMissionSchedule> resultList = schedules.stream()
                 .map(GetMyMissionSchedule::toGetMyMissionSchedule)
@@ -158,17 +171,17 @@ public class MissionServiceImpl implements MissionService{
 
     @Override
     @Transactional
-    public void reportMission(long missionId,long userId) throws Exception {
+    public void reportMission(long missionId,long userId) throws BaseException {
         Mission mission = missionRepository.getMissionById(missionId);
         
         if(mission == null){
-            throw  new Exception(String.valueOf(FAILED_TO_MISSION));
+            throw  new BaseException(FAILED_TO_MISSION);
         }
 
         User user = userRepository.getReferenceById(userId);
         Report existingReport = reportRepository.findReportByUserIdAndMissionId(userId, missionId);
         if(existingReport != null){
-            throw new Exception(String.valueOf(FAILED_TO_REPORT));
+            throw new BaseException(FAILED_TO_REPORT);
         }
 
 

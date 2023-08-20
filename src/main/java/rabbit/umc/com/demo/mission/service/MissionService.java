@@ -18,11 +18,11 @@ public interface MissionService {
 
     GetMissionDetailDto getMyMissionDetail(long userId, long missionId) throws BaseException;
 
-    List<GetMyMissionSchedule> getMyMissionSchedules(long userId, long missionId);
+    List<GetMyMissionSchedule> getMyMissionSchedules(long userId, long missionId) throws BaseException;
 
     void deleteMyMissoin(List<Long> missionIds, long userId) throws BaseException;
 
-    void reportMission(long missionId,long userId) throws Exception;
+    void reportMission(long missionId,long userId) throws BaseException;
 
     void togetherMission(long missionId, long userId) throws BaseException;
 
