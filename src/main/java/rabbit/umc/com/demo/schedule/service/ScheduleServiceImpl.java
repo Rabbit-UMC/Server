@@ -1,7 +1,6 @@
 package rabbit.umc.com.demo.schedule.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +8,6 @@ import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUsers;
-import rabbit.umc.com.demo.mission.dto.GetMyMissionRes;
 import rabbit.umc.com.demo.mission.repository.MissionRepository;
 import rabbit.umc.com.demo.mission.repository.MissionUsersRepository;
 import rabbit.umc.com.demo.schedule.domain.MissionSchedule;
@@ -21,7 +19,6 @@ import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.UserRepository;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -30,8 +27,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static rabbit.umc.com.demo.Status.ACTIVE;
 
 @Service
 @RequiredArgsConstructor
@@ -214,6 +209,15 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public DayRes getScheduleWhenMonth(Integer month, Long userId) {
+        List<Schedule> scheduleList = scheduleRepository.findSchedulesByMonth(month,userId);
+
+        DayRes resultList = new DayRes();
+        resultList.setDayList(scheduleList.stream().map(schedule -> schedule.getEndAt().getDayOfMonth()).collect(Collectors.toList()));
+        return resultList;
+    }
+
+    @Override
     @Transactional
     public void updateSchedule(PostScheduleReq patchScheduleReq, Long userId, Long scheduleId) throws BaseException {
         Schedule schedule = scheduleRepository.findScheduleByIdAndUserId(scheduleId, userId);
@@ -231,6 +235,8 @@ public class ScheduleServiceImpl implements ScheduleService {
         missionScheduleRepository.save(missionSchedule);
         scheduleRepository.save(schedule);
     }
+
+
 
 
 }
