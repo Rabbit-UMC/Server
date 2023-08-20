@@ -48,6 +48,8 @@ public class MissionController {
     @PostMapping()
     public BaseResponse postMission(@RequestBody PostMissionReq postMissionReq){
         try {
+            System.out.println("jwtService.createJwt(1) = " + jwtService.createJwt(1));
+
             Long userId = (long) jwtService.getUserIdx();
             missionService.postMission(postMissionReq,userId);
             return new BaseResponse<>("미션 생성 완료");
