@@ -10,4 +10,7 @@ import java.util.List;
 @Repository
 public interface LikeMissionProofRepository extends JpaRepository<LikeMissionProof , Long> {
     LikeMissionProof findLikeMissionProofByUserAndMainMissionProofId(User user, Long mainMissionProofId);
+
+    List<LikeMissionProof> findLikeMissionProofByUser(User user);
+
 }

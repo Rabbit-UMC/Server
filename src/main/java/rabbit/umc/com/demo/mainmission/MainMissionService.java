@@ -51,34 +51,48 @@ public class MainMissionService {
     private final CategoryRepository categoryRepository;
     private final MainMissionUsersRepository mainMissionUsersRepository;
 
-    public GetMainMissionRes getMainMission(Long mainMissionId, int day) throws BaseException {
+    public GetMainMissionRes getMainMission(Long mainMissionId, int day, Long userId) throws BaseException {
         try {
             // 메인 미션 찾기
             MainMission mainMission = mainMissionRepository.getReferenceById(mainMissionId);
-
+            User user = userRepository.getReferenceById(userId);
             // 해당 일차의 인증 사진 가져오기
             LocalDateTime startDate = mainMission.getStartAt().atStartOfDay();
             LocalDateTime targetDate = startDate.plusDays(day - 1);
             LocalDateTime endDate = targetDate.plusDays(1);
 
             List<MainMissionProof> mainMissionProofs = mainMissionProofRepository.findAllByMainMissionIdAndCreatedAtBetween(mainMissionId, targetDate, endDate);
+
+            //todo 미션인증 사진 좋아요 했는지 여부 가져오기
             List<MissionProofImageDto> missionProofImages = mainMissionProofs.stream()
                     .map(MissionProofImageDto::toMissionProofImageDto)
                     .collect(Collectors.toList());
+
+            List<LikeMissionProof> likeMissionProofs = likeMissionProofRepository.findLikeMissionProofByUser(user);
+            for (MissionProofImageDto imageDto : missionProofImages) {
+                boolean isLiked = likeMissionProofs.stream()
+                        .anyMatch(likeProof -> likeProof.getMainMissionProof().getId().equals(imageDto.getImageId()));
+                imageDto.setIsLike(isLiked);
+            }
             GetMainMissionRes getMainMissionRes = new GetMainMissionRes(mainMission);
             getMainMissionRes.setMissionProofImages(missionProofImages);
+            //todo 미션인증 사진 좋아요 했는지 여부 가져오기
+
+
 
             //메인 미션 랭킹 가져오기
 //            List<MainMissionProof> top3 = mainMissionProofRepository.findTop3ByMainMissionIdOrderByLikeCountDesc(mainMissionId);
 
             List<MainMissionUsers> top3 = mainMissionUsersRepository.findTop3OByMainMissionIdOrderByScoreDesc(mainMissionId);
             List<RankDto> rankList = new ArrayList<>();
-            for (MainMissionUsers user : top3) {
+            for (MainMissionUsers rankUser : top3) {
                 RankDto rankDto = new RankDto();
-                rankDto.setUserId(user.getUser().getId());
-                rankDto.setUserName(user.getUser().getUserName());
+                rankDto.setUserId(rankUser.getUser().getId());
+                rankDto.setUserName(rankUser.getUser().getUserName());
                 rankList.add(rankDto);
             }
+
+
 
 
             getMainMissionRes.setRank(rankList);

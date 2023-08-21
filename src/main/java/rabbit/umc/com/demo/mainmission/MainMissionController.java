@@ -28,7 +28,8 @@ public class MainMissionController {
     @GetMapping("/main-mission/{mainMissionId}")
     public BaseResponse<GetMainMissionRes> getMainMission(@PathVariable("mainMissionId") Long mainMissionId, @RequestParam("day") int day) throws BaseException{
         try {
-            GetMainMissionRes getMainMissionRes = mainMissionService.getMainMission(mainMissionId, day);
+            Long userId = (long) jwtService.getUserIdx();
+            GetMainMissionRes getMainMissionRes = mainMissionService.getMainMission(mainMissionId, day, userId);
 
             return new BaseResponse<>(getMainMissionRes);
         }catch (BaseException exception){
