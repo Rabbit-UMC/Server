@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 import rabbit.umc.com.demo.schedule.domain.Schedule;
 
 import java.sql.Timestamp;
+import java.time.Month;
+import java.time.Year;
 import java.util.List;
 
 @Repository
@@ -33,6 +35,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule,Long> {
 
     Schedule findScheduleByIdAndUserId(Long scheduleId, Long userId);
 
-    @Query("select s from Schedule s where month(s.endAt) = :month and s.user.id = :userId order by s.endAt asc")
-    List<Schedule> findSchedulesByMonth(@Param(value = "month") Integer month, @Param(value = "userId") Long userId);
+//    @Query("select s from Schedule s where month(s.endAt) = :month and s.user.id = :userId order by s.endAt asc")
+    @Query("select s from Schedule s where s.user.id= :userId and year(s.endAt) = :year and month(s.endAt) = :month order by  s.endAt asc")
+    List<Schedule> findSchedulesByMonth(@Param(value = "month") int month, @Param(value = "userId") Long userId, @Param(value = "year") int year);
 }

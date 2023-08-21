@@ -1,6 +1,7 @@
 package rabbit.umc.com.demo.schedule.service;
 
 import lombok.RequiredArgsConstructor;
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,8 @@ import rabbit.umc.com.demo.user.UserRepository;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Year;
+import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -208,14 +211,6 @@ public class ScheduleServiceImpl implements ScheduleService {
         return scheduleHomeRes.getScheduleList();
     }
 
-    @Override
-    public DayRes getScheduleWhenMonth(Integer month, Long userId) {
-        List<Schedule> scheduleList = scheduleRepository.findSchedulesByMonth(month,userId);
-
-        DayRes resultList = new DayRes();
-        resultList.setDayList(scheduleList.stream().map(schedule -> schedule.getEndAt().getDayOfMonth()).collect(Collectors.toList()));
-        return resultList;
-    }
 
     @Override
     @Transactional
@@ -236,7 +231,16 @@ public class ScheduleServiceImpl implements ScheduleService {
         scheduleRepository.save(schedule);
     }
 
+    @Override
+    public DayRes getScheduleWhenMonth(YearMonth yearMonth, long userId) {
+        System.out.println("yearMonth.getMonthValue() = " + yearMonth.getMonthValue());
+        System.out.println("yearMonth.getYear() = " + yearMonth.getYear());
+        List<Schedule> scheduleList = scheduleRepository.findSchedulesByMonth(yearMonth.getMonthValue(),userId,yearMonth.getYear());
 
+        DayRes resultList = new DayRes();
+        resultList.setDayList(scheduleList.stream().map(schedule -> schedule.getEndAt().getDayOfMonth()).distinct().collect(Collectors.toList()));
+        return resultList;
+    }
 
 
 }

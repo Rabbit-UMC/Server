@@ -1,7 +1,12 @@
 package rabbit.umc.com.utils;
 
+import org.joda.time.DateTime;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +25,19 @@ public class ValidationRegex {
             sdf.parse(target);
             return true;
         } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 월 입력 체크
+     */
+    public static boolean isRegexMonth(String target){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        try {
+            YearMonth yearMonth = YearMonth.parse(target, formatter);
+            return true;
+        } catch (DateTimeParseException e) {
             return false;
         }
     }

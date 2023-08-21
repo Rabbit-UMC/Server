@@ -1,9 +1,11 @@
 package rabbit.umc.com.demo.schedule.service;
 
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Pageable;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.demo.schedule.dto.*;
 
+import java.time.YearMonth;
 import java.util.List;
 
 public interface ScheduleService {
@@ -18,5 +20,5 @@ public interface ScheduleService {
 
     void updateSchedule(PostScheduleReq postScheduleReq, Long userId, Long scheduleId) throws BaseException;
 
-    DayRes getScheduleWhenMonth(Integer month, Long userId);
+    DayRes getScheduleWhenMonth(YearMonth yearMonth, long userId);
 }
