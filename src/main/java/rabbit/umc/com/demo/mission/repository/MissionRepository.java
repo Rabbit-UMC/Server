@@ -34,8 +34,7 @@ public interface MissionRepository extends JpaRepository<Mission,Long> {
         "ORDER BY m.endAt")
     List<Mission> getMissions(@Param("now") LocalDateTime now,
                               @Param("isOpen") int isOpen,
-                              @Param("status") Status status,
-                              Pageable pageable);
+                              @Param("status") Status status);
 
     Mission getMissionByIdAndEndAtIsAfterOrderByEndAt(Long id, LocalDateTime currentDateTime);
 
