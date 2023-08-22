@@ -28,8 +28,6 @@ public class MissionController {
     @ApiOperation(value = "일반 미션 리스트 조회하는 메소드")
     @GetMapping()
     public BaseResponse<List<MissionHomeRes>> getHome(){
-        System.out.println("===============================");
-        System.out.println("jwtService.getUserIdFromToken" + jwtService.getUserIdFromToken("eyJ0eXBlIjoiand0IiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWR4IjoyMDIsImlhdCI6MTY5MjcyNjQ3NSwiZXhwIjoxNjkyNzMwMDc1fQ.hj1-mR_CS7"));
         List<MissionHomeRes> resultList = missionService.getMissionHome();
 //        System.out.println("jwtService = " + jwtService.createJwt(1));
 
@@ -55,7 +53,7 @@ public class MissionController {
     @PostMapping()
     public BaseResponse postMission(@RequestBody PostMissionReq postMissionReq){
         try {
-            System.out.println("jwtService.createJwt(1) = " + jwtService.createJwt(1));
+//            System.out.println("jwtService.createJwt(1) = " + jwtService.createJwt(1));
 
             Long userId = (long) jwtService.getUserIdx();
             missionService.postMission(postMissionReq,userId);
