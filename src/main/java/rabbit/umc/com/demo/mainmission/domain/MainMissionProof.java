@@ -37,9 +37,17 @@ public class MainMissionProof extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
 
+
+
+    //Setter
     public void setMainMissionProof(String filePath, User user, MainMission mainMission){
         proofImage = filePath;
         this.user = user;
         this.mainMission = mainMission;
+    }
+
+    //비즈니스 로직
+    public void inActive(){
+        status = Status.INACTIVE;
     }
 }

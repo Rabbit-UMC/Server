@@ -3,18 +3,13 @@ package rabbit.umc.com.demo.user.Dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.article.domain.*;
+import rabbit.umc.com.demo.community.domain.*;
 import rabbit.umc.com.demo.user.Domain.User;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
-import static javax.persistence.CascadeType.ALL;
 
 @Getter
 @Setter

@@ -2,15 +2,12 @@ package rabbit.umc.com.demo.mission;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.article.domain.Category;
+import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.mission.dto.PostMissionReq;
-import rabbit.umc.com.demo.schedule.domain.MissionSchedule;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
