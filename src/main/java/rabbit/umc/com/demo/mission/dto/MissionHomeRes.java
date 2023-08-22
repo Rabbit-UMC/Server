@@ -31,6 +31,8 @@ public class MissionHomeRes {
         String startAt = mission.getStartAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         String endAt = mission.getEndAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
+        System.out.println("mission = " + mission.getMissionUsers().size());
+
         return new MissionHomeRes(
                 mission.getId(),
                 mission.getTitle(),
