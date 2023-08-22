@@ -201,16 +201,15 @@ public class MissionServiceImpl implements MissionService{
         }
 
         Mission mission = missionRepository.getMissionById(missionId);
-        System.out.println("mission == null = " + mission == null);
 
         if (mission == null) {
             throw new BaseException(DONT_EXIST_MISSION);
         }
 
+        // 미션 날짜에 맞는 일정들인지 체크
         if (missionUserRepository.getMissionUsersByMissionIdAndUserId(missionId, userId) != null) {
             throw new BaseException(FAILED_TO_TOGETHER_MISSION);
         }
-
 
         MissionUsers missionUsers = new MissionUsers();
         missionUsers.setUser(user);
@@ -288,9 +287,6 @@ public class MissionServiceImpl implements MissionService{
                         }
                     }
                 }
-
-                System.out.println("successCnt = " + successCnt);
-                System.out.println("targetCnt = " + targetCnt +1);
 
                 if(successCnt == targetCnt+1){
                     ids.add(missionUser.getMission().getId());
