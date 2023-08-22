@@ -36,7 +36,7 @@ public class MainMissionUsers extends BaseTimeEntity {
         this.mainMission = mainMission;
     }
 
-    //인증 이미지 작성
+    //인증 이미지 작성시 10점
     public void addProofScore(){
         this.score += 10;
     }
@@ -45,6 +45,7 @@ public class MainMissionUsers extends BaseTimeEntity {
         this.score -= 10;
     }
 
+    //좋아요 받을시 1 점
     public void addLikeScore(){
         this.score += 1;
     }

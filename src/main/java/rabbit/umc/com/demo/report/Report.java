@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.article.domain.Article;
-import rabbit.umc.com.demo.article.domain.Comment;
+import rabbit.umc.com.demo.community.domain.Article;
+import rabbit.umc.com.demo.community.domain.Comment;
 import rabbit.umc.com.demo.mainmission.domain.MainMissionProof;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.user.Domain.User;
@@ -43,4 +43,12 @@ public class Report extends BaseTimeEntity {
     @JoinColumn(name = "mission_id")
     private Mission mission;
 
+
+
+
+    //Setter
+    public void setReport(User user, MainMissionProof mainMissionProof){
+        this.user = user;
+        this.mainMissionProof = mainMissionProof;
+    }
 }

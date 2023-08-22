@@ -3,7 +3,7 @@ package rabbit.umc.com.demo.mission.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import rabbit.umc.com.demo.article.domain.Category;
+import rabbit.umc.com.demo.community.domain.Category;
 
 @Getter
 @Setter

@@ -28,4 +28,12 @@ public class LikeMissionProof extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Status status= Status.ACTIVE;
 
+
+
+    //Setter
+    public void setLikeMissionProof(User user, MainMissionProof mainMissionProof){
+        this.user = user;
+        this.mainMissionProof = mainMissionProof;
+    }
+
 }

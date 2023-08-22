@@ -1,6 +1,7 @@
-package rabbit.umc.com.demo.user.Dto;
+package rabbit.umc.com.demo.community.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.demo.community.domain.Article;
@@ -9,8 +10,9 @@ import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
+@Data
 @AllArgsConstructor
-public class UserArticleListResDto {
+public class ArticleListDto {
 
     private Long articleId;
     private String articleTitle;
@@ -18,12 +20,11 @@ public class UserArticleListResDto {
     private int likeCount;
     private int commentCount;
 
-    public static UserArticleListResDto toArticleListRes(Article article){
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    public static ArticleListDto toArticleListRes(Article article){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
         String uploadTime = article.getCreatedAt().format(formatter);
-
-        return new UserArticleListResDto(
+        return new ArticleListDto(
                 article.getId(),
                 article.getTitle(),
                 uploadTime,

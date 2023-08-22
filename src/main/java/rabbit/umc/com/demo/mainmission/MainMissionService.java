@@ -6,11 +6,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponse;
-import rabbit.umc.com.config.BaseResponseStatus;
-import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.article.CategoryRepository;
-import rabbit.umc.com.demo.article.domain.Category;
+import rabbit.umc.com.demo.community.Category.CategoryRepository;
+import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.mainmission.domain.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.MainMissionProof;
@@ -19,18 +16,19 @@ import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
 import rabbit.umc.com.demo.mainmission.dto.MissionProofImageDto;
 import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
 import rabbit.umc.com.demo.mainmission.dto.RankDto;
+import rabbit.umc.com.demo.mainmission.repository.LikeMissionProofRepository;
+import rabbit.umc.com.demo.mainmission.repository.MainMissionProofRepository;
+import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
+import rabbit.umc.com.demo.mainmission.repository.MainMissionUsersRepository;
 import rabbit.umc.com.demo.report.Report;
 import rabbit.umc.com.demo.report.ReportRepository;
 import rabbit.umc.com.demo.user.Domain.User;
-import rabbit.umc.com.demo.user.Domain.UserPermision;
 import rabbit.umc.com.demo.user.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,49 +51,46 @@ public class MainMissionService {
 
     public GetMainMissionRes getMainMission(Long mainMissionId, int day, Long userId) throws BaseException {
         try {
-            // 메인 미션 찾기
             MainMission mainMission = mainMissionRepository.getReferenceById(mainMissionId);
             User user = userRepository.getReferenceById(userId);
-            // 해당 일차의 인증 사진 가져오기
+
+            // 해당하는 일차의 인증 사진 가져오기
             LocalDateTime startDate = mainMission.getStartAt().atStartOfDay();
             LocalDateTime targetDate = startDate.plusDays(day - 1);
             LocalDateTime endDate = targetDate.plusDays(1);
-
             List<MainMissionProof> mainMissionProofs = mainMissionProofRepository.findAllByMainMissionIdAndCreatedAtBetween(mainMissionId, targetDate, endDate);
 
-            //todo 미션인증 사진 좋아요 했는지 여부 가져오기
-            List<MissionProofImageDto> missionProofImages = mainMissionProofs.stream()
+            // DTO 매핑
+            List<MissionProofImageDto> missionProofImages = mainMissionProofs
+                    .stream()
                     .map(MissionProofImageDto::toMissionProofImageDto)
                     .collect(Collectors.toList());
 
+            //JWT 유저가 좋아요한 인증사진 가져오기
             List<LikeMissionProof> likeMissionProofs = likeMissionProofRepository.findLikeMissionProofByUser(user);
+
+            // DTO에 매핑된 해당 일차 인증 사진에 대해 user가 좋아한 사진이면 isLike = ture 설정
             for (MissionProofImageDto imageDto : missionProofImages) {
-                boolean isLiked = likeMissionProofs.stream()
+                boolean isLiked = likeMissionProofs
+                        .stream()
                         .anyMatch(likeProof -> likeProof.getMainMissionProof().getId().equals(imageDto.getImageId()));
                 imageDto.setIsLike(isLiked);
             }
-            GetMainMissionRes getMainMissionRes = new GetMainMissionRes(mainMission);
-            getMainMissionRes.setMissionProofImages(missionProofImages);
-            //todo 미션인증 사진 좋아요 했는지 여부 가져오기
 
-
-
-            //메인 미션 랭킹 가져오기
-//            List<MainMissionProof> top3 = mainMissionProofRepository.findTop3ByMainMissionIdOrderByLikeCountDesc(mainMissionId);
-
+            //mainMissionId 메인 미션 랭킹 가져오기
             List<MainMissionUsers> top3 = mainMissionUsersRepository.findTop3OByMainMissionIdOrderByScoreDesc(mainMissionId);
+
+            //DTO 매핑
             List<RankDto> rankList = new ArrayList<>();
             for (MainMissionUsers rankUser : top3) {
                 RankDto rankDto = new RankDto();
-                rankDto.setUserId(rankUser.getUser().getId());
-                rankDto.setUserName(rankUser.getUser().getUserName());
+                rankDto.setRanking(rankUser);
                 rankList.add(rankDto);
             }
 
-
-
-
-            getMainMissionRes.setRank(rankList);
+            //Res DTO 에 매핑
+            GetMainMissionRes getMainMissionRes = new GetMainMissionRes(mainMission);
+            getMainMissionRes.setGetMainMissionRes(rankList, missionProofImages);
             return getMainMissionRes;
         } catch (EntityNotFoundException e) {
             throw new BaseException(DONT_EXIST_MISSION);
@@ -106,27 +101,27 @@ public class MainMissionService {
     public void likeMissionProof(Long userId, Long mainMissionProofId) throws BaseException {
         try {
             MainMissionProof mainMissionProof = mainMissionProofRepository.getReferenceById(mainMissionProofId);
+            // 인증 사진 존재 체크
             if (mainMissionProof.getProofImage() == null) {
                 throw new EntityNotFoundException("Unable to find proofId with id:" + mainMissionProofId);
             }
+
             User user = userRepository.getReferenceById(userId);
             LikeMissionProof findLikeMissionProof = likeMissionProofRepository.findLikeMissionProofByUserAndMainMissionProofId(user, mainMissionProofId);
+            //이미 좋아한 인증 사진인지 체크
             if (findLikeMissionProof != null) {
                 throw new BaseException(FAILED_TO_LIKE_MISSION);
             }
 
-
-            // 1점 추가
+            // 좋아요 1점 추가 로직
             MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(mainMissionProof.getUser(), mainMissionProof.getMainMission());
             missionUsers.addLikeScore();
             mainMissionUsersRepository.save(missionUsers);
 
+            //좋아요 여부 저장
             LikeMissionProof likeMissionProof = new LikeMissionProof();
-            likeMissionProof.setUser(user);
-            likeMissionProof.setMainMissionProof(mainMissionProof);
-
+            likeMissionProof.setLikeMissionProof(user, mainMissionProof);
             likeMissionProofRepository.save(likeMissionProof);
-
 
         } catch (EntityNotFoundException e) {
             throw new BaseException(DONT_EXIST_MISSION_PROOF);
@@ -137,16 +132,18 @@ public class MainMissionService {
     public void unLikeMissionProof(Long userId, Long mainMissionProofId) throws BaseException {
         try {
             MainMissionProof mainMissionProof = mainMissionProofRepository.getReferenceById(mainMissionProofId);
+            //인증사진 존재 체크
             if (mainMissionProof.getProofImage() == null) {
                 throw new EntityNotFoundException("Unable to find proofId with id:" + mainMissionProofId);
             }
             User user = userRepository.getReferenceById(userId);
             LikeMissionProof findLikeMissionProof = likeMissionProofRepository.findLikeMissionProofByUserAndMainMissionProofId(user, mainMissionProofId);
+            // 좋아요하지 않은 인증 사진인지 체크
             if (findLikeMissionProof == null) {
                 throw new BaseException(FAILED_TO_UNLIKE_MISSION);
             }
 
-            //1점 삭제
+            //1점 삭제 로직
             MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(mainMissionProof.getUser(), mainMissionProof.getMainMission());
             missionUsers.unLikeScore();
             mainMissionUsersRepository.save(missionUsers);
@@ -162,23 +159,25 @@ public class MainMissionService {
     public void reportMissionProof(Long userId, Long mainMissionProofId) throws BaseException {
         try {
             MainMissionProof mainMissionProof = mainMissionProofRepository.getReferenceById(mainMissionProofId);
+            //존재하는 인증 사진인지 체크
             if (mainMissionProof.getProofImage() == null) {
                 throw new EntityNotFoundException("Unable to find proofId with id:" + mainMissionProofId);
             }
             User user = userRepository.getReferenceById(userId);
             Report findReport = reportRepository.findReportByUserIdAndAndMainMissionProofId(userId, mainMissionProofId);
+            //이미 신고한 사진인지 체크
             if (findReport != null) {
                 throw new BaseException(FAILED_TO_REPORT);
             }
+            //신고 저장
             Report report = new Report();
-            report.setUser(user);
-            report.setMainMissionProof(mainMissionProof);
+            report.setReport(user,mainMissionProof);
             reportRepository.save(report);
 
-            //신고 횟수 15회 이상시 비활성화
+            //신고 횟수 15회 이상시 비활성화 처리
             List<Report> countReport = reportRepository.findAllByMainMissionProofId(mainMissionProofId);
             if (countReport.size() > 14) {
-                mainMissionProof.setStatus(INACTIVE);
+                mainMissionProof.inActive();
             }
 
         } catch (EntityNotFoundException e) {
@@ -190,7 +189,7 @@ public class MainMissionService {
     @Transactional
     public void createMainMission(Long userId, Long categoryId, PostMainMissionReq postMainMissionReq) throws BaseException {
 
-        //유저 자격 확인
+        //유저 자격[HOST] 확인
         User user = userRepository.getReferenceById(userId);
         if (user.getUserPermission() != HOST) {
             throw new BaseException(INVALID_JWT);
@@ -202,18 +201,16 @@ public class MainMissionService {
             throw new BaseException(INVALID_JWT);
         }
 
-        //이전 미션 존재 시 비활성화
+        //해당 카테고리 이전 미션 존재 시 이전 미션은 비활성화
         MainMission lastMission = mainMissionRepository.findMainMissionByCategoryAndStatus(category, ACTIVE);
         if (lastMission != null) {
-            lastMission.setStatus(INACTIVE);
+            lastMission.inActive();
             mainMissionRepository.save(lastMission);
         }
 
         //메인 미션 생성
         MainMission newMainMission = new MainMission();
         newMainMission.setMainMission(postMainMissionReq, category);
-
-        //db저장
         mainMissionRepository.save(newMainMission);
 
     }
@@ -223,7 +220,7 @@ public class MainMissionService {
         MainMission mainMission = mainMissionRepository.findMainMissionByCategoryIdAndStatus(categoryId, ACTIVE);
         User user = userRepository.getReferenceById(userId);
 
-        // 메인 미션 참여 아직 안했으면 참여
+        // 메인 미션 참여 아직 안했으면 참여 시키기
         MainMissionUsers findUser = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(user, mainMission);
         if (findUser == null) {
             MainMissionUsers mainMissionUsers = new MainMissionUsers();
@@ -232,12 +229,13 @@ public class MainMissionService {
         }
 
         //만약 당일 이미 사진을 올렸으면 리젝
-        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-        LocalDateTime endOfDay = LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX);
-        List<MainMissionProof> proof = mainMissionProofRepository.findAllByUserAndCreatedAtBetween(user, startOfDay, endOfDay);
-        if (!proof.isEmpty()) {
-            throw new BaseException(FAILED_TO_UPLOAD);
-        }
+        //todo : 데모데이로 인한 당일 1회 인증 사진 풀기
+//        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+//        LocalDateTime endOfDay = LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX);
+//        List<MainMissionProof> proof = mainMissionProofRepository.findAllByUserAndCreatedAtBetween(user, startOfDay, endOfDay);
+//        if (!proof.isEmpty()) {
+//            throw new BaseException(FAILED_TO_UPLOAD);
+//        }
 
         // 10점 점수 획득
         MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(user, mainMission);

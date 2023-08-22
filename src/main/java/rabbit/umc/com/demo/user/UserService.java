@@ -10,7 +10,7 @@ import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.config.secret.Secret;
 import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.article.domain.Article;
+import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.*;
 
