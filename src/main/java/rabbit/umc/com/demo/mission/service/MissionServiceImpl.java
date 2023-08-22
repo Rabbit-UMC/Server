@@ -57,8 +57,7 @@ public class MissionServiceImpl implements MissionService{
     @Override
     public List<MissionHomeRes> getMissionHome() {
         LocalDateTime now =  LocalDateTime.now();
-        PageRequest pageRequest = PageRequest.of(0,5);
-        List<Mission> missionList = missionRepository.getMissions(now,0, ACTIVE,pageRequest);
+        List<Mission> missionList = missionRepository.getMissions(now,0, ACTIVE);
 
 
 
