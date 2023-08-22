@@ -11,7 +11,6 @@ import java.util.List;
 
 @Data
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetMainMissionRes {
@@ -45,7 +44,14 @@ public class GetMainMissionRes {
 
     }
 
+    //Setter
+    public void setGetMainMissionRes(List<RankDto> rankDto, List<MissionProofImageDto> missionProofImageDto){
+        this.rank = rankDto;
+        this.missionProofImages = missionProofImageDto;
+
+
     }
+}
 
 
 

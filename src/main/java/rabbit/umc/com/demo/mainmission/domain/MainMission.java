@@ -4,12 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.article.domain.Category;
+import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -42,6 +41,7 @@ public class MainMission extends BaseTimeEntity {
     @Column(nullable = false)
     private Status status= Status.ACTIVE;
 
+    //Setter
     public void setMainMission(PostMainMissionReq postMainMissionReq, Category category){
         this.category = category;
         this.startAt = postMainMissionReq.getMissionStartTime();
@@ -51,6 +51,10 @@ public class MainMission extends BaseTimeEntity {
         this.lastMission = postMainMissionReq.getLastMission();
     }
 
+    //비즈니스 로직
+    public void inActive(){
+        this.status = Status.INACTIVE;
+    }
 
 
 }
