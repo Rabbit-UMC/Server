@@ -39,16 +39,12 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/kakao-login")
-    public BaseResponse<UserLoginResDto> kakaoLogin(/*@RequestHeader("Authorization") String accessToken, */@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
+    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken,/* @RequestParam String code, */HttpServletResponse response) throws IOException, BaseException {
         try {
-//            if (accessToken == null) {
-//                throw new BaseException(EMPTY_KAKAO_ACCESS);
-//            }
-//            if (accessToken == null) {
-//                throw new BaseException(EMPTY_KAKAO_ACCESS);
-//            }
-            String accessToken = kakaoService.getAccessToken(code);
-            //System.out.println("access token: "+accessToken);
+            if (accessToken == null) {
+                throw new BaseException(EMPTY_KAKAO_ACCESS);
+            }
+            //String accessToken = kakaoService.getAccessToken(code);
 
             KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
             User user = kakaoService.saveUser(kakaoDto);
