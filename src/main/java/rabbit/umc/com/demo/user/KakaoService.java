@@ -60,8 +60,6 @@ public class KakaoService {
 //        body.add("grant_type", "authorization_code");
 //        body.add("client_id", kakao_client_id);
 //        body.add("client_secret", kakao_secret_key);
-//        body.add("redirect_uri", "https://www.myo-zip-sa.store/app/users/kakao-login");
-////        body.add("redirect_uri", "http://localhost:8080/app/users/kakao-login");
 //        body.add("code", code);
 //
 //        // HTTP 요청 보내기
@@ -111,6 +109,74 @@ public class KakaoService {
 //        }
 //        return accessToken;
 //    }
+
+    public String getAccessToken(String code) throws IOException, BaseException {
+        String accessToken="";
+        if (code == null) {
+            log.info("인증 코드가 존재하지 않습니다.");
+            throw new BaseException(FAILED_TO_AUTHENTICATION);
+        }
+
+        // HTTP Header 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        // HTTP Body 생성
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type", "authorization_code");
+        body.add("client_id", kakao_client_id);
+        body.add("client_secret", kakao_secret_key);
+        //body.add("redirect_uri", "https://www.myo-zip-sa.store/app/users/kakao-login");
+        body.add("redirect_uri", "http://localhost:8080/app/users/kakao-login");
+        body.add("code", code);
+
+        // HTTP 요청 보내기
+        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<String> response = rt.exchange(
+                "https://kauth.kakao.com/oauth/token",
+                HttpMethod.POST,
+                kakaoTokenRequest,
+                String.class
+        );
+
+        // HTTP 응답 상태 코드 가져오기
+        int responseCode = response.getStatusCodeValue();
+        log.info("getAccessToken response code: {}", responseCode);
+
+        if(responseCode == HttpURLConnection.HTTP_OK){
+            // HTTP 응답 (JSON) -> 액세스 토큰 파싱
+            String responseBody = response.getBody();
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+            accessToken= jsonNode.get("access_token").asText();
+        }else{
+            log.info("요청에 실패하였습니다");
+            String responseBody = response.getBody();
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+            String error= jsonNode.get("error").asText();
+            String error_code= jsonNode.get("error_code").asText();
+            String error_description= jsonNode.get("error_description").asText();
+
+            log.error("error: {} ", error);
+            log.error("error_code: {} ", error_code);
+            log.error("error_Description: {} ", error_description);
+
+            if (error_code.equals("KOE320")) {
+                log.info("인가 코드를 새로 발급한 후, 다시 엑세스 엑세스 토큰을 요청해주세요.");
+                throw new BaseException(FAILED_TO_AUTHENTICATION);
+            }else if(error_code.equals("KOE303")){
+                log.info("인가 코드 요청시 사용한 redirect_uri와 액세스 토큰 요청 시 사용한 redirect_uri가 다릅니다.");
+                throw new RuntimeException("Redirect URI mismatch");
+            }else if(error_code.equals("KOE101")){
+                log.info("잘못된 앱 키 타입을 사용하거나 앱 키에 오타가 있는 것 같습니다.");
+                throw new RuntimeException("Not exist client_id");
+            }
+
+        }
+        return accessToken;
+    }
 
     // 토큰으로 카카오 API 호출
     @Transactional
