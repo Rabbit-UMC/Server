@@ -32,18 +32,20 @@ public class UserController {
 
     /**
      * 카카오 로그인 api
-     * @param accessToken
+    // * @param accessToken
      * @param response
      * @return
      * @throws IOException
      * @throws BaseException
      */
     @GetMapping("/kakao-login")
-    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken, HttpServletResponse response) throws IOException, BaseException {
+    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken, /*@RequestParam String code, */HttpServletResponse response) throws IOException, BaseException {
         try {
             if (accessToken == null) {
                 throw new BaseException(EMPTY_KAKAO_ACCESS);
             }
+            //String accessToken = kakaoService.getAccessToken(code);
+
             KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
             User user = kakaoService.saveUser(kakaoDto);
 
@@ -61,30 +63,6 @@ public class UserController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
-//    public BaseResponse<UserLoginResDto> kakaoLogin(/*@RequestHeader("Authorization") String accessToken,*/ @RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
-//        try {
-////            if (accessToken == null) {
-////                throw new BaseException(EMPTY_KAKAO_ACCESS);
-////            }
-//            String accessToken = kakaoService.getAccessToken(code);
-//
-//            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
-//            User user = kakaoService.saveUser(kakaoDto);
-//
-//            //jwt 토큰 생성(로그인 처리)
-//            String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
-//            String jwtRefreshToken = jwtService.createRefreshToken();
-//            System.out.println(jwtAccessToken);
-//            System.out.println(jwtRefreshToken);
-//            userService.saveRefreshToken(user.getId(), jwtRefreshToken);
-//            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
-//
-//            return new BaseResponse<>(userLoginResDto);
-//        }
-//        catch (BaseException exception) {
-//            return new BaseResponse<>(exception.getStatus());
-//        }
-//    }
 
 
     /**
@@ -241,17 +219,16 @@ public class UserController {
 
     /**
      * 유저 프로필 조회
-     * @param userId
      * @return
      * @throws BaseException
      */
-    @GetMapping("/profile/{userId}")
-    public BaseResponse<UserGetProfileResDto> getProfile(@PathVariable Long userId) throws BaseException {
+    @GetMapping("/profile")
+    public BaseResponse<UserGetProfileResDto> getProfile(/*@PathVariable Long userId*/) throws BaseException {
         try {
             Long jwtUserId = (long) jwtService.getUserIdx();
-            if (jwtUserId != userId) {
-                throw new BaseException(INVALID_USER_JWT);
-            }
+//            if (jwtUserId != userId) {
+//                throw new BaseException(INVALID_USER_JWT);
+//            }
             UserGetProfileResDto userGetProfileResDto = userService.getProfile(jwtUserId);
             return new BaseResponse(userGetProfileResDto);
         }
@@ -263,19 +240,17 @@ public class UserController {
     /**
      * 유저가 작성한 글 전체 조회
      * @param page
-     * @param userId
      * @return
      * @throws BaseException
      */
     @GetMapping("/articleList")
-    public BaseResponse<List<UserArticleListResDto>> getArticles(@RequestParam(defaultValue = "0", name = "page") int page,
-                                                                 @RequestParam Long userId) throws BaseException {
+    public BaseResponse<List<UserArticleListResDto>> getArticles(@RequestParam(defaultValue = "0", name = "page") int page/*,
+                                                                 @RequestParam Long userId*/) throws BaseException {
         try {
             Long jwtUserId = (long) jwtService.getUserIdx();
-            System.out.println("user id: "+jwtUserId);
-            if (jwtUserId != userId) {
-                throw new BaseException(INVALID_USER_JWT);
-            }
+//            if (jwtUserId != userId) {
+//                throw new BaseException(INVALID_USER_JWT);
+//            }
             List<UserArticleListResDto> userArticleListResDtos = userService.getArticles(page, jwtUserId);
             return new BaseResponse<>(userArticleListResDtos);
         }
@@ -287,19 +262,18 @@ public class UserController {
     /**
      * 유저가 댓글단 글 전체 조회
      * @param page
-     * @param userId
      * @return
      * @throws BaseException
      */
     @GetMapping("/commented-articles")
-    public BaseResponse<List<UserArticleListResDto>> getCommentedArticles(@RequestParam(defaultValue = "0", name = "page") int page,
-                                                                          @RequestParam Long userId) throws BaseException
+    public BaseResponse<List<UserArticleListResDto>> getCommentedArticles(@RequestParam(defaultValue = "0", name = "page") int page/*,
+                                                                          @RequestParam Long userId*/) throws BaseException
         {
             try {
                 Long jwtUserId = (long) jwtService.getUserIdx();
-                if (jwtUserId != userId) {
-                    throw new BaseException(INVALID_USER_JWT);
-                }
+//                if (jwtUserId != userId) {
+//                    throw new BaseException(INVALID_USER_JWT);
+//                }
                 List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, jwtUserId);
                 return new BaseResponse<>(userArticleListResDtos);
             }
