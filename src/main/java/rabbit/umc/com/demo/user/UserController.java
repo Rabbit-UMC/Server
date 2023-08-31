@@ -32,14 +32,14 @@ public class UserController {
 
     /**
      * 카카오 로그인 api
-    // * @param accessToken
+     * @param accessToken
      * @param response
      * @return
      * @throws IOException
      * @throws BaseException
      */
     @GetMapping("/kakao-login")
-    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken, @RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
+    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken, /*@RequestParam String code, */HttpServletResponse response) throws IOException, BaseException {
         try {
             if (accessToken == null) {
                 throw new BaseException(EMPTY_KAKAO_ACCESS);
