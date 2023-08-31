@@ -74,11 +74,18 @@ public class MissionServiceImpl implements MissionService{
     public List<MissionHomeRes> getMissionByMissionCategoryId(Long categoryId) {
 
         List<Mission> missionList = missionRepository.getMissionByMissionCategoryIdOrderByEndAt(categoryId);
-        List<MissionHomeRes> resultList = missionList.stream()
-                .map(MissionHomeRes::toMissionHomeRes)
-                .collect(Collectors.toList());
 
-        return resultList;
+        if(missionList == null){
+            List<MissionHomeRes> resultList = new ArrayList<>();
+            return resultList;
+        }else{
+
+            List<MissionHomeRes> resultList = missionList.stream()
+                    .map(MissionHomeRes::toMissionHomeRes)
+                    .collect(Collectors.toList());
+            return resultList;
+        }
+
     }
 
 
@@ -104,7 +111,8 @@ public class MissionServiceImpl implements MissionService{
         }
 
         if(missionList.isEmpty()){
-            return null;
+            List<GetMyMissionRes> resultList = new ArrayList<>();
+            return resultList;
         }else{
             Collections.sort(missionList, Comparator.comparing(mission ->
                     ChronoUnit.DAYS.between(currentDateTime, mission.getEndAt())));

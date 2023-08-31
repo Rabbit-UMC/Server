@@ -9,4 +9,5 @@ import java.util.List;
 public class ScheduleHomeRes {
     private List<MissionListDto> missionList;
     private List<ScheduleListDto> scheduleList;
+
 }
