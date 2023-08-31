@@ -2,6 +2,7 @@ package rabbit.umc.com.demo.schedule.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import rabbit.umc.com.demo.mission.Mission;
 
@@ -16,6 +17,7 @@ import java.util.Date;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class MissionListDto {
     // 미션
     private Long missionId;

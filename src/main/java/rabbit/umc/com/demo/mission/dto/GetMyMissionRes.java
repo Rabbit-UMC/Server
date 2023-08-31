@@ -2,6 +2,7 @@ package rabbit.umc.com.demo.mission.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.bind.annotation.GetMapping;
 import rabbit.umc.com.demo.mission.Mission;
@@ -14,6 +15,7 @@ import java.time.temporal.ChronoUnit;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class GetMyMissionRes {
 
     private Long id;
