@@ -29,7 +29,7 @@ public class MissionController {
     @GetMapping()
     public BaseResponse<List<MissionHomeRes>> getHome(){
         List<MissionHomeRes> resultList = missionService.getMissionHome();
-//        System.out.println("jwtService = " + jwtService.createJwt(1));
+        System.out.println("jwtService = " + jwtService.createJwt(1));
 
         return new BaseResponse<>(resultList);
     }

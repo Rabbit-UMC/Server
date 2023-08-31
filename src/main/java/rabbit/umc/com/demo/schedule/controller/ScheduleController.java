@@ -54,7 +54,6 @@ public class ScheduleController {
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
-
     }
 
     /**
