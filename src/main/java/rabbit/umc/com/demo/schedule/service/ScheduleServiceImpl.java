@@ -46,7 +46,7 @@ public class ScheduleServiceImpl implements ScheduleService {
      * 일정 홈
      */
     @Override
-    public ScheduleHomeRes getHome(Long userId, Pageable pageable) {
+    public ScheduleHomeRes getHome(Long userId) {
         ScheduleHomeRes scheduleHomeRes = new ScheduleHomeRes();
         // 일정 리스트
         List<Schedule> scheduleList = scheduleRepository.getSchedulesByUserIdOrderByEndAt(userId);
@@ -57,7 +57,6 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         // 미션 유저 리스트
         List<MissionUsers> missionUsersList = missionUserRepository.getMissionUsersByUserId(userId);
-
         List<Mission> missionList = new ArrayList<>();
         LocalDateTime currentDateTime = LocalDateTime.now();
 
@@ -70,7 +69,8 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
 
         if(missionList.isEmpty()){
-            return null;
+            List<MissionListDto> missionListDto = new ArrayList<>();
+            scheduleHomeRes.setMissionList(missionListDto);
         }else{
             // dDay 순으로 정렬
             Collections.sort(missionList,Comparator.comparing(mission ->

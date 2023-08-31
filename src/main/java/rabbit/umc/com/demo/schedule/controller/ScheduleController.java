@@ -43,18 +43,18 @@ public class ScheduleController {
      */
     @ApiOperation(value = "일정 홈 메소드")
     @GetMapping()
-    public BaseResponse<ScheduleHomeRes> getHome(Pageable pageable){
-
+    public BaseResponse<ScheduleHomeRes> getHome(){
         try {
 //            String token = jwtService.createJwt(1);
 //            System.out.println("jwtService = " + token);
+            System.out.println("jwtService.createRefreshToken() = " + jwtService.createRefreshToken());
             long userId = (long) jwtService.getUserIdx();
-            ScheduleHomeRes scheduleHomeRes = scheduleService.getHome(userId, pageable);
+            ScheduleHomeRes scheduleHomeRes = scheduleService.getHome(userId);
+
             return new BaseResponse<>(scheduleHomeRes);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
-
     }
 
     /**
