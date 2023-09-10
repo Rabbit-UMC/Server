@@ -51,11 +51,7 @@ public class UserService {
 
     public void getEmailandNickname(Long userId, UserEmailNicknameReqDto userEmailNicknameReqDto) throws BaseException {
         User user = findUser(userId);
-
-        if(isExistSameNickname(userEmailNicknameReqDto.getUserName())){
-            log.info("중복된 닉네임입니다.");
-            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
-        }
+        isExistSameNickname(userEmailNicknameReqDto.getUserName());
 
         user.setUserName(userEmailNicknameReqDto.getUserName());
         user.setUserEmail(userEmailNicknameReqDto.getUserEmail());
@@ -63,9 +59,12 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public boolean isExistSameNickname(String nickname){
+    public void isExistSameNickname(String nickname) throws BaseException {
         boolean isExistSameName = userRepository.existsByUserName(nickname);
-        return isExistSameName;
+        if(isExistSameName == true){
+            log.info("중복된 닉네임입니다.");
+            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+        }
     }
 
     //이메일 형식 검증
@@ -88,26 +87,19 @@ public class UserService {
     //프로필 이미지 수정
     @Transactional
     public void updateProfileImage(Long userId, String newProfileImage) throws BaseException {
-        //userRepository.updateUserUserProfileImageById(id, newProfileImage);
-
         User user = findUser(userId);
         user.setUserProfileImage(newProfileImage);
-        //userRepository.save(user);
+        userRepository.save(user);
     }
 
     //닉네임 수정
     @Transactional
     public void updateNickname(Long userId, String newNickname) throws BaseException {
-        //userRepository.updateUserUserNameById(id, newNickname);
-
         User user = findUser(userId);
-        if(isExistSameNickname(newNickname)){
-            log.info("중복된 닉네임입니다.");
-            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
-        }
+        isExistSameNickname(newNickname);
 
         user.setUserName(newNickname);
-        //userRepository.save(user);
+        userRepository.save(user);
     }
 
     //유저 프로필 조회
@@ -146,26 +138,8 @@ public class UserService {
         return userArticleListResDtos;
     }
 
-//    public void addAuthorizationHeaderWithJwtToken(String jwtToken) throws BaseException{
-//        //쿠키가 없을 때
-//        if (jwtToken == null) {
-//            log.info("쿠키가 존재하지 않습니다.");
-//            throw new BaseException(RESPONSE_ERROR);
-//        }
-//
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add(JwtAndKakaoProperties.HEADER_STRING, JwtAndKakaoProperties.TOKEN_PREFIX + jwtToken);
-//        System.out.println("jwt 토큰값: "+jwtToken);
-//
-//        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-//        System.out.println("request: "+request);
-//        System.out.println("헤더에 추가된 jwt token: "+request.getHeader("Authorization"));
-//        System.out.println("헤더에 잘 추가됨");
-//    }
-
     //access token 재발급
     public boolean isReissueAllowed (Long userId, String refreshToken) throws BaseException {
-        //ReissueTokenDto reissueTokenDto = new ReissueTokenDto();
         //인자로 받은 refresh token과 해당 user id의db에 있는 refresh token이 일치한지 검사
         boolean tokenMatch = userRepository.checkJwtRefreshTokenMatch(userId, refreshToken);
         if(tokenMatch){
@@ -174,9 +148,7 @@ public class UserService {
                         .setSigningKey(Secret.JWT_SECRET_KEY) // 서명 키 지정
                         .parseClaimsJws(refreshToken);
             } catch (Exception ex) {
-                log.error("An exception occurred: {}", ex.getMessage());
-                log.info("로그아웃 후, 다시 로그인해주세요.");
-                log.info("로그아웃이 진행됩니다.");
+                log.info("refresh token이 유효하지 않습니다.");
                 return false;
             }
         } else{

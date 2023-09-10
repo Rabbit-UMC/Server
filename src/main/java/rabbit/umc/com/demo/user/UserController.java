@@ -223,12 +223,9 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/profile")
-    public BaseResponse<UserGetProfileResDto> getProfile(/*@PathVariable Long userId*/) throws BaseException {
+    public BaseResponse<UserGetProfileResDto> getProfile() throws BaseException {
         try {
             Long jwtUserId = (long) jwtService.getUserIdx();
-//            if (jwtUserId != userId) {
-//                throw new BaseException(INVALID_USER_JWT);
-//            }
             UserGetProfileResDto userGetProfileResDto = userService.getProfile(jwtUserId);
             return new BaseResponse(userGetProfileResDto);
         }
@@ -244,13 +241,9 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/articleList")
-    public BaseResponse<List<UserArticleListResDto>> getArticles(@RequestParam(defaultValue = "0", name = "page") int page/*,
-                                                                 @RequestParam Long userId*/) throws BaseException {
+    public BaseResponse<List<UserArticleListResDto>> getArticles(@RequestParam(defaultValue = "0", name = "page") int page) throws BaseException {
         try {
             Long jwtUserId = (long) jwtService.getUserIdx();
-//            if (jwtUserId != userId) {
-//                throw new BaseException(INVALID_USER_JWT);
-//            }
             List<UserArticleListResDto> userArticleListResDtos = userService.getArticles(page, jwtUserId);
             return new BaseResponse<>(userArticleListResDtos);
         }
@@ -266,14 +259,10 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/commented-articles")
-    public BaseResponse<List<UserArticleListResDto>> getCommentedArticles(@RequestParam(defaultValue = "0", name = "page") int page/*,
-                                                                          @RequestParam Long userId*/) throws BaseException
+    public BaseResponse<List<UserArticleListResDto>> getCommentedArticles(@RequestParam(defaultValue = "0", name = "page") int page) throws BaseException
         {
             try {
                 Long jwtUserId = (long) jwtService.getUserIdx();
-//                if (jwtUserId != userId) {
-//                    throw new BaseException(INVALID_USER_JWT);
-//                }
                 List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, jwtUserId);
                 return new BaseResponse<>(userArticleListResDtos);
             }
@@ -293,7 +282,6 @@ public class UserController {
     public BaseResponse<ReissueTokenDto> reissueToken(@RequestHeader("X-ACCESS-TOKEN") String accessToken, @RequestHeader("X-REFRESH-TOKEN") String refreshToken) throws BaseException{
         try{
             ReissueTokenDto reissueTokenDto = null;
-            //access token 만료된거 맞는지 확인
             if(jwtService.getExpirationDate(accessToken).before(new Date())){
                 //만료된 accessToken 이용해서 user id 알아내기
                 Long userId = jwtService.getUserIdFromToken(accessToken);
@@ -304,12 +292,12 @@ public class UserController {
                     reissueTokenDto = new ReissueTokenDto(userId, jwtToken, refreshToken);
                     System.out.println(jwtToken);
                 } else{
-                    //로그아웃
                     User user = userService.findUser(Long.valueOf(userId));
                     userService.delRefreshToken(user);
-                    Long kakaoId = user.getKakaoId();
-                    Long logout_kakaoId = kakaoService.logout(kakaoId);
-                    log.info("로그아웃되었습니다. kakao id: "+logout_kakaoId);
+                    throw new BaseException(INVALID_JWT_REFRESH);
+//                    Long kakaoId = user.getKakaoId();
+//                    Long logout_kakaoId = kakaoService.logout(kakaoId);
+//                    log.info("로그아웃되었습니다. kakao id: "+logout_kakaoId);
                 }
             }else{
                 log.info("access token의 유효기간이 남아있어 재발급이 불가합니다.");
@@ -318,8 +306,6 @@ public class UserController {
             return new BaseResponse<>(reissueTokenDto);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
