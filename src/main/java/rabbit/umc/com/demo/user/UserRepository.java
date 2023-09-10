@@ -38,21 +38,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "THEN true ELSE false END " +
             "FROM User u WHERE u.id = :userId")
     boolean checkJwtRefreshTokenMatch(@Param("userId") Long userId, @Param("token") String token);
-
-//    //해당 유저가 해당 메인 미션 유저인지 확인
-//    @Query("SELECT CASE WHEN COUNT(mmu) > 0 THEN true ELSE false END " +
-//            "FROM MainMissionUsers mmu " +
-//            "WHERE mmu.user.id = :userId " +
-//            "AND mmu.mainMission.category.id = :categoryId")
-//    boolean existsMainMissionUserByUserIdAndCategoryId(@Param("userId") Long userId, @Param("categoryId") Long categoryId);
-
-    //유저 랭킹 조회
-//    @Query("SELECT COUNT(*) + 1 " +
-//            "FROM MainMissionUsers mmu " +
-//            "WHERE mmu.mainMission.category.id = :categoryId " +
-//            "AND mmu.score > (SELECT mmu2.score FROM MainMissionUsers mmu2 WHERE mmu2.user.id = :userId)")
-//    Long getRankByScoreForMainMissionByUserIdAndCategoryId(@Param("userId") Long userId, @Param("categoryId") Long categoryId);
-
-    //각 메인 미션 유저별로 미션 프루프 게시물 올린 개수 체크 + 그리고 개수가 더 해당 유저보다 더 많은 사람 체크+1
-    //랭킹이 미션 게시물 개수였나???
 }
