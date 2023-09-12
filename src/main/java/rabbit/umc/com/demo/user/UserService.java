@@ -89,12 +89,9 @@ public class UserService {
     @Transactional
     public void updateProfileImage(Long userId, String newProfileImage) throws BaseException {
         User user = findUser(userId);
-        System.out.println("프로필 이미지 저장 - 회원 번호: "+userId);
-        System.out.println("프로필 이미지 저장 - 프로필 이미지 파일 경로: "+newProfileImage);
         user.setUserProfileImage(newProfileImage);
-        System.out.println("user 객체 set 완료");
-        userRepository.save(user);
-        System.out.println("user 객체 save로 저장 완료. 현재 이미지 경로: "+user.getUserProfileImage());
+        User user_after = userRepository.save(user);
+        System.out.println("user 객체 save로 저장 완료. 현재 이미지 경로: "+user_after.getUserProfileImage());
     }
 
     //닉네임 수정
