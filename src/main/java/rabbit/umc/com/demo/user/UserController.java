@@ -193,10 +193,10 @@ public class UserController {
             User user = userService.findUser(userId);
             System.out.println("프로필 이미지를 "+user.getUserProfileImage()+"에서 "+userProfileImage+"으로 변경합니다. 회원번호: "+userId);
             userService.updateProfileImage(userId, userProfileImage);
-            System.out.println("프로필 이미지 수정 완료");
 
-            user = userService.findUser(userId);
-            System.out.println("현재 이미지 경로: "+user.getUserProfileImage());
+            System.out.println("프로필 이미지 수정 완료");
+            User user_after = userService.findUser(userId);
+            System.out.println("현재 이미지 경로: "+user_after.getUserProfileImage());
             return new BaseResponse<>(userId);
         }
         catch (BaseException exception) {
