@@ -190,6 +190,8 @@ public class UserController {
     public BaseResponse<Long> updateProfileImage(@RequestParam String userProfileImage) throws BaseException {
         try {
             Long userId = (long) jwtService.getUserIdx();
+            User user = userService.findUser(userId);
+            System.out.println("프로필 이미지를 "+user.getUserProfileImage()+"에서 "+userProfileImage+"으로 변경합니다. 회원번호: "+userId);
             userService.updateProfileImage(userId, userProfileImage);
             return new BaseResponse<>(userId);
         }
@@ -209,7 +211,10 @@ public class UserController {
     public BaseResponse<Long> updateNickname(@RequestParam String userName) throws BaseException{
         try {
             Long userId = (long) jwtService.getUserIdx();
+            User user = userService.findUser(userId);
+            System.out.println("닉네임을 "+user.getUserName()+"에서 "+userName+"으로 변경합니다. 회원번호: "+userId);
             userService.updateNickname(userId, userName);
+            System.out.println("중복 없이 변경 완료.");
             return new BaseResponse<>(userId);
         }
         catch (BaseException exception) {
@@ -226,6 +231,7 @@ public class UserController {
     public BaseResponse<UserGetProfileResDto> getProfile() throws BaseException {
         try {
             Long jwtUserId = (long) jwtService.getUserIdx();
+            System.out.println("프로필을 조회합니다. 회원번호: "+jwtUserId);
             UserGetProfileResDto userGetProfileResDto = userService.getProfile(jwtUserId);
             return new BaseResponse(userGetProfileResDto);
         }
@@ -244,6 +250,7 @@ public class UserController {
     public BaseResponse<List<UserArticleListResDto>> getArticles(@RequestParam(defaultValue = "0", name = "page") int page) throws BaseException {
         try {
             Long jwtUserId = (long) jwtService.getUserIdx();
+            System.out.println("유저가 작성한 글을 조회합니다. 회원번호: "+jwtUserId);
             List<UserArticleListResDto> userArticleListResDtos = userService.getArticles(page, jwtUserId);
             return new BaseResponse<>(userArticleListResDtos);
         }
@@ -263,6 +270,7 @@ public class UserController {
         {
             try {
                 Long jwtUserId = (long) jwtService.getUserIdx();
+                System.out.println("유저가 댓글단 글을 조회합니다. 회원번호: "+jwtUserId);
                 List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, jwtUserId);
                 return new BaseResponse<>(userArticleListResDtos);
             }

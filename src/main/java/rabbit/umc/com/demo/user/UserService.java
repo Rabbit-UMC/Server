@@ -63,6 +63,7 @@ public class UserService {
         boolean isExistSameName = userRepository.existsByUserName(nickname);
         if(isExistSameName == true){
             log.info("중복된 닉네임입니다.");
+            System.out.println("중복된 닉네임: "+nickname);
             throw new BaseException(POST_USERS_EXISTS_NICKNAME);
         }
     }
