@@ -31,16 +31,11 @@ public class UserService {
 
     //유저 아이디로 User 객체 찾기
     public User findUser(Long id) throws BaseException {
-        Optional<User> optionalUser = userRepository.findById(id);
-        User user;
-        if (optionalUser.isPresent()) {
-            user = optionalUser.get();
-        } else {
+        User user = userRepository.getReferenceById(id);
+        if(user == null){
             log.info("데이터 베이스에서 찾을 수 없는 user id입니다.");
             throw new BaseException(BaseResponseStatus.USERS_EMPTY_USER_ID);
-        }
-
-        if(user.getStatus() == Status.INACTIVE){
+        } else if(user.getStatus() == Status.INACTIVE){
             log.info("탈퇴한 회원입니다.");
             throw new BaseException(BaseResponseStatus.INVALID_USER_ID);
         }
@@ -51,21 +46,24 @@ public class UserService {
 
     public void getEmailandNickname(Long userId, UserEmailNicknameReqDto userEmailNicknameReqDto) throws BaseException {
         User user = findUser(userId);
-        isExistSameNickname(userEmailNicknameReqDto.getUserName());
-
+        if(isExistSameNickname(userEmailNicknameReqDto.getUserName()) == true){
+            log.info("중복된 닉네임입니다.");
+            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+        }
         user.setUserName(userEmailNicknameReqDto.getUserName());
         user.setUserEmail(userEmailNicknameReqDto.getUserEmail());
-
         userRepository.save(user);
     }
 
-    public void isExistSameNickname(String nickname) throws BaseException {
+    public boolean isExistSameNickname(String nickname) throws BaseException {
         boolean isExistSameName = userRepository.existsByUserName(nickname);
         if(isExistSameName == true){
-            log.info("중복된 닉네임입니다.");
-            System.out.println("중복된 닉네임: "+nickname);
-            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+//            log.info("중복된 닉네임입니다.");
+//            System.out.println("중복된 닉네임: "+nickname);
+//            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+            return true;
         }
+        return false;
     }
 
     //이메일 형식 검증
@@ -104,6 +102,21 @@ public class UserService {
     public void updateNickname(Long userId, String newNickname) throws BaseException {
         User user = findUser(userId);
         isExistSameNickname(newNickname);
+
+        user.setUserName(newNickname);
+        userRepository.save(user);
+    }
+
+    //닉네임, 프로필 이미지 수정
+    @Transactional
+    public void updateProfile(Long userId, String newNickname, String newProfileImage) throws BaseException {
+        User user = findUser(userId);
+        user.setUserProfileImage(newProfileImage);
+        if(isExistSameNickname(newNickname) == true){
+            userRepository.save(user);
+            log.info("중복된 닉네임입니다. 중복된 닉네임: "+newNickname);
+            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+        }
 
         user.setUserName(newNickname);
         userRepository.save(user);
