@@ -225,6 +225,28 @@ public class UserController {
     }
 
     /**
+     * 닉네임, 프로필 이미지 수정
+     * @param userProfileImage
+     * @param userName
+     * @return
+     */
+    @PatchMapping("/profile")
+    public BaseResponse<Long> updateProfile(@RequestParam String userProfileImage, @RequestParam String userName){
+        try {
+            Long userId = (long) jwtService.getUserIdx();
+            User user = userService.findUser(userId);
+            System.out.println("닉네임을 "+user.getUserName()+"에서 "+userName+"으로 변경합니다. 회원번호: "+userId);
+            System.out.println("프로필 이미지를 "+user.getUserProfileImage()+"에서 "+userProfileImage+"으로 변경합니다. 회원번호: "+userId);
+
+            userService.updateProfile(userId, userName, userProfileImage);
+            return new BaseResponse<>(userId);
+        }
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
      * 유저 프로필 조회
      * @return
      * @throws BaseException
