@@ -317,7 +317,7 @@ public class MissionServiceImpl implements MissionService{
                 .map(MissionHomeRes::toMissionHomeRes)
                 .collect(Collectors.toList());
 
-        MissionHistoryRes result = MissionHistoryRes.toMissionHistoryRes(totalCnt,resultList);
+        MissionHistoryRes result = MissionHistoryRes.toSuccessMissionHistoryRes(totalCnt,resultList);
 
         totalCnt = 0;
 
@@ -388,7 +388,7 @@ public class MissionServiceImpl implements MissionService{
                 .collect(Collectors.toList());
 
 
-        MissionHistoryRes result = MissionHistoryRes.toMissionHistoryRes(totalCnt,resultList);
+        MissionHistoryRes result = MissionHistoryRes.toFailMissionHistoryRes(totalCnt,resultList);
 
         totalCnt = 0;
 
