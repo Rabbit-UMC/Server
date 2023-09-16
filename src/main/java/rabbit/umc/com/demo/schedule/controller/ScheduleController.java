@@ -47,7 +47,9 @@ public class ScheduleController {
         try {
 //            String token = jwtService.createJwt(1);
 //            System.out.println("jwtService = " + token);
-            System.out.println("jwtService.createRefreshToken() = " + jwtService.createRefreshToken());
+//            System.out.println("jwtService.createRefreshToken() = " + jwtService.createRefreshToken());
+            String token = jwtService.createJwt(1);
+            System.out.println("token = " + token);
             long userId = (long) jwtService.getUserIdx();
             ScheduleHomeRes scheduleHomeRes = scheduleService.getHome(userId);
 
