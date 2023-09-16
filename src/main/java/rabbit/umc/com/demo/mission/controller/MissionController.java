@@ -28,8 +28,10 @@ public class MissionController {
     @ApiOperation(value = "일반 미션 리스트 조회하는 메소드")
     @GetMapping()
     public BaseResponse<List<MissionHomeRes>> getHome(){
+        String token = jwtService.createJwt(102);
+        System.out.println("token = " + token);
         List<MissionHomeRes> resultList = missionService.getMissionHome();
-        System.out.println("jwtService = " + jwtService.createJwt(1));
+//        System.out.println("jwtService = " + jwtService.createJwt(1));
 
         return new BaseResponse<>(resultList);
     }
@@ -88,6 +90,10 @@ public class MissionController {
     @GetMapping("/failures")
     public BaseResponse<MissionHistoryRes> getFailureMissions(){
         try {
+            System.out.println("((2 / 5) * 100) = " + ((2 / 5) * 100));
+            System.out.println("((2 % 5) * 100) = " + ((2 % 5) * 100));
+            System.out.println("((2 % 5) * 100) = " + ((2 % 5) * 100));
+
             Long userId = (long) jwtService.getUserIdx();
             MissionHistoryRes result = missionService.getFailureMissions(userId);
             return new BaseResponse<>(result);
