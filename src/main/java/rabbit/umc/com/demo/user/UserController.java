@@ -32,7 +32,7 @@ public class UserController {
 
     /**
      * 카카오 로그인 api
-    // * @param accessToken
+     // * @param accessToken
      * @param response
      * @return
      * @throws IOException
@@ -127,11 +127,11 @@ public class UserController {
     @PostMapping("/sign-up")
     public BaseResponse<UserEmailNicknameResDto> getEmailandNickname(@RequestBody UserEmailNicknameReqDto userEmailNicknameReqDto) throws BaseException {
         try{
-        Long userId = (long) jwtService.getUserIdx();
-        userService.isEmailVerified(userEmailNicknameReqDto);
-        userService.getEmailandNickname(userId, userEmailNicknameReqDto);
-        UserEmailNicknameResDto userEmailNicknameResDto = new UserEmailNicknameResDto(userId, userEmailNicknameReqDto.getUserEmail(), userEmailNicknameReqDto.getUserName());
-        return new BaseResponse<>(userEmailNicknameResDto);
+            Long userId = (long) jwtService.getUserIdx();
+            userService.isEmailVerified(userEmailNicknameReqDto);
+            userService.getEmailandNickname(userId, userEmailNicknameReqDto);
+            UserEmailNicknameResDto userEmailNicknameResDto = new UserEmailNicknameResDto(userId, userEmailNicknameReqDto.getUserEmail(), userEmailNicknameReqDto.getUserName());
+            return new BaseResponse<>(userEmailNicknameResDto);
         }
         catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -269,17 +269,17 @@ public class UserController {
      */
     @GetMapping("/commented-articles")
     public BaseResponse<List<UserArticleListResDto>> getCommentedArticles(@RequestParam(defaultValue = "0", name = "page") int page) throws BaseException
-        {
-            try {
-                Long jwtUserId = (long) jwtService.getUserIdx();
-                System.out.println("유저가 댓글단 글을 조회합니다. 회원번호: "+jwtUserId);
-                List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, jwtUserId);
-                return new BaseResponse<>(userArticleListResDtos);
-            }
-            catch (BaseException exception) {
-                return new BaseResponse<>(exception.getStatus());
-            }
+    {
+        try {
+            Long jwtUserId = (long) jwtService.getUserIdx();
+            System.out.println("유저가 댓글단 글을 조회합니다. 회원번호: "+jwtUserId);
+            List<UserArticleListResDto> userArticleListResDtos = userService.getCommentedArticles(page, jwtUserId);
+            return new BaseResponse<>(userArticleListResDtos);
         }
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 
     /**
      * access token 재발급

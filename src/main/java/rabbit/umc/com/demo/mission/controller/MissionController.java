@@ -28,8 +28,10 @@ public class MissionController {
     @ApiOperation(value = "일반 미션 리스트 조회하는 메소드")
     @GetMapping()
     public BaseResponse<List<MissionHomeRes>> getHome(){
+        String token = jwtService.createJwt(102);
+        System.out.println("token = " + token);
         List<MissionHomeRes> resultList = missionService.getMissionHome();
-        System.out.println("jwtService = " + jwtService.createJwt(1));
+//        System.out.println("jwtService = " + jwtService.createJwt(1));
 
         return new BaseResponse<>(resultList);
     }

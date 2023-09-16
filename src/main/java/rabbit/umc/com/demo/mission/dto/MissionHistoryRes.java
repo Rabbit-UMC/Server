@@ -16,12 +16,21 @@ public class MissionHistoryRes {
     private List<MissionHomeRes> missionHomeResList;
 
 
-    public static MissionHistoryRes toMissionHistoryRes(int totalCnt, List<MissionHomeRes> missionHomeResList){
+    public static MissionHistoryRes toSuccessMissionHistoryRes(int totalCnt, List<MissionHomeRes> missionHomeResList){
         return new MissionHistoryRes(
-                (int) ((missionHomeResList.size() / (double) totalCnt) * 100),
+                (int) ((missionHomeResList.size() / (double) totalCnt) * 100), // 여기서 이런식으로 하니까 성공이랑 실패랑 다름
                 totalCnt,
                 missionHomeResList.size(),
                 missionHomeResList
+        );
+    }
+
+    public static MissionHistoryRes toFailMissionHistoryRes(int totalCnt, List<MissionHomeRes> missionFailList){
+        return new MissionHistoryRes(
+                (int) (((totalCnt - missionFailList.size()) / (double) totalCnt) * 100), // 여기서 이런식으로 하니까 성공이랑 실패랑 다름
+                totalCnt,
+                missionFailList.size(),
+                missionFailList
         );
     }
 }
