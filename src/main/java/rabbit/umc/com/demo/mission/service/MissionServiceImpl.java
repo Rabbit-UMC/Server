@@ -138,7 +138,7 @@ public class MissionServiceImpl implements MissionService{
             // 미션을 찾을 수 없는 경우
             throw new BaseException(FAILED_TO_MISSION);
         }
-        return GetMissionDetailDto.toGetMissionDetaliDto(mission);
+        return GetMissionDetailDto.toGetMissionDetaliDto(mission,true);
     }
 
     @Override
@@ -226,15 +226,20 @@ public class MissionServiceImpl implements MissionService{
     }
 
     @Override
-    public GetMissionDetailDto getMissionDetail(Long missionId) throws BaseException {
+    public GetMissionDetailDto getMissionDetail(Long missionId, Long userId) throws BaseException {
 
         Mission mission = missionRepository.getMissionById(missionId);
+        MissionUsers missionUsers = missionUserRepository.getMissionUsersByMissionIdAndUserId(missionId,userId);
+        boolean isAlreadyIn = false;
+        if(missionUsers != null)
+            isAlreadyIn = true;
+
         if (mission == null) {
             // 미션을 찾을 수 없는 경우
             throw new BaseException(FAILED_TO_MISSION);
         }
 
-        return GetMissionDetailDto.toGetMissionDetaliDto(mission);
+        return GetMissionDetailDto.toGetMissionDetaliDto(mission,isAlreadyIn);
     }
 
     public static List<LocalDate> getDateBetweenTwoDates(LocalDateTime startAt, LocalDateTime endAt) {

@@ -17,8 +17,9 @@ public class GetMissionDetailDto {
     private String endAt;
     private String content;
     private String categoryTitle;
+    private boolean isAlreadyIn;
 
-    public static GetMissionDetailDto toGetMissionDetaliDto(Mission mission){
+    public static GetMissionDetailDto toGetMissionDetaliDto(Mission mission, boolean isAlreadyIn){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String startAt = mission.getStartAt().format(formatter);
         String endAt = mission.getEndAt().format(formatter);
@@ -28,7 +29,8 @@ public class GetMissionDetailDto {
                 startAt,
                 endAt,
                 mission.getContent(),
-                mission.getCategory().getName()
+                mission.getCategory().getName(),
+                isAlreadyIn
         );
     }
 }
