@@ -90,10 +90,6 @@ public class MissionController {
     @GetMapping("/failures")
     public BaseResponse<MissionHistoryRes> getFailureMissions(){
         try {
-            System.out.println("((2 / 5) * 100) = " + ((2 / 5) * 100));
-            System.out.println("((2 % 5) * 100) = " + ((2 % 5) * 100));
-            System.out.println("((2 % 5) * 100) = " + ((2 % 5) * 100));
-
             Long userId = (long) jwtService.getUserIdx();
             MissionHistoryRes result = missionService.getFailureMissions(userId);
             return new BaseResponse<>(result);
