@@ -26,7 +26,7 @@ public interface MissionService {
 
     void togetherMission(long missionId, long userId) throws BaseException;
 
-    GetMissionDetailDto getMissionDetail(Long missionId) throws BaseException;
+    GetMissionDetailDto getMissionDetail(Long missionId, Long userId) throws BaseException;
 
     MissionHistoryRes getFailureMissions(Long userId);
 

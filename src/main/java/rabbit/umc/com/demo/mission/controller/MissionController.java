@@ -122,7 +122,8 @@ public class MissionController {
     @GetMapping("/{missionId}")
     public BaseResponse<GetMissionDetailDto> getMissionDetail(@PathVariable(name = "missionId") Long missionId){
         try {
-            GetMissionDetailDto getMissionDetailRes = missionService.getMissionDetail(missionId);
+            long userId = (long) jwtService.getUserIdx();
+            GetMissionDetailDto getMissionDetailRes = missionService.getMissionDetail(missionId,userId);
             return new BaseResponse<>(getMissionDetailRes);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
