@@ -10,6 +10,7 @@ import rabbit.umc.com.config.secret.Secret;
 
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import static rabbit.umc.com.config.BaseResponseStatus.*;
@@ -29,7 +30,7 @@ public class JwtService {
                 .setHeaderParam("type", "jwt")
                 .claim("userIdx", userIdx)
                 .setIssuedAt(now)
-                .setExpiration(new Date(System.currentTimeMillis() + (1 * 60 * 60 * 1000))) //1시간
+                .setExpiration(new Date(System.currentTimeMillis()+1*(1000*60*60*24*365)))
                 .signWith(SignatureAlgorithm.HS256, Secret.JWT_SECRET_KEY)
                 .compact();
     }
