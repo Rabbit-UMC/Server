@@ -205,7 +205,7 @@ public class MainMissionService {
         MainMission lastMission = mainMissionRepository.findMainMissionByCategoryAndStatus(category, ACTIVE);
 
         // 아전미션이 끝나지 않았다면 새 미션 생성 불가능
-        if (lastMission.getEndAt().isBefore(LocalDate.now()) ){
+        if (lastMission.getEndAt().isAfter(LocalDate.now()) ){
             throw new BaseException(NOT_DONE_MISSION);
         }
 

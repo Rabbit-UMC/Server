@@ -106,6 +106,7 @@ public class MainMissionController {
     @ApiOperation(value = "메인 미션 생성 하는 메소드")
     @PostMapping("/host/main-mission/{categoryId}")
     public BaseResponse createMainMission(@PathVariable("categoryId") Long categoryId, @RequestBody PostMainMissionReq postMainMissionReq) throws BaseException {
+        System.out.println("jwt" + jwtService.createJwt(1));
         try {
             Long userId = (long) jwtService.getUserIdx();
             mainMissionService.createMainMission(userId, categoryId, postMainMissionReq);
