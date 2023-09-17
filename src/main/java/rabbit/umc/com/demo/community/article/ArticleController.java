@@ -5,10 +5,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
+import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.dto.*;
 import rabbit.umc.com.utils.JwtService;
 import rabbit.umc.com.utils.S3Uploader;
@@ -22,7 +24,6 @@ import java.util.List;
 @RequestMapping("/app")
 @RequiredArgsConstructor
 public class ArticleController {
-
     private final ArticleService articleService;
     private final S3Uploader s3Uploader;
     private final JwtService jwtService;
@@ -62,7 +63,11 @@ public class ArticleController {
     @GetMapping("/article/{articleId}")
     public BaseResponse<ArticleRes> getArticle(@PathVariable(name = "articleId") Long articleId) throws BaseException{
         try {
+            String id = jwtService.createJwt(1);
+            System.out.println("토큰" + id);
             Long userId = (long) jwtService.getUserIdx();
+
+
             ArticleRes articleRes = articleService.getArticle(articleId, userId);
             return new BaseResponse<>(articleRes);
         }catch (BaseException exception){
@@ -225,6 +230,8 @@ public class ArticleController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+    
 
 
 }

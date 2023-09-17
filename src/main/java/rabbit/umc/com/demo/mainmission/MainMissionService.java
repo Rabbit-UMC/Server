@@ -229,13 +229,12 @@ public class MainMissionService {
         }
 
         //만약 당일 이미 사진을 올렸으면 리젝
-        //todo : 데모데이로 인한 당일 1회 인증 사진 풀기
-//        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-//        LocalDateTime endOfDay = LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX);
-//        List<MainMissionProof> proof = mainMissionProofRepository.findAllByUserAndCreatedAtBetween(user, startOfDay, endOfDay);
-//        if (!proof.isEmpty()) {
-//            throw new BaseException(FAILED_TO_UPLOAD);
-//        }
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX);
+        List<MainMissionProof> proof = mainMissionProofRepository.findAllByUserAndCreatedAtBetween(user, startOfDay, endOfDay);
+        if (!proof.isEmpty()) {
+            throw new BaseException(FAILED_TO_UPLOAD);
+        }
 
         // 10점 점수 획득
         MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(user, mainMission);
