@@ -201,8 +201,15 @@ public class MainMissionService {
             throw new BaseException(INVALID_JWT);
         }
 
-        //해당 카테고리 이전 미션 존재 시 이전 미션은 비활성화
+
         MainMission lastMission = mainMissionRepository.findMainMissionByCategoryAndStatus(category, ACTIVE);
+
+        // 아전미션이 끝나지 않았다면 새 미션 생성 불가능
+        if (lastMission.getEndAt().isBefore(LocalDate.now()) ){
+            throw new BaseException(NOT_DONE_MISSION);
+        }
+
+        //해당 카테고리 이전 미션 존재 시 이전 미션은 비활성화
         if (lastMission != null) {
             lastMission.inActive();
             mainMissionRepository.save(lastMission);
