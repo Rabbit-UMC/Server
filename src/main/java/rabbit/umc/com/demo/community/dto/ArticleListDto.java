@@ -4,9 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.joda.time.LocalDate;
 import rabbit.umc.com.demo.community.domain.Article;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 @Getter
 @Setter
@@ -22,8 +25,24 @@ public class ArticleListDto {
 
 
     public static ArticleListDto toArticleListRes(Article article){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
-        String uploadTime = article.getCreatedAt().format(formatter);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime createdAt = article.getCreatedAt();
+        long yearsAgo = ChronoUnit.YEARS.between(createdAt, now);
+
+        String uploadTime;
+
+        if (yearsAgo == 0) {
+            long daysAgo = ChronoUnit.DAYS.between(createdAt, now);
+
+            if (daysAgo == 0) {
+                uploadTime = createdAt.format(DateTimeFormatter.ofPattern("HH:mm"));
+            } else {
+                uploadTime = createdAt.format(DateTimeFormatter.ofPattern("MM/dd HH:mm"));
+            }
+        } else {
+            uploadTime = yearsAgo + "년 전";
+        }
+
         return new ArticleListDto(
                 article.getId(),
                 article.getTitle(),

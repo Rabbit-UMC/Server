@@ -60,7 +60,7 @@ public class ArticleService {
                         .map(PopularArticleDto::toPopularArticleDto)
                         .collect(Collectors.toList()));
 
-//        List<PopularArticleDto> popularArticleDtos = articleRepository.findPopularArticleLimitedToFour(ACTIVE,pageable);
+//        List<PopularArticleDto> popularArticleDtos = articleRepository.findPopularArticleLimitedToFour(ACTIVE,pageable);r
 //        communityHomeRes.setPopularArticle(popularArticleDtos);
 
         // STATUS:ACTIVE 미션만 가져오기
