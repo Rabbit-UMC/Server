@@ -39,6 +39,18 @@ public class ArticleController {
         return new BaseResponse<>(communityHomeRes);
     }
 
+    @ApiOperation(value = "커뮤니티 홈 V2 화면 조회 하는 메소드")
+    @GetMapping("/home/v2")
+    public BaseResponse<CommunityHomeResV2> communityHomeV2 () throws BaseException {
+
+        String id = jwtService.createJwt(1);
+        System.out.println("토큰" + id);
+        Long userId = (long) jwtService.getUserIdx();
+
+        CommunityHomeResV2 communityHomeRes = articleService.getHomeV2(userId);
+        return new BaseResponse<>(communityHomeRes);
+    }
+
     /**
      * 게시판 별 게시물 조회 API
      * @param page 페이징
