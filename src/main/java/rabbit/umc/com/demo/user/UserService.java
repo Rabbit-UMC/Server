@@ -126,7 +126,7 @@ public class UserService {
     //유저 프로필 조회
     public UserGetProfileResDto getProfile(Long id) throws BaseException {
         User user = findUser(id);
-        UserGetProfileResDto userGetProfileResDto = new UserGetProfileResDto(user.getUserEmail(), user.getUserName(), user.getUserProfileImage());
+        UserGetProfileResDto userGetProfileResDto = new UserGetProfileResDto(user.getUserName(), user.getUserProfileImage(), user.getCreatedAt());
         return userGetProfileResDto;
     }
 
