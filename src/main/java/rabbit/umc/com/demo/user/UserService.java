@@ -16,7 +16,6 @@ import rabbit.umc.com.demo.user.Dto.*;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -43,15 +42,12 @@ public class UserService {
     }
 
     //유저 email, nickname 저장
-
-    public void getEmailandNickname(Long userId, UserEmailNicknameReqDto userEmailNicknameReqDto) throws BaseException {
+    public void getnickname(Long userId, String userName) throws BaseException {
         User user = findUser(userId);
-        if(isExistSameNickname(userEmailNicknameReqDto.getUserName(),userId) == true){
-            log.info("중복된 닉네임입니다.");
+        if(isExistSameNickname(userName,userId) == true){
             throw new BaseException(POST_USERS_EXISTS_NICKNAME);
         }
-        user.setUserName(userEmailNicknameReqDto.getUserName());
-        user.setUserEmail(userEmailNicknameReqDto.getUserEmail());
+        user.setUserName(userName);
         userRepository.save(user);
     }
 
@@ -68,21 +64,21 @@ public class UserService {
     }
 
     //이메일 형식 검증
-    public void isEmailVerified(UserEmailNicknameReqDto userEmailNicknameReqDto) throws BaseException {
-        String email = userEmailNicknameReqDto.getUserEmail();
-
-        // 이메일 형식을 검증하기 위한 정규 표현식
-        String emailPattern = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}";
-
-        // 정규 표현식과 입력된 이메일을 비교하여 형식을 검증
-        Pattern pattern = Pattern.compile(emailPattern);
-        Matcher matcher = pattern.matcher(email);
-
-        if (!matcher.matches()) {
-            log.info("이메일 형식이 잘못되었습니다.");
-            throw new BaseException(POST_USERS_INVALID_EMAIL);
-        }
-    }
+//    public void isEmailVerified(UserNicknameReqDto userEmailNicknameReqDto) throws BaseException {
+//        String email = userEmailNicknameReqDto.getUserEmail();
+//
+//        // 이메일 형식을 검증하기 위한 정규 표현식
+//        String emailPattern = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}";
+//
+//        // 정규 표현식과 입력된 이메일을 비교하여 형식을 검증
+//        Pattern pattern = Pattern.compile(emailPattern);
+//        Matcher matcher = pattern.matcher(email);
+//
+//        if (!matcher.matches()) {
+//            log.info("이메일 형식이 잘못되었습니다.");
+//            throw new BaseException(POST_USERS_INVALID_EMAIL);
+//        }
+//    }
 
     //프로필 이미지 수정
 //    @Transactional

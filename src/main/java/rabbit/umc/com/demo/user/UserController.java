@@ -2,7 +2,6 @@ package rabbit.umc.com.demo.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
@@ -115,19 +114,17 @@ public class UserController {
     }
 
     /**
-     * 이메일, 닉네임 수집
-     * @param userEmailNicknameReqDto
+     * 회원가입시, 닉네임 수집
      * @return
      * @throws BaseException
      */
     @PostMapping("/sign-up")
-    public BaseResponse<UserEmailNicknameResDto> getEmailandNickname(@RequestBody UserEmailNicknameReqDto userEmailNicknameReqDto) throws BaseException {
+    public BaseResponse<UserNicknameResDto> getNickname(@RequestBody UserNicknameReqDto userNicknameReqDto) throws BaseException {
         try{
             Long userId = (long) jwtService.getUserIdx();
-            userService.isEmailVerified(userEmailNicknameReqDto);
-            userService.getEmailandNickname(userId, userEmailNicknameReqDto);
-            UserEmailNicknameResDto userEmailNicknameResDto = new UserEmailNicknameResDto(userId, userEmailNicknameReqDto.getUserEmail(), userEmailNicknameReqDto.getUserName());
-            return new BaseResponse<>(userEmailNicknameResDto);
+            userService.getnickname(userId, userNicknameReqDto.getUserName());
+            UserNicknameResDto userNicknameResDto = new UserNicknameResDto(userId, userNicknameReqDto.getUserName());
+            return new BaseResponse<>(userNicknameResDto);
         }
         catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
