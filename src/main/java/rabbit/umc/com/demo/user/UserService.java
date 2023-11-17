@@ -46,7 +46,7 @@ public class UserService {
 
     public void getEmailandNickname(Long userId, UserEmailNicknameReqDto userEmailNicknameReqDto) throws BaseException {
         User user = findUser(userId);
-        if(isExistSameNickname(userEmailNicknameReqDto.getUserName()) == true){
+        if(isExistSameNickname(userEmailNicknameReqDto.getUserName(),userId) == true){
             log.info("중복된 닉네임입니다.");
             throw new BaseException(POST_USERS_EXISTS_NICKNAME);
         }
@@ -55,12 +55,13 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public boolean isExistSameNickname(String nickname) throws BaseException {
-        boolean isExistSameName = userRepository.existsByUserName(nickname);
-        if(isExistSameName == true){
-//            log.info("중복된 닉네임입니다.");
-//            System.out.println("중복된 닉네임: "+nickname);
-//            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+    public boolean isExistSameNickname(String nickname, Long jwtUserId) throws BaseException {
+        //본인을 제외하고, 같은 닉네임이 있는지 확인
+
+        boolean existSameName = userRepository.existsByNicknameAndNotUserId(nickname, jwtUserId);
+        if(existSameName == true){
+            log.info("중복된 닉네임입니다.");
+            System.out.println("중복된 닉네임: "+nickname);
             return true;
         }
         return false;
@@ -84,39 +85,39 @@ public class UserService {
     }
 
     //프로필 이미지 수정
-    @Transactional
-    public void updateProfileImage(Long userId, String newProfileImage) throws BaseException {
-        try{
-            User user = findUser(userId);
-            user.setUserProfileImage(newProfileImage);
-            userRepository.save(user);
-        }
-        catch (RuntimeException e) {
-            String rollbackReason = e.getMessage();
-            log.info(rollbackReason);
-        }
-    }
-
-    //닉네임 수정
-    @Transactional
-    public void updateNickname(Long userId, String newNickname) throws BaseException {
-        User user = findUser(userId);
-        isExistSameNickname(newNickname);
-
-        user.setUserName(newNickname);
-        userRepository.save(user);
-    }
+//    @Transactional
+//    public void updateProfileImage(Long userId, String newProfileImage) throws BaseException {
+//        try{
+//            User user = findUser(userId);
+//            user.setUserProfileImage(newProfileImage);
+//            userRepository.save(user);
+//        }
+//        catch (RuntimeException e) {
+//            String rollbackReason = e.getMessage();
+//            log.info(rollbackReason);
+//        }
+//    }
+//
+//    //닉네임 수정
+//    @Transactional
+//    public void updateNickname(Long userId, String newNickname) throws BaseException {
+//        User user = findUser(userId);
+//        isExistSameNickname(newNickname);
+//
+//        user.setUserName(newNickname);
+//        userRepository.save(user);
+//    }
 
     //닉네임, 프로필 이미지 수정
     @Transactional
     public void updateProfile(Long userId, String newNickname, String newProfileImage) throws BaseException {
         User user = findUser(userId);
         user.setUserProfileImage(newProfileImage);
-        if(isExistSameNickname(newNickname) == true){
-            userRepository.save(user);
-            log.info("중복된 닉네임입니다. 중복된 닉네임: "+newNickname);
-            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
-        }
+//        if(isExistSameNickname(newNickname) == true){
+//            userRepository.save(user);
+//            log.info("중복된 닉네임입니다. 중복된 닉네임: "+newNickname);
+//            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+//        }
 
         user.setUserName(newNickname);
         userRepository.save(user);

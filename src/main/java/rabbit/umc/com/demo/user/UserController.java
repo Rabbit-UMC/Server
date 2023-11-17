@@ -39,12 +39,11 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/kakao-login")
-    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken, /*@RequestParam String code, */HttpServletResponse response) throws IOException, BaseException {
+    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken, HttpServletResponse response) throws IOException, BaseException {
         try {
             if (accessToken == null) {
                 throw new BaseException(EMPTY_KAKAO_ACCESS);
             }
-            //String accessToken = kakaoService.getAccessToken(code);
 
             KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
             User user = kakaoService.saveUser(kakaoDto);
@@ -64,31 +63,28 @@ public class UserController {
         }
     }
 
-
-    /**
-     * 카카오 로그아웃
-     * @return
-     * @throws BaseException
-     * @throws IOException
-     */
-    @GetMapping("/kakao-logout")
-    public BaseResponse<Long> kakaoLogout(HttpServletResponse response) throws BaseException, IOException {
-        try {
-            int userId = jwtService.getUserIdx();
-            System.out.println(userId);
-
-            User user = userService.findUser(Long.valueOf(userId));
-            userService.delRefreshToken(user);
-            Long kakaoId = user.getKakaoId();
-            Long logout_kakaoId = kakaoService.logout(kakaoId);
-
-            log.info("로그아웃이 완료되었습니다.");
-            return new BaseResponse<>(logout_kakaoId);
-        }
-        catch (BaseException exception) {
-            return new BaseResponse<>(exception.getStatus());
-        }
-    }
+//    @GetMapping("/kakao-login")
+//    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
+//        try {
+//            String accessToken = kakaoService.getAccessToken(code);
+//
+//            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
+//            User user = kakaoService.saveUser(kakaoDto);
+//
+//            //jwt 토큰 생성(로그인 처리)
+//            String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
+//            String jwtRefreshToken = jwtService.createRefreshToken();
+//            System.out.println(jwtAccessToken);
+//            System.out.println(jwtRefreshToken);
+//            userService.saveRefreshToken(user.getId(), jwtRefreshToken);
+//            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
+//
+//            return new BaseResponse<>(userLoginResDto);
+//        }
+//        catch (BaseException exception) {
+//            return new BaseResponse<>(exception.getStatus());
+//        }
+//    }
 
     /**
      * 회원 탈퇴(카카오 연결 끊기)
@@ -139,90 +135,90 @@ public class UserController {
 
     }
 
-    /**
-     * 이메일 인증 메일 발송
-     * @return
-     * @throws Exception
-     */
-    @PostMapping("/emailConfirm")
-    public BaseResponse<String> emailConfirm() throws Exception {
-        try {
-            Long userId = (long) jwtService.getUserIdx();
-            User user = userService.findUser(userId);
-            String email = user.getUserEmail();
-            String authenticationCode = emailService.sendSimpleMessage(email);
+//    /**
+//     * 이메일 인증 메일 발송
+//     * @return
+//     * @throws Exception
+//     */
+//    @PostMapping("/emailConfirm")
+//    public BaseResponse<String> emailConfirm() throws Exception {
+//        try {
+//            Long userId = (long) jwtService.getUserIdx();
+//            User user = userService.findUser(userId);
+//            String email = user.getUserEmail();
+//            String authenticationCode = emailService.sendSimpleMessage(email);
+//
+//            return new BaseResponse<>(authenticationCode);
+//        }
+//        catch (BaseException exception) {
+//            return new BaseResponse<>(exception.getStatus());
+//        }
+//    }
 
-            return new BaseResponse<>(authenticationCode);
-        }
-        catch (BaseException exception) {
-            return new BaseResponse<>(exception.getStatus());
-        }
-    }
+//    /**
+//     * 이메일 인증 코드 일치
+//     * @param emailAuthenticationDto
+//     * @return
+//     * @throws BaseException
+//     */
+//    @PostMapping("/email-check")
+//    public BaseResponse<String> emailCheck(@RequestBody EmailAuthenticationDto emailAuthenticationDto) throws BaseException{
+//        try {
+//            Long userId = (long) jwtService.getUserIdx();
+//            if (userId != emailAuthenticationDto.getUserId()) {
+//                throw new BaseException(INVALID_USER_JWT);
+//            }
+//            emailService.emailCheck(emailAuthenticationDto);
+//            return new BaseResponse<>("인증 성공!");
+//        }
+//        catch (BaseException exception) {
+//            return new BaseResponse<>(exception.getStatus());
+//        }
+//    }
 
-    /**
-     * 이메일 인증 코드 일치
-     * @param emailAuthenticationDto
-     * @return
-     * @throws BaseException
-     */
-    @PostMapping("/email-check")
-    public BaseResponse<String> emailCheck(@RequestBody EmailAuthenticationDto emailAuthenticationDto) throws BaseException{
-        try {
-            Long userId = (long) jwtService.getUserIdx();
-            if (userId != emailAuthenticationDto.getUserId()) {
-                throw new BaseException(INVALID_USER_JWT);
-            }
-            emailService.emailCheck(emailAuthenticationDto);
-            return new BaseResponse<>("인증 성공!");
-        }
-        catch (BaseException exception) {
-            return new BaseResponse<>(exception.getStatus());
-        }
-    }
-
-    /**
-     * 프로필 이미지 수정
-     * @param userProfileImage
-     * @return
-     * @throws BaseException
-     */
-    @PatchMapping("/profileImage")
-    public BaseResponse<Long> updateProfileImage(@RequestParam String userProfileImage) throws BaseException {
-        try {
-            Long userId = (long) jwtService.getUserIdx();
-            User user = userService.findUser(userId);
-            System.out.println("프로필 이미지를 "+user.getUserProfileImage()+"에서 "+userProfileImage+"으로 변경합니다. 회원번호: "+userId);
-            userService.updateProfileImage(userId, userProfileImage);
-            User user_after = userService.findUser(userId);
-            System.out.println("프로필 이미지 수정 완료. 현재 이미지 경로: "+user_after.getUserProfileImage());
-            return new BaseResponse<>(userId);
-        }
-        catch (BaseException exception) {
-            return new BaseResponse<>(exception.getStatus());
-        }
-    }
-
-
-    /**
-     * 닉네임 수정
-     * @param userName
-     * @return
-     * @throws BaseException
-     */
-    @PatchMapping("/nickname")
-    public BaseResponse<Long> updateNickname(@RequestParam String userName) throws BaseException{
-        try {
-            Long userId = (long) jwtService.getUserIdx();
-            User user = userService.findUser(userId);
-            System.out.println("닉네임을 "+user.getUserName()+"에서 "+userName+"으로 변경합니다. 회원번호: "+userId);
-            userService.updateNickname(userId, userName);
-            System.out.println("중복 없이 변경 완료.");
-            return new BaseResponse<>(userId);
-        }
-        catch (BaseException exception) {
-            return new BaseResponse<>(exception.getStatus());
-        }
-    }
+//    /**
+//     * 프로필 이미지 수정
+//     * @param userProfileImage
+//     * @return
+//     * @throws BaseException
+//     */
+//    @PatchMapping("/profileImage")
+//    public BaseResponse<Long> updateProfileImage(@RequestParam String userProfileImage) throws BaseException {
+//        try {
+//            Long userId = (long) jwtService.getUserIdx();
+//            User user = userService.findUser(userId);
+//            System.out.println("프로필 이미지를 "+user.getUserProfileImage()+"에서 "+userProfileImage+"으로 변경합니다. 회원번호: "+userId);
+//            userService.updateProfileImage(userId, userProfileImage);
+//            User user_after = userService.findUser(userId);
+//            System.out.println("프로필 이미지 수정 완료. 현재 이미지 경로: "+user_after.getUserProfileImage());
+//            return new BaseResponse<>(userId);
+//        }
+//        catch (BaseException exception) {
+//            return new BaseResponse<>(exception.getStatus());
+//        }
+//    }
+//
+//
+//    /**
+//     * 닉네임 수정
+//     * @param userName
+//     * @return
+//     * @throws BaseException
+//     */
+//    @PatchMapping("/nickname")
+//    public BaseResponse<Long> updateNickname(@RequestParam String userName) throws BaseException{
+//        try {
+//            Long userId = (long) jwtService.getUserIdx();
+//            User user = userService.findUser(userId);
+//            System.out.println("닉네임을 "+user.getUserName()+"에서 "+userName+"으로 변경합니다. 회원번호: "+userId);
+//            userService.updateNickname(userId, userName);
+//            System.out.println("중복 없이 변경 완료.");
+//            return new BaseResponse<>(userId);
+//        }
+//        catch (BaseException exception) {
+//            return new BaseResponse<>(exception.getStatus());
+//        }
+//    }
 
     /**
      * 닉네임, 프로필 이미지 수정
@@ -240,6 +236,23 @@ public class UserController {
 
             userService.updateProfile(userId, userName, userProfileImage);
             return new BaseResponse<>(userId);
+        }
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 닉네임 중복확인
+     * @param userName
+     * @return
+     * @throws BaseException
+     */
+    @GetMapping("/checkDuplication")
+    public BaseResponse<Boolean> updateNickname(@RequestParam String userName) throws BaseException{
+        try {
+            Long jwtUserId = (long) jwtService.getUserIdx();
+            return new BaseResponse<>(userService.isExistSameNickname(userName, jwtUserId));
         }
         catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -340,6 +353,31 @@ public class UserController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+    //    /**
+//     * 카카오 로그아웃
+//     * @return
+//     * @throws BaseException
+//     * @throws IOException
+//     */
+//    @GetMapping("/kakao-logout")
+//    public BaseResponse<Long> kakaoLogout(HttpServletResponse response) throws BaseException, IOException {
+//        try {
+//            int userId = jwtService.getUserIdx();
+//            System.out.println(userId);
+//
+//            User user = userService.findUser(Long.valueOf(userId));
+//            userService.delRefreshToken(user);
+//            Long kakaoId = user.getKakaoId();
+//            Long logout_kakaoId = kakaoService.logout(kakaoId);
+//
+//            log.info("로그아웃이 완료되었습니다.");
+//            return new BaseResponse<>(logout_kakaoId);
+//        }
+//        catch (BaseException exception) {
+//            return new BaseResponse<>(exception.getStatus());
+//        }
+//    }
 
 
 }
