@@ -11,7 +11,6 @@ public class LoginResponse {
     private String name;
     private String email;
     private String imageUrl;
-    //private Role role;
     private String tokenType;
     private String accessToken;
     private String refreshToken;

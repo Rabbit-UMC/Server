@@ -12,7 +12,6 @@ import java.time.format.DateTimeFormatter;
 @Setter
 @AllArgsConstructor
 public class UserGetProfileResDto {
-//    private String userEmail;
 
     private String userName;
 

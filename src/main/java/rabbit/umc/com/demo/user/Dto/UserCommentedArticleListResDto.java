@@ -15,12 +15,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class UserCommentedArticleListResDto {
-//    private Long articleId;
-//    private String articleTitle;
-//    private String uploadTime;
-//    private int likeCount;
-//    private int commentCount;
-//    private LocalDateTime commentCreatedAt;
 
     private Long id;
 
