@@ -1,10 +1,13 @@
 package rabbit.umc.com.demo.community.article;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.info.ProjectInfoProperties.Build;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -16,7 +19,8 @@ import rabbit.umc.com.demo.community.Category.CategoryRepository;
 import rabbit.umc.com.demo.community.Comments.CommentRepository;
 import rabbit.umc.com.demo.community.domain.*;
 import rabbit.umc.com.demo.community.dto.*;
-import rabbit.umc.com.demo.mainmission.dto.MainMissionListDtoV2;
+import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionListDtoV2;
+import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.PopularArticleDtoV2;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.dto.MainMissionListDto;
@@ -40,6 +44,7 @@ import static rabbit.umc.com.demo.Status.*;
 @RequiredArgsConstructor
 @Slf4j
 public class ArticleService {
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
 
     private final ArticleRepository articleRepository;
     private final MainMissionRepository mainMissionRepository;
@@ -63,9 +68,6 @@ public class ArticleService {
                         .map(PopularArticleDto::toPopularArticleDto)
                         .collect(Collectors.toList()));
 
-//        List<PopularArticleDto> popularArticleDtos = articleRepository.findPopularArticleLimitedToFour(ACTIVE,pageable);r
-//        communityHomeRes.setPopularArticle(popularArticleDtos);
-
         // STATUS:ACTIVE 미션만 가져오기
         List<MainMission> missionList = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
         //Dto 에 매핑
@@ -78,67 +80,61 @@ public class ArticleService {
     }
 
     public CommunityHomeResV2 getHomeV2(Long userId) {
-        CommunityHomeResV2 communityHomeRes = new CommunityHomeResV2();
-        //상위 4개만 페이징
-        PageRequest pageable = PageRequest.of(0,4);
-
-        //STATUS:ACTIVE 인기 게시물 4개만 가져오기
-        List<Article> articleList = articleRepository.findPopularArticleLimitedToFour(ACTIVE, pageable);
-        //DTO 에 매핑
-        communityHomeRes.setPopularArticle(articleList
-                .stream()
-                .map(PopularArticleDtoV2::toPopularArticleDto)
-                .collect(Collectors.toList()));
-
-//        List<PopularArticleDto> popularArticleDtos = articleRepository.findPopularArticleLimitedToFour(ACTIVE,pageable);r
-//        communityHomeRes.setPopularArticle(popularArticleDtos);
-
-        // STATUS:ACTIVE 미션만 가져오기
-        List<MainMission> missionList = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
-        //Dto 에 매핑
-        communityHomeRes.setMainMission(missionList
-                .stream()
-                .map(mainMission -> {
-                    // 카테고리의 관리자 ID 가져오기
-                    Long adminUserId = mainMission.getCategory().getUserId();
-                    // 해당 ID로 관리자 정보 조회
-                    User adminUser = userRepository.getReferenceById(adminUserId);
-                    // 관리자 이름 가져오기
-                    String adminUserName = adminUser.getUserName();
-
-                    // D-day 계산 코드
-                    LocalDate currentDateTime = LocalDate.now();
-                    LocalDate endDateTime = mainMission.getEndAt();
-                    long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, endDateTime);
-
-                    String dDay;
-                    if (daysRemaining > 0) {
-                        dDay = "D-" + daysRemaining;
-                    } else if (daysRemaining == 0) {
-                        dDay = "D-day";
-                    } else {
-                        dDay = "D+" + Math.abs(daysRemaining);
-                    }
-
-                    return new MainMissionListDtoV2(
-                            mainMission.getId(),
-                            mainMission.getTitle(),
-                            dDay,
-                            adminUserName
-                    );
-                })
-                .collect(Collectors.toList()));
-
+        CommunityHomeResV2 communityHomeRes =
+                new CommunityHomeResV2(getAllMainMission(),getTop4Articles(), findHostCategoryIds(userId));
+        return communityHomeRes;
+    }
+    public List<Long> findHostCategoryIds(Long userId){
         List<Category> category = categoryRepository.findAllByUserId(userId);
-
-
-        List<Long> categoryIds = category.stream()
+        return category.stream()
                 .map(Category::getId)
                 .collect(Collectors.toList());
 
-        communityHomeRes.setUserHostCategory(categoryIds);
+    }
+    public List<PopularArticleDtoV2> getTop4Articles(){
+        PageRequest pageRequest = PageRequest.of(0,4);
+        List<Article> top4Article = articleRepository.findPopularArticleLimitedToFour(ACTIVE, pageRequest);
 
-        return communityHomeRes;
+        return top4Article.stream()
+                .map(article -> PopularArticleDtoV2.builder()
+                        .articleId(article.getId())
+                        .articleTitle(article.getTitle())
+                        .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
+                        .likeCount(article.getLikeArticles().size())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public List<MainMissionListDtoV2> getAllMainMission(){
+        List<MainMission> allMissions = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
+
+        return allMissions.stream()
+                .map(mainMission -> MainMissionListDtoV2.builder()
+                        .mainMissionId(mainMission.getId())
+                        .mainMissionTitle(mainMission.getTitle())
+                        .dDay(calculateDDay(mainMission.getEndAt()))
+                        .hostUserName(getHostUserName(mainMission))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private String getHostUserName(MainMission mainMission){
+        Long hostId = mainMission.getCategory().getUserId();
+        User hostUser = userRepository.getReferenceById(hostId);
+        return  hostUser.getUserName();
+    }
+
+    private String calculateDDay(LocalDate endDateTime) {
+        LocalDate currentDateTime = LocalDate.now();
+        long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, endDateTime);
+
+        if (daysRemaining > 0) {
+            return "D-" + daysRemaining;
+        } else if (daysRemaining == 0) {
+            return "D-day";
+        } else {
+            return "D+" + Math.abs(daysRemaining);
+        }
     }
 
     public ArticleListsRes getArticles(int page, Long categoryId){
