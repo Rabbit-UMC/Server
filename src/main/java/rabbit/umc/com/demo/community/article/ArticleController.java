@@ -35,7 +35,7 @@ public class ArticleController {
     @ApiOperation(value = "커뮤니티 홈 화면 조회 하는 메소드")
     @GetMapping("/home")
     public BaseResponse<CommunityHomeRes> communityHome () throws BaseException {
-        CommunityHomeRes communityHomeRes = articleService.getHome();
+        CommunityHomeRes communityHomeRes = articleService.getHomeV1();
         return new BaseResponse<>(communityHomeRes);
     }
 
