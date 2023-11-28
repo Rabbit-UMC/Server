@@ -1,5 +1,7 @@
 package rabbit.umc.com.demo.community.article;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import rabbit.umc.com.demo.community.Category.CategoryRepository;
 import rabbit.umc.com.demo.community.Comments.CommentRepository;
 import rabbit.umc.com.demo.community.domain.*;
 import rabbit.umc.com.demo.community.dto.*;
+import rabbit.umc.com.demo.mainmission.dto.MainMissionListDtoV2;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.dto.MainMissionListDto;
@@ -70,6 +73,70 @@ public class ArticleService {
                 .stream()
                 .map(MainMissionListDto::toMainMissionListDto)
                 .collect(Collectors.toList()));
+
+        return communityHomeRes;
+    }
+
+    public CommunityHomeResV2 getHomeV2(Long userId) {
+        CommunityHomeResV2 communityHomeRes = new CommunityHomeResV2();
+        //상위 4개만 페이징
+        PageRequest pageable = PageRequest.of(0,4);
+
+        //STATUS:ACTIVE 인기 게시물 4개만 가져오기
+        List<Article> articleList = articleRepository.findPopularArticleLimitedToFour(ACTIVE, pageable);
+        //DTO 에 매핑
+        communityHomeRes.setPopularArticle(articleList
+                .stream()
+                .map(PopularArticleDtoV2::toPopularArticleDto)
+                .collect(Collectors.toList()));
+
+//        List<PopularArticleDto> popularArticleDtos = articleRepository.findPopularArticleLimitedToFour(ACTIVE,pageable);r
+//        communityHomeRes.setPopularArticle(popularArticleDtos);
+
+        // STATUS:ACTIVE 미션만 가져오기
+        List<MainMission> missionList = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
+        //Dto 에 매핑
+        communityHomeRes.setMainMission(missionList
+                .stream()
+                .map(mainMission -> {
+                    // 카테고리의 관리자 ID 가져오기
+                    Long adminUserId = mainMission.getCategory().getUserId();
+                    // 해당 ID로 관리자 정보 조회
+                    User adminUser = userRepository.getReferenceById(adminUserId);
+                    // 관리자 이름 가져오기
+                    String adminUserName = adminUser.getUserName();
+
+                    // D-day 계산 코드
+                    LocalDate currentDateTime = LocalDate.now();
+                    LocalDate endDateTime = mainMission.getEndAt();
+                    long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, endDateTime);
+
+                    String dDay;
+                    if (daysRemaining > 0) {
+                        dDay = "D-" + daysRemaining;
+                    } else if (daysRemaining == 0) {
+                        dDay = "D-day";
+                    } else {
+                        dDay = "D+" + Math.abs(daysRemaining);
+                    }
+
+                    return new MainMissionListDtoV2(
+                            mainMission.getId(),
+                            mainMission.getTitle(),
+                            dDay,
+                            adminUserName
+                    );
+                })
+                .collect(Collectors.toList()));
+
+        List<Category> category = categoryRepository.findAllByUserId(userId);
+
+
+        List<Long> categoryIds = category.stream()
+                .map(Category::getId)
+                .collect(Collectors.toList());
+
+        communityHomeRes.setUserHostCategory(categoryIds);
 
         return communityHomeRes;
     }
