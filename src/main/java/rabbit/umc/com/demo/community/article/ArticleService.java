@@ -20,6 +20,8 @@ import rabbit.umc.com.demo.community.domain.*;
 import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
 import rabbit.umc.com.demo.community.dto.*;
 import rabbit.umc.com.demo.community.dto.ArticleListsRes.ArticleListDto;
+import rabbit.umc.com.demo.community.dto.ArticleRes.ArticleImageDto;
+import rabbit.umc.com.demo.community.dto.ArticleRes.CommentListDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionListDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.PopularArticleDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionListDtoV2;
@@ -218,17 +220,39 @@ public class ArticleService {
         // 게시물의 이미지들에 대해 DTO 에 매핑
         List<ArticleImageDto> articleImages = article.getImages()
                 .stream()
-                .map(ArticleImageDto::toArticleImageDto)
+                .map(image -> ArticleImageDto.builder()
+                        .imageId(image.getId())
+                        .filePath(image.getFilePath())
+                        .build())
                 .collect(Collectors.toList());
 
         // 게시물의 댓글들에 대해 DTO 매핑
         List<CommentListDto> commentLists = article.getComments()
                 .stream()
-                .sorted(Comparator.comparing(Comment::getCreatedAt))    //댓글이 오래된 순으로 정렬
-                .map(CommentListDto::toCommentListDto)
+                .sorted(Comparator.comparing(Comment::getCreatedAt))
+                .map(comment -> CommentListDto.builder()
+                        .commentUserId(comment.getUser().getId())
+                        .commentId(comment.getId())
+                        .commentAuthorProfileImage(comment.getUser().getUserProfileImage())
+                        .commentAuthorName(comment.getUser().getUserName())
+                        .commentContent(comment.getCommentContent())
+                        .userPermission(comment.getUser().getUserPermission().name())
+                        .build())
                 .collect(Collectors.toList());
 
-        return ArticleRes.toArticleRes(article, articleImages, commentLists, isLike);
+        return ArticleRes.builder()
+                .categoryName(article.getCategory().getName())
+                .articleId(article.getId())
+                .authorId(article.getUser().getId())
+                .authorProfileImage(article.getUser().getUserProfileImage())
+                .authorName(article.getUser().getUserName())
+                .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
+                .articleTitle(article.getTitle())
+                .articleContent(article.getContent())
+                .likeArticle(isLike)
+                .articleImage(articleImages)
+                .commentList(commentLists)
+                .build();
 
     }
 
