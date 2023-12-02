@@ -1,6 +1,7 @@
 package rabbit.umc.com.demo.community.article;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import rabbit.umc.com.demo.community.Comments.CommentRepository;
 import rabbit.umc.com.demo.community.domain.*;
 import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
 import rabbit.umc.com.demo.community.dto.*;
+import rabbit.umc.com.demo.community.dto.ArticleListsRes.ArticleListDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionListDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.PopularArticleDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionListDtoV2;
@@ -46,6 +48,7 @@ import static rabbit.umc.com.demo.Status.*;
 public class ArticleService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
     private static final int POPULAR_ARTICLE_LIKE = 4;
+    private static final int PAGING_SIZE = 20;
 
     private final ArticleRepository articleRepository;
     private final MainMissionRepository mainMissionRepository;
@@ -151,24 +154,53 @@ public class ArticleService {
     }
 
     public ArticleListsRes getArticles(int page, Long categoryId){
-        ArticleListsRes articleLists = new ArticleListsRes();
-        Category category = categoryRepository.getReferenceById(categoryId);
-        int pageSize = 20; //페이징시 가져올 데이터 수
-        PageRequest pageRequest =PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
+        Category category = categoryRepository.getReferenceById(categoryId);
+
+        PageRequest pageRequest =PageRequest.of(page, PAGING_SIZE, Sort.by("createdAt").descending());
         // Status:ACTIVE, categoryId에 해당하는 게시물 페이징 해서 가져오기
         List<Article> articlePage = articleRepository.findAllByCategoryIdAndStatusOrderByCreatedAtDesc(categoryId, Status.ACTIVE, pageRequest);
-        // DTO 매핑
         List<ArticleListDto> articleListRes = articlePage
                 .stream()
-                .map(ArticleListDto::toArticleListRes)
+                .map(article -> ArticleListDto.builder()
+                        .articleId(article.getId())
+                        .articleTitle(article.getTitle())
+                        .uploadTime(makeArticleUploadTime(article.getCreatedAt()))
+                        .likeCount(article.getLikeArticles().size())
+                        .commentCount(article.getComments().size())
+                        .build())
                 .collect(Collectors.toList());
 
         //Status:ACTIVE, categoryId에 해당하는 메인미션 가져오기
         MainMission mainMission = mainMissionRepository.findMainMissionsByCategoryIdAndStatus(categoryId, ACTIVE);
         //DTO 에 매핑 (카테고리 이미지, 메인미션 ID, 카테고리 ID, 페이징된 게시물 DTO)
-        articleLists.setArticleLists(category.getImage(), mainMission.getId(), category.getUserId(), articleListRes);
-        return articleLists;
+
+        return ArticleListsRes.builder()
+                .categoryImage(category.getImage())
+                .mainMissionId(mainMission.getId())
+                .categoryHostId(category.getUserId())
+                .articleLists(articleListRes)
+                .build();
+    }
+
+    private String makeArticleUploadTime (LocalDateTime createTime){
+        LocalDateTime now = LocalDateTime.now();
+        long yearsAgo = ChronoUnit.YEARS.between(createTime, now);
+        String uploadTime;
+
+        if (yearsAgo == 0) {
+            long daysAgo = ChronoUnit.DAYS.between(createTime, now);
+
+            if (daysAgo == 0) {
+                uploadTime = createTime.format(DateTimeFormatter.ofPattern("HH:mm"));
+            } else {
+                uploadTime = createTime.format(DateTimeFormatter.ofPattern("MM/dd HH:mm"));
+            }
+        } else {
+            uploadTime = yearsAgo + "년 전";
+        }
+        return uploadTime;
+
     }
 
 
