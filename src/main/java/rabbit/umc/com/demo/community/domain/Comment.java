@@ -1,6 +1,9 @@
 package rabbit.umc.com.demo.community.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
@@ -13,6 +16,9 @@ import static rabbit.umc.com.demo.Status.INACTIVE;
 
 @Entity
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "comments")
 public class Comment extends BaseTimeEntity {
 
@@ -36,11 +42,6 @@ public class Comment extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
 
-    public void setComment(Article article, User user, String content){
-        this.article = article;
-        this.user = user;
-        this.content = content;
-    }
     //비즈니스 로직
     public void lockComment(){
         this.status = Status.INACTIVE;

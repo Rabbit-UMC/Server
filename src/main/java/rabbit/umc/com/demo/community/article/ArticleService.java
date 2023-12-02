@@ -144,9 +144,6 @@ public class ArticleService {
                 .build();
     }
 
-
-
-
     public ArticleRes getArticle(Long articleId, Long userId){
         // userId 유저가 articleId 게시물 좋아하는지 체크
         Boolean isLike = likeArticleRepository.existsByArticleIdAndUserId(articleId, userId);
@@ -182,9 +179,7 @@ public class ArticleService {
                 .articleImage(articleImages)
                 .commentList(commentLists)
                 .build();
-
     }
-
 
     @Transactional
     public void deleteArticle(Long articleId, Long userId) throws BaseException {
@@ -306,7 +301,7 @@ public class ArticleService {
                 // 신고 횟수 15회 이상 시 게시물 status 변경 로직  [ACTIVE -> INACTIVE]
                 int reportCount = reportRepository.countByArticleId(articleId);
                 if (reportCount >= REPORT_LIMIT) {
-                    article.setStatus(INACTIVE);
+                    article.setInactive();
                 }
             }
         }catch (EntityNotFoundException e){
@@ -366,7 +361,6 @@ public class ArticleService {
         int pageSize = 20; //페이징시 가져올 데이터 수
         PageRequest pageRequest =PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
-        //todo :  현재는 인기 게시물 기준이 좋아요 5개 이상
         //Status:ACTIVE 좋아요 5개 이상인 게시물 최신순으로 정렬해서 가져오기
         List<Article> popularArticles = articleRepository.findArticleLimited20(ACTIVE, pageRequest);
 

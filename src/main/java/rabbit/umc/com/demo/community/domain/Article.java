@@ -65,7 +65,8 @@ public class Article extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
 
-
-
+    public void setInactive(){
+        this.status = Status.INACTIVE;
+    }
 
 }
