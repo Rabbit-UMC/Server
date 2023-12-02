@@ -16,6 +16,7 @@ import rabbit.umc.com.demo.community.*;
 import rabbit.umc.com.demo.community.Category.CategoryRepository;
 import rabbit.umc.com.demo.community.Comments.CommentRepository;
 import rabbit.umc.com.demo.community.domain.*;
+import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
 import rabbit.umc.com.demo.community.dto.*;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionListDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.PopularArticleDto;

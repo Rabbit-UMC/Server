@@ -8,6 +8,7 @@ import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
 
 
+import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
 import rabbit.umc.com.demo.community.dto.PostArticleReq;
 
 
