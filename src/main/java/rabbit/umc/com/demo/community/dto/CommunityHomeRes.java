@@ -9,7 +9,7 @@ import lombok.Setter;
 import java.util.List;
 
 @Getter
-@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommunityHomeRes {

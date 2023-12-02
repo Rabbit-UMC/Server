@@ -23,12 +23,6 @@ public class ArticleListsRes {
     List<ArticleListDto> articleLists;
 
 
-    public void setArticleLists (String categoryImage, Long mainMissionId, Long hostId, List<ArticleListDto> articleLists){
-        this.categoryImage = categoryImage;
-        this.mainMissionId = mainMissionId;
-        this.categoryHostId = hostId;
-        this.articleLists = articleLists;
-    }
 
     @Builder
     @AllArgsConstructor

@@ -103,15 +103,20 @@ public class ArticleService {
                         .build())
                 .collect(Collectors.toList());
 
-        CommunityHomeRes communityHomeRes = new CommunityHomeRes(mainMissionListDtos, popularArticleDtos);
-        return communityHomeRes;
+        return CommunityHomeRes.builder()
+                .mainMission(mainMissionListDtos)
+                .popularArticle(popularArticleDtos)
+                .build();
     }
 
     public CommunityHomeResV2 getHomeV2(Long userId) {
-        CommunityHomeResV2 communityHomeRes =
-                new CommunityHomeResV2(getAllMainMission(),getTop4Articles(), findHostCategoryIds(userId));
-        return communityHomeRes;
+        return CommunityHomeResV2.builder()
+                .mainMission(getAllMainMission())
+                .popularArticle(getTop4Articles())
+                .userHostCategory(findHostCategoryIds(userId))
+                .build();
     }
+
     public List<Long> findHostCategoryIds(Long userId){
         List<Category> category = categoryRepository.findAllByUserId(userId);
         return category.stream()
