@@ -34,6 +34,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import rabbit.umc.com.utils.DateUtil;
 
 import static rabbit.umc.com.config.BaseResponseStatus.*;
 import static rabbit.umc.com.demo.Status.*;
@@ -91,23 +92,19 @@ public class MainMissionService {
 
             //mainMissionId 메인 미션 랭킹 가져오기
             List<MainMissionUsers> top3 = mainMissionUsersRepository.findTop3OByMainMissionIdOrderByScoreDesc(mainMissionId);
-
-            //DTO 매핑
-            List<RankDto> rankList = new ArrayList<>();
-            for (MainMissionUsers rankUser : top3) {
-                RankDto rankDto = RankDto.builder()
-                        .userId(rankUser.getId())
-                        .userName(rankUser.getUser().getUserName())
-                        .build();
-                rankList.add(rankDto);
-            }
+            List<RankDto> rankList = top3.stream()
+                    .map(mainMissionUsers -> RankDto.builder()
+                            .userId(mainMissionUsers.getId())
+                            .userName(mainMissionUsers.getUser().getUserName())
+                            .build())
+                    .collect(Collectors.toList());
 
             //Res DTO 에 매핑
             return GetMainMissionRes.builder()
                     .mainMissionId(mainMission.getId())
                     .mainMissionName(mainMission.getTitle())
                     .startDay(mainMission.getStartAt().format(DATE_TIME_FORMATTER))
-                    .dDay(getDday(mainMission.getEndAt()))
+                    .dDay(DateUtil.getMissionDday(mainMission.getEndAt()))
                     .mainMissionContent(mainMission.getContent())
                     .rank(rankList)
                     .missionProofImages(missionProofImages)
@@ -118,16 +115,6 @@ public class MainMissionService {
         }
     }
 
-    public static String getDday(LocalDate missionEndAt){
-        LocalDate currentDateTime = LocalDate.now();
-        long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, missionEndAt);
-        String dDay;
-        if (daysRemaining >= 0) {
-            return   daysRemaining + "일";
-        }  else {
-            return  "미션 종료";
-        }
-    }
 
     @Transactional
     public void likeMissionProof(Long userId, Long mainMissionProofId) throws BaseException {
