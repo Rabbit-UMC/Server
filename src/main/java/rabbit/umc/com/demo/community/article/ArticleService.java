@@ -41,6 +41,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import rabbit.umc.com.utils.DateUtil;
 
 import static rabbit.umc.com.config.BaseResponseStatus.*;
 import static rabbit.umc.com.demo.Status.*;
@@ -64,18 +65,6 @@ public class ArticleService {
     private final CategoryRepository categoryRepository;
     private final ReportRepository reportRepository;
 
-    public static String calculateDDay(LocalDate endDateTime) {
-        LocalDate currentDateTime = LocalDate.now();
-        long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, endDateTime);
-
-        if (daysRemaining > 0) {
-            return "D-" + daysRemaining;
-        } else if (daysRemaining == 0) {
-            return "D-day";
-        } else {
-            return "D+" + Math.abs(daysRemaining);
-        }
-    }
 
     public CommunityHomeRes getHomeV1() {
         //상위 4개만 페이징
@@ -132,7 +121,7 @@ public class ArticleService {
                 .map(mainMission -> MainMissionListDtoV2.builder()
                         .mainMissionId(mainMission.getId())
                         .mainMissionTitle(mainMission.getTitle())
-                        .dDay(calculateDDay(mainMission.getEndAt()))
+                        .dDay(DateUtil.calculateDDay(mainMission.getEndAt()))
                         .hostUserName(getHostUserName(mainMission))
                         .build())
                 .collect(Collectors.toList());
@@ -156,7 +145,7 @@ public class ArticleService {
                 .map(article -> ArticleListDto.builder()
                         .articleId(article.getId())
                         .articleTitle(article.getTitle())
-                        .uploadTime(makeArticleUploadTime(article.getCreatedAt()))
+                        .uploadTime(DateUtil.makeArticleUploadTime(article.getCreatedAt()))
                         .likeCount(article.getLikeArticles().size())
                         .commentCount(article.getComments().size())
                         .build())
@@ -174,24 +163,7 @@ public class ArticleService {
                 .build();
     }
 
-    private String makeArticleUploadTime (LocalDateTime createTime){
-        LocalDateTime now = LocalDateTime.now();
-        long yearsAgo = ChronoUnit.YEARS.between(createTime, now);
-        String uploadTime;
 
-        if (yearsAgo == 0) {
-            long daysAgo = ChronoUnit.DAYS.between(createTime, now);
-
-            if (daysAgo == 0) {
-                uploadTime = createTime.format(DateTimeFormatter.ofPattern("HH:mm"));
-            } else {
-                uploadTime = createTime.format(DateTimeFormatter.ofPattern("MM/dd HH:mm"));
-            }
-        } else {
-            uploadTime = yearsAgo + "년 전";
-        }
-        return uploadTime;
-    }
 
 
     public ArticleRes getArticle(Long articleId, Long userId){
