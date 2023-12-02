@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.community.Category;
+package rabbit.umc.com.demo.community.category;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,17 +1,22 @@
 package rabbit.umc.com.demo.community.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.community.domain.Article;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import rabbit.umc.com.demo.community.domain.Comment;
+import rabbit.umc.com.demo.community.domain.Image;
 
 @Getter
-@Setter
-@Data
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class ArticleRes {
     private String categoryName;
@@ -26,25 +31,27 @@ public class ArticleRes {
     private List<ArticleImageDto> articleImage;
     private List<CommentListDto> commentList;
 
-    public static ArticleRes toArticleRes(Article article, List<ArticleImageDto> articleImage, List<CommentListDto> commentList, Boolean isLike){
-        /**
-         * 시간 포맷 (yyyy-MM-dd HH:mm)
-         */
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
-        String uploadTime = article.getCreatedAt().format(formatter);
-        return new ArticleRes(
-                article.getCategory().getName(),
-                article.getId(),
-                article.getUser().getId(),
-                article.getUser().getUserProfileImage(),
-                article.getUser().getUserName(),
-                uploadTime,
-                article.getTitle(),
-                article.getContent(),
-                isLike,
-                articleImage,
-                commentList
-        );
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ArticleImageDto {
+        private Long imageId;
+        private String filePath;
+
     }
 
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CommentListDto {
+        private Long commentUserId;
+        private Long commentId;
+        private String commentAuthorProfileImage;
+        private String commentAuthorName;
+        private String commentContent;
+        private String userPermission;
+
+    }
 }

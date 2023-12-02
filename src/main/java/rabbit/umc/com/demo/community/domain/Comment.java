@@ -9,11 +9,15 @@ import rabbit.umc.com.demo.user.Domain.User;
 import javax.persistence.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
+import static rabbit.umc.com.demo.Status.INACTIVE;
 
 @Entity
 @Getter
 @Table(name = "comments")
 public class Comment extends BaseTimeEntity {
+
+    private static final String GOOD_COMMENT_MESSAGE = "착한 말을 쓰자!";
+
     @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "comments_id")
     private Long id;
@@ -32,20 +36,21 @@ public class Comment extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
 
-
-
-
-    //Setter
     public void setComment(Article article, User user, String content){
         this.article = article;
         this.user = user;
         this.content = content;
     }
-
-
     //비즈니스 로직
     public void lockComment(){
         this.status = Status.INACTIVE;
+    }
+
+    public String getCommentContent(){
+        if (this.getStatus() == INACTIVE){
+            return GOOD_COMMENT_MESSAGE;
+        }
+        return this.getContent();
     }
 
 }

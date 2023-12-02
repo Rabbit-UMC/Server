@@ -1,6 +1,7 @@
 package rabbit.umc.com.demo.community.article;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
@@ -13,14 +14,21 @@ import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.community.*;
-import rabbit.umc.com.demo.community.Category.CategoryRepository;
+import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.Comments.CommentRepository;
 import rabbit.umc.com.demo.community.domain.*;
+import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
 import rabbit.umc.com.demo.community.dto.*;
-import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionListDto;
+import rabbit.umc.com.demo.community.dto.ArticleListsRes.ArticleListDto;
+import rabbit.umc.com.demo.community.dto.ArticleRes.ArticleImageDto;
+import rabbit.umc.com.demo.community.dto.ArticleRes.CommentListDto;
+import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.PopularArticleDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionListDtoV2;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.PopularArticleDtoV2;
+import rabbit.umc.com.demo.community.dto.PatchArticleReq.ChangeImageDto;
+import rabbit.umc.com.demo.converter.ArticleConverter;
+import rabbit.umc.com.demo.converter.MainMissionConverter;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.report.Report;
@@ -33,6 +41,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import rabbit.umc.com.utils.DateUtil;
 
 import static rabbit.umc.com.config.BaseResponseStatus.*;
 import static rabbit.umc.com.demo.Status.*;
@@ -45,6 +54,7 @@ import static rabbit.umc.com.demo.Status.*;
 public class ArticleService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
     private static final int POPULAR_ARTICLE_LIKE = 4;
+    private static final int PAGING_SIZE = 20;
 
     private final ArticleRepository articleRepository;
     private final MainMissionRepository mainMissionRepository;
@@ -55,18 +65,6 @@ public class ArticleService {
     private final CategoryRepository categoryRepository;
     private final ReportRepository reportRepository;
 
-    private String calculateDDay(LocalDate endDateTime) {
-        LocalDate currentDateTime = LocalDate.now();
-        long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, endDateTime);
-
-        if (daysRemaining > 0) {
-            return "D-" + daysRemaining;
-        } else if (daysRemaining == 0) {
-            return "D-day";
-        } else {
-            return "D+" + Math.abs(daysRemaining);
-        }
-    }
 
     public CommunityHomeRes getHomeV1() {
         //상위 4개만 페이징
@@ -74,40 +72,26 @@ public class ArticleService {
 
         //STATUS:ACTIVE 인기 게시물 4개만 가져오기
         List<Article> articleList = articleRepository.findPopularArticleLimitedToFour(ACTIVE, pageable);
-        //DTO 에 매핑
-        List<PopularArticleDto> popularArticleDtos = articleList
-                        .stream()
-                        .map(article -> PopularArticleDto.builder()
-                                .articleId(article.getId())
-                                .articleTitle(article.getTitle())
-                                .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
-                                .likeCount(article.getLikeArticles().size())
-                                .build())
-                        .collect(Collectors.toList());
+        List<PopularArticleDto> popularArticleList = ArticleConverter.toPopularArticleDto(articleList);
 
         // STATUS:ACTIVE 미션만 가져오기
         List<MainMission> missionList = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
-        //Dto 에 매핑
-        List<MainMissionListDto> mainMissionListDtos = missionList
-                .stream()
-                .map(mainMission -> MainMissionListDto.builder()
-                        .mainMissionId(mainMission.getId())
-                        .mainMissionTitle(mainMission.getTitle())
-                        .categoryImage(mainMission.getCategory().getImage())
-                        .categoryName(mainMission.getCategory().getName())
-                        .dDay(calculateDDay(mainMission.getEndAt()))
-                        .build())
-                .collect(Collectors.toList());
+        List<MainMissionDto> mainMissionDtoList = MainMissionConverter.toMainMissionDtoList(missionList);
 
-        CommunityHomeRes communityHomeRes = new CommunityHomeRes(mainMissionListDtos, popularArticleDtos);
-        return communityHomeRes;
+        return CommunityHomeRes.builder()
+                .mainMission(mainMissionDtoList)
+                .popularArticle(popularArticleList)
+                .build();
     }
 
     public CommunityHomeResV2 getHomeV2(Long userId) {
-        CommunityHomeResV2 communityHomeRes =
-                new CommunityHomeResV2(getAllMainMission(),getTop4Articles(), findHostCategoryIds(userId));
-        return communityHomeRes;
+        return CommunityHomeResV2.builder()
+                .mainMission(getAllMainMission())
+                .popularArticle(getTop4Articles())
+                .userHostCategory(findHostCategoryIds(userId))
+                .build();
     }
+
     public List<Long> findHostCategoryIds(Long userId){
         List<Category> category = categoryRepository.findAllByUserId(userId);
         return category.stream()
@@ -137,7 +121,7 @@ public class ArticleService {
                 .map(mainMission -> MainMissionListDtoV2.builder()
                         .mainMissionId(mainMission.getId())
                         .mainMissionTitle(mainMission.getTitle())
-                        .dDay(calculateDDay(mainMission.getEndAt()))
+                        .dDay(DateUtil.calculateDDay(mainMission.getEndAt()))
                         .hostUserName(getHostUserName(mainMission))
                         .build())
                 .collect(Collectors.toList());
@@ -150,25 +134,36 @@ public class ArticleService {
     }
 
     public ArticleListsRes getArticles(int page, Long categoryId){
-        ArticleListsRes articleLists = new ArticleListsRes();
-        Category category = categoryRepository.getReferenceById(categoryId);
-        int pageSize = 20; //페이징시 가져올 데이터 수
-        PageRequest pageRequest =PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
+        Category category = categoryRepository.getReferenceById(categoryId);
+
+        PageRequest pageRequest =PageRequest.of(page, PAGING_SIZE, Sort.by("createdAt").descending());
         // Status:ACTIVE, categoryId에 해당하는 게시물 페이징 해서 가져오기
         List<Article> articlePage = articleRepository.findAllByCategoryIdAndStatusOrderByCreatedAtDesc(categoryId, Status.ACTIVE, pageRequest);
-        // DTO 매핑
         List<ArticleListDto> articleListRes = articlePage
                 .stream()
-                .map(ArticleListDto::toArticleListRes)
+                .map(article -> ArticleListDto.builder()
+                        .articleId(article.getId())
+                        .articleTitle(article.getTitle())
+                        .uploadTime(DateUtil.makeArticleUploadTime(article.getCreatedAt()))
+                        .likeCount(article.getLikeArticles().size())
+                        .commentCount(article.getComments().size())
+                        .build())
                 .collect(Collectors.toList());
 
         //Status:ACTIVE, categoryId에 해당하는 메인미션 가져오기
         MainMission mainMission = mainMissionRepository.findMainMissionsByCategoryIdAndStatus(categoryId, ACTIVE);
         //DTO 에 매핑 (카테고리 이미지, 메인미션 ID, 카테고리 ID, 페이징된 게시물 DTO)
-        articleLists.setArticleLists(category.getImage(), mainMission.getId(), category.getUserId(), articleListRes);
-        return articleLists;
+
+        return ArticleListsRes.builder()
+                .categoryImage(category.getImage())
+                .mainMissionId(mainMission.getId())
+                .categoryHostId(category.getUserId())
+                .articleLists(articleListRes)
+                .build();
     }
+
+
 
 
     public ArticleRes getArticle(Long articleId, Long userId){
@@ -180,17 +175,39 @@ public class ArticleService {
         // 게시물의 이미지들에 대해 DTO 에 매핑
         List<ArticleImageDto> articleImages = article.getImages()
                 .stream()
-                .map(ArticleImageDto::toArticleImageDto)
+                .map(image -> ArticleImageDto.builder()
+                        .imageId(image.getId())
+                        .filePath(image.getFilePath())
+                        .build())
                 .collect(Collectors.toList());
 
         // 게시물의 댓글들에 대해 DTO 매핑
         List<CommentListDto> commentLists = article.getComments()
                 .stream()
-                .sorted(Comparator.comparing(Comment::getCreatedAt))    //댓글이 오래된 순으로 정렬
-                .map(CommentListDto::toCommentListDto)
+                .sorted(Comparator.comparing(Comment::getCreatedAt))
+                .map(comment -> CommentListDto.builder()
+                        .commentUserId(comment.getUser().getId())
+                        .commentId(comment.getId())
+                        .commentAuthorProfileImage(comment.getUser().getUserProfileImage())
+                        .commentAuthorName(comment.getUser().getUserName())
+                        .commentContent(comment.getCommentContent())
+                        .userPermission(comment.getUser().getUserPermission().name())
+                        .build())
                 .collect(Collectors.toList());
 
-        return ArticleRes.toArticleRes(article, articleImages, commentLists, isLike);
+        return ArticleRes.builder()
+                .categoryName(article.getCategory().getName())
+                .articleId(article.getId())
+                .authorId(article.getUser().getId())
+                .authorProfileImage(article.getUser().getUserProfileImage())
+                .authorName(article.getUser().getUserName())
+                .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
+                .articleTitle(article.getTitle())
+                .articleContent(article.getContent())
+                .likeArticle(isLike)
+                .articleImage(articleImages)
+                .commentList(commentLists)
+                .build();
 
     }
 

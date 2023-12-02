@@ -11,7 +11,6 @@ import lombok.Setter;
 import rabbit.umc.com.demo.community.domain.Article;
 
 @Getter
-@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

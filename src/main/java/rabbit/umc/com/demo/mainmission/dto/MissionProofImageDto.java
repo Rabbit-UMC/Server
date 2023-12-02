@@ -1,7 +1,7 @@
 package rabbit.umc.com.demo.mainmission.dto;
 
 import lombok.*;
-import rabbit.umc.com.demo.mainmission.domain.MainMissionProof;
+import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
 
 @Data
 @Getter

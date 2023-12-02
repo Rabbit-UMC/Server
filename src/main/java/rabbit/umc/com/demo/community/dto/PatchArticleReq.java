@@ -14,5 +14,12 @@ public class PatchArticleReq {
     private String articleContent;
     private List<ChangeImageDto> imageList;
 
-
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ChangeImageDto {
+        private Long imageId;
+        private String filePath;
+    }
 }
