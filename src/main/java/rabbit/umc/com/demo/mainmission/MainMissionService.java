@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.demo.community.Category.CategoryRepository;
+import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.mainmission.domain.mapping.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;

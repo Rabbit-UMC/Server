@@ -15,14 +15,14 @@ import java.util.List;
 public class CommunityHomeRes {
 
 
-    private List<MainMissionListDto> mainMission;
+    private List<MainMissionDto> mainMission;
     private List<PopularArticleDto> popularArticle;
 
     @NoArgsConstructor
     @AllArgsConstructor
     @Getter
     @Builder
-    public static class MainMissionListDto {
+    public static class MainMissionDto {
         private Long mainMissionId;
         private String mainMissionTitle;
         private String categoryImage;

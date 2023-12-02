@@ -1,12 +1,11 @@
 package rabbit.umc.com.demo.mission.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.community.Category.CategoryRepository;
+import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUserSuccess;

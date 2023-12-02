@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.community.*;
-import rabbit.umc.com.demo.community.Category.CategoryRepository;
+import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.Comments.CommentRepository;
 import rabbit.umc.com.demo.community.domain.*;
 import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
@@ -22,10 +22,13 @@ import rabbit.umc.com.demo.community.dto.*;
 import rabbit.umc.com.demo.community.dto.ArticleListsRes.ArticleListDto;
 import rabbit.umc.com.demo.community.dto.ArticleRes.ArticleImageDto;
 import rabbit.umc.com.demo.community.dto.ArticleRes.CommentListDto;
-import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionListDto;
+import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.PopularArticleDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionListDtoV2;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.PopularArticleDtoV2;
+import rabbit.umc.com.demo.community.dto.PatchArticleReq.ChangeImageDto;
+import rabbit.umc.com.demo.converter.ArticleConverter;
+import rabbit.umc.com.demo.converter.MainMissionConverter;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.report.Report;
@@ -61,7 +64,7 @@ public class ArticleService {
     private final CategoryRepository categoryRepository;
     private final ReportRepository reportRepository;
 
-    private String calculateDDay(LocalDate endDateTime) {
+    public static String calculateDDay(LocalDate endDateTime) {
         LocalDate currentDateTime = LocalDate.now();
         long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, endDateTime);
 
@@ -80,34 +83,15 @@ public class ArticleService {
 
         //STATUS:ACTIVE 인기 게시물 4개만 가져오기
         List<Article> articleList = articleRepository.findPopularArticleLimitedToFour(ACTIVE, pageable);
-        //DTO 에 매핑
-        List<PopularArticleDto> popularArticleDtos = articleList
-                        .stream()
-                        .map(article -> PopularArticleDto.builder()
-                                .articleId(article.getId())
-                                .articleTitle(article.getTitle())
-                                .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
-                                .likeCount(article.getLikeArticles().size())
-                                .build())
-                        .collect(Collectors.toList());
+        List<PopularArticleDto> popularArticleList = ArticleConverter.toPopularArticleDto(articleList);
 
         // STATUS:ACTIVE 미션만 가져오기
         List<MainMission> missionList = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
-        //Dto 에 매핑
-        List<MainMissionListDto> mainMissionListDtos = missionList
-                .stream()
-                .map(mainMission -> MainMissionListDto.builder()
-                        .mainMissionId(mainMission.getId())
-                        .mainMissionTitle(mainMission.getTitle())
-                        .categoryImage(mainMission.getCategory().getImage())
-                        .categoryName(mainMission.getCategory().getName())
-                        .dDay(calculateDDay(mainMission.getEndAt()))
-                        .build())
-                .collect(Collectors.toList());
+        List<MainMissionDto> mainMissionDtoList = MainMissionConverter.toMainMissionDtoList(missionList);
 
         return CommunityHomeRes.builder()
-                .mainMission(mainMissionListDtos)
-                .popularArticle(popularArticleDtos)
+                .mainMission(mainMissionDtoList)
+                .popularArticle(popularArticleList)
                 .build();
     }
 
@@ -207,7 +191,6 @@ public class ArticleService {
             uploadTime = yearsAgo + "년 전";
         }
         return uploadTime;
-
     }
 
 
