@@ -1,6 +1,9 @@
 package rabbit.umc.com.demo.community.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
@@ -9,6 +12,9 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Getter@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "image")
 public class Image extends BaseTimeEntity {
     @Id@GeneratedValue(strategy = IDENTITY)
@@ -28,10 +34,4 @@ public class Image extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE ;
 
-
-    public void setImage(Article article, String filePath) {
-        this.article = article;
-        this.filePath = filePath;
-
-    }
 }

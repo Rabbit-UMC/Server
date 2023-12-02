@@ -5,12 +5,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
-import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.dto.*;
 import rabbit.umc.com.utils.JwtService;
 import rabbit.umc.com.utils.S3Uploader;
@@ -60,8 +58,8 @@ public class ArticleController {
      */
     @ApiOperation(value = "게시판별 게시물 목록 조회 하는 메소드")
     @GetMapping("/article")
-    public BaseResponse<ArticleListsRes> getArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam(name = "categoryId") Long categoryId) throws BaseException{
-        ArticleListsRes articleListRes = articleService.getArticles(page, categoryId);
+    public BaseResponse<ArticleListRes> getArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam(name = "categoryId") Long categoryId) throws BaseException{
+        ArticleListRes articleListRes = articleService.getArticles(page, categoryId);
 
         return new BaseResponse<>(articleListRes);
     }

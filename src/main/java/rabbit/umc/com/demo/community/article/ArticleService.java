@@ -1,9 +1,6 @@
 package rabbit.umc.com.demo.community.article;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -19,15 +16,16 @@ import rabbit.umc.com.demo.community.Comments.CommentRepository;
 import rabbit.umc.com.demo.community.domain.*;
 import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
 import rabbit.umc.com.demo.community.dto.*;
-import rabbit.umc.com.demo.community.dto.ArticleListsRes.ArticleListDto;
+import rabbit.umc.com.demo.community.dto.ArticleListRes.ArticleDto;
 import rabbit.umc.com.demo.community.dto.ArticleRes.ArticleImageDto;
-import rabbit.umc.com.demo.community.dto.ArticleRes.CommentListDto;
+import rabbit.umc.com.demo.community.dto.ArticleRes.CommentDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.PopularArticleDto;
-import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionListDtoV2;
+import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionDtoV2;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.PopularArticleDtoV2;
 import rabbit.umc.com.demo.community.dto.PatchArticleReq.ChangeImageDto;
 import rabbit.umc.com.demo.converter.ArticleConverter;
+import rabbit.umc.com.demo.converter.CommentConverter;
 import rabbit.umc.com.demo.converter.MainMissionConverter;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
@@ -97,28 +95,19 @@ public class ArticleService {
         return category.stream()
                 .map(Category::getId)
                 .collect(Collectors.toList());
-
     }
+
     public List<PopularArticleDtoV2> getTop4Articles(){
         PageRequest pageRequest = PageRequest.of(0,POPULAR_ARTICLE_LIKE);
-
-        List<Article> top4Article = articleRepository.findPopularArticleLimitedToFour(ACTIVE, pageRequest);
-
-        return top4Article.stream()
-                .map(article -> PopularArticleDtoV2.builder()
-                        .articleId(article.getId())
-                        .articleTitle(article.getTitle())
-                        .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
-                        .likeCount(article.getLikeArticles().size())
-                        .build())
-                .collect(Collectors.toList());
+        List<Article> top4Articles = articleRepository.findPopularArticleLimitedToFour(ACTIVE, pageRequest);
+        return ArticleConverter.toPopularArticleDtoV2(top4Articles);
     }
 
-    public List<MainMissionListDtoV2> getAllMainMission(){
+    public List<MainMissionDtoV2> getAllMainMission(){
         List<MainMission> allMissions = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
 
         return allMissions.stream()
-                .map(mainMission -> MainMissionListDtoV2.builder()
+                .map(mainMission -> MainMissionDtoV2.builder()
                         .mainMissionId(mainMission.getId())
                         .mainMissionTitle(mainMission.getTitle())
                         .dDay(DateUtil.calculateDDay(mainMission.getEndAt()))
@@ -127,35 +116,26 @@ public class ArticleService {
                 .collect(Collectors.toList());
     }
 
-    private String getHostUserName(MainMission mainMission){
+    public String getHostUserName(MainMission mainMission){
         Long hostId = mainMission.getCategory().getUserId();
         User hostUser = userRepository.getReferenceById(hostId);
         return  hostUser.getUserName();
     }
 
-    public ArticleListsRes getArticles(int page, Long categoryId){
+    public ArticleListRes getArticles(int page, Long categoryId){
 
         Category category = categoryRepository.getReferenceById(categoryId);
 
         PageRequest pageRequest =PageRequest.of(page, PAGING_SIZE, Sort.by("createdAt").descending());
         // Status:ACTIVE, categoryId에 해당하는 게시물 페이징 해서 가져오기
         List<Article> articlePage = articleRepository.findAllByCategoryIdAndStatusOrderByCreatedAtDesc(categoryId, Status.ACTIVE, pageRequest);
-        List<ArticleListDto> articleListRes = articlePage
-                .stream()
-                .map(article -> ArticleListDto.builder()
-                        .articleId(article.getId())
-                        .articleTitle(article.getTitle())
-                        .uploadTime(DateUtil.makeArticleUploadTime(article.getCreatedAt()))
-                        .likeCount(article.getLikeArticles().size())
-                        .commentCount(article.getComments().size())
-                        .build())
-                .collect(Collectors.toList());
+        List<ArticleDto> articleListRes = ArticleConverter.toArticleDto(articlePage);
 
         //Status:ACTIVE, categoryId에 해당하는 메인미션 가져오기
         MainMission mainMission = mainMissionRepository.findMainMissionsByCategoryIdAndStatus(categoryId, ACTIVE);
         //DTO 에 매핑 (카테고리 이미지, 메인미션 ID, 카테고리 ID, 페이징된 게시물 DTO)
 
-        return ArticleListsRes.builder()
+        return ArticleListRes.builder()
                 .categoryImage(category.getImage())
                 .mainMissionId(mainMission.getId())
                 .categoryHostId(category.getUserId())
@@ -182,17 +162,10 @@ public class ArticleService {
                 .collect(Collectors.toList());
 
         // 게시물의 댓글들에 대해 DTO 매핑
-        List<CommentListDto> commentLists = article.getComments()
+        List<CommentDto> commentLists = article.getComments()
                 .stream()
                 .sorted(Comparator.comparing(Comment::getCreatedAt))
-                .map(comment -> CommentListDto.builder()
-                        .commentUserId(comment.getUser().getId())
-                        .commentId(comment.getId())
-                        .commentAuthorProfileImage(comment.getUser().getUserProfileImage())
-                        .commentAuthorName(comment.getUser().getUserName())
-                        .commentContent(comment.getCommentContent())
-                        .userPermission(comment.getUser().getUserPermission().name())
-                        .build())
+                .map(CommentConverter::toCommentDto)
                 .collect(Collectors.toList());
 
         return ArticleRes.builder()
@@ -242,9 +215,11 @@ public class ArticleService {
 
         // 게시물 이미지 생성
         List<String> imageList = postArticleReq.getImageList();
-        for (String imagePath : imageList) {
-            Image image = new Image();
-            image.setImage(article,imagePath);
+        for (String filepath : imageList) {
+            Image image = Image.builder()
+                    .article(article)
+                    .filePath(filepath)
+                    .build();
             imageRepository.save(image);
         }
         return article.getId();
