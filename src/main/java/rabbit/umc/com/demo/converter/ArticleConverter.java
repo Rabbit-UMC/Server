@@ -8,6 +8,7 @@ import rabbit.umc.com.demo.community.dto.ArticleListRes.ArticleDto;
 import rabbit.umc.com.demo.community.dto.ArticleRes;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.PopularArticleDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.PopularArticleDtoV2;
+import rabbit.umc.com.demo.community.dto.GetPopularArticleRes;
 import rabbit.umc.com.utils.DateUtil;
 
 public class ArticleConverter {
@@ -44,6 +45,19 @@ public class ArticleConverter {
                         .articleId(article.getId())
                         .articleTitle(article.getTitle())
                         .uploadTime(DateUtil.makeArticleUploadTime(article.getCreatedAt()))
+                        .likeCount(article.getLikeArticles().size())
+                        .commentCount(article.getComments().size())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public static List<GetPopularArticleRes> toGetPopularArticleRes(List<Article> articleList){
+        return articleList
+                .stream()
+                .map(article -> GetPopularArticleRes.builder()
+                        .articleId(article.getId())
+                        .articleTitle(article.getTitle())
+                        .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
                         .likeCount(article.getLikeArticles().size())
                         .commentCount(article.getComments().size())
                         .build())

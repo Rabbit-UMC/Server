@@ -53,6 +53,7 @@ public class ArticleService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
     private static final int POPULAR_ARTICLE_LIKE = 4;
     private static final int PAGING_SIZE = 20;
+    private static final int REPORT_LIMIT = 15;
 
     private final ArticleRepository articleRepository;
     private final MainMissionRepository mainMissionRepository;
@@ -207,10 +208,13 @@ public class ArticleService {
     public Long postArticle(PostArticleReq postArticleReq, Long userId , Long categoryId ) {
         User user = userRepository.getReferenceById(userId);
         Category category = categoryRepository.getReferenceById(categoryId);
-        Article article = new Article();
 
-        // 게시물 생성
-        article.setArticle(postArticleReq, user, category);
+        Article article = Article.builder()
+                .title(postArticleReq.getArticleTitle())
+                .content(postArticleReq.getArticleContent())
+                .user(user)
+                .category(category)
+                .build();
         articleRepository.save(article);
 
         // 게시물 이미지 생성
@@ -293,14 +297,15 @@ public class ArticleService {
                 throw new BaseException(FAILED_TO_REPORT);
 
             } else {
-                Report report = new Report();
-                report.setUser(user);
-                report.setArticle(article);
+                Report report = Report.builder()
+                        .user(user)
+                        .article(article)
+                        .build();
                 reportRepository.save(report);
 
                 // 신고 횟수 15회 이상 시 게시물 status 변경 로직  [ACTIVE -> INACTIVE]
                 int reportCount = reportRepository.countByArticleId(articleId);
-                if (reportCount > 14) {
+                if (reportCount >= REPORT_LIMIT) {
                     article.setStatus(INACTIVE);
                 }
             }
@@ -327,8 +332,10 @@ public class ArticleService {
             }
 
             //게시물 좋아요 저장
-            LikeArticle likeArticle = new LikeArticle();
-            likeArticle.setLikeArticle(user, article);
+            LikeArticle likeArticle = LikeArticle.builder()
+                    .user(user)
+                    .article(article)
+                    .build();
             likeArticleRepository.save(likeArticle);
 
         }catch (EntityNotFoundException e){
@@ -364,13 +371,10 @@ public class ArticleService {
         List<Article> popularArticles = articleRepository.findArticleLimited20(ACTIVE, pageRequest);
 
         //DTO 매핑
-        List<GetPopularArticleRes> getPopularArticleRes = popularArticles
-                .stream()
-                .map(GetPopularArticleRes::toPopularArticle)
-                .collect(Collectors.toList());
+        List<GetPopularArticleRes> getPopularArticleRes = ArticleConverter.toGetPopularArticleRes(popularArticles);
 
         // 더 이상 페이지가 없을 때 처리
-        if (popularArticles.size() ==0 ) {
+        if (popularArticles.size() == 0 ) {
             throw new BaseException(END_PAGE);
         }
 

@@ -1,6 +1,8 @@
 package rabbit.umc.com.demo.community.domain;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +28,8 @@ import static javax.persistence.GenerationType.*;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "article")
 public class Article extends BaseTimeEntity {
     @Id@GeneratedValue(strategy = IDENTITY)
@@ -62,13 +66,6 @@ public class Article extends BaseTimeEntity {
     private Status status = Status.ACTIVE;
 
 
-    //Setter
-    public void setArticle(PostArticleReq postArticleReq, User user, Category category) {
-        title = postArticleReq.getArticleTitle();
-        content = postArticleReq.getArticleContent();
-        this.user = user;
-        this.category = category;
-    }
 
 
 }
