@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.community.Category;
+package rabbit.umc.com.demo.community.category;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;

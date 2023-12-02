@@ -6,7 +6,7 @@ import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.domain.Comment;
-import rabbit.umc.com.demo.mainmission.domain.MainMissionProof;
+import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.user.Domain.User;
 import javax.persistence.*;

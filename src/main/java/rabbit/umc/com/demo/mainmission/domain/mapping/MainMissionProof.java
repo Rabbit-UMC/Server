@@ -1,9 +1,10 @@
-package rabbit.umc.com.demo.mainmission.domain;
+package rabbit.umc.com.demo.mainmission.domain.mapping;
 
 import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.user.Domain.User;
 import javax.persistence.*;
 import java.util.List;

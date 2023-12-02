@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.community.Category;
+package rabbit.umc.com.demo.community.category;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

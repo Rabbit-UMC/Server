@@ -79,7 +79,6 @@ public class ArticleController {
             System.out.println("토큰" + id);
             Long userId = (long) jwtService.getUserIdx();
 
-
             ArticleRes articleRes = articleService.getArticle(articleId, userId);
             return new BaseResponse<>(articleRes);
         }catch (BaseException exception){
