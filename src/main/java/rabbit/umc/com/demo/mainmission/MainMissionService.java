@@ -1,5 +1,7 @@
 package rabbit.umc.com.demo.mainmission;
 
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,9 +15,9 @@ import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionUsers;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
-import rabbit.umc.com.demo.mainmission.dto.MissionProofImageDto;
+import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.MissionProofImageDto;
+import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.RankDto;
 import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
-import rabbit.umc.com.demo.mainmission.dto.RankDto;
 import rabbit.umc.com.demo.mainmission.repository.LikeMissionProofRepository;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionProofRepository;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
@@ -41,6 +43,9 @@ import static rabbit.umc.com.demo.user.Domain.UserPermision.*;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MainMissionService {
+
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
     private final MainMissionRepository mainMissionRepository;
     private final MainMissionProofRepository mainMissionProofRepository;
     private final UserRepository userRepository;
@@ -63,7 +68,12 @@ public class MainMissionService {
             // DTO 매핑
             List<MissionProofImageDto> missionProofImages = mainMissionProofs
                     .stream()
-                    .map(MissionProofImageDto::toMissionProofImageDto)
+                    .map(mainMissionProof -> MissionProofImageDto.builder()
+                            .imageId(mainMissionProof.getId())
+                            .userId(mainMissionProof.getUser().getId())
+                            .filePath(mainMissionProof.getProofImage())
+                            .isLike(false)
+                            .build())
                     .collect(Collectors.toList());
 
             //JWT 유저가 좋아요한 인증사진 가져오기
@@ -74,7 +84,9 @@ public class MainMissionService {
                 boolean isLiked = likeMissionProofs
                         .stream()
                         .anyMatch(likeProof -> likeProof.getMainMissionProof().getId().equals(imageDto.getImageId()));
-                imageDto.setIsLike(isLiked);
+                if (isLiked) {
+                    imageDto.setIsLike();
+                }
             }
 
             //mainMissionId 메인 미션 랭킹 가져오기
@@ -83,17 +95,37 @@ public class MainMissionService {
             //DTO 매핑
             List<RankDto> rankList = new ArrayList<>();
             for (MainMissionUsers rankUser : top3) {
-                RankDto rankDto = new RankDto();
-                rankDto.setRanking(rankUser);
+                RankDto rankDto = RankDto.builder()
+                        .userId(rankUser.getId())
+                        .userName(rankUser.getUser().getUserName())
+                        .build();
                 rankList.add(rankDto);
             }
 
             //Res DTO 에 매핑
-            GetMainMissionRes getMainMissionRes = new GetMainMissionRes(mainMission);
-            getMainMissionRes.setGetMainMissionRes(rankList, missionProofImages);
-            return getMainMissionRes;
+            return GetMainMissionRes.builder()
+                    .mainMissionId(mainMission.getId())
+                    .mainMissionName(mainMission.getTitle())
+                    .startDay(mainMission.getStartAt().format(DATE_TIME_FORMATTER))
+                    .dDay(getDday(mainMission.getEndAt()))
+                    .mainMissionContent(mainMission.getContent())
+                    .rank(rankList)
+                    .missionProofImages(missionProofImages)
+                    .build();
+
         } catch (EntityNotFoundException e) {
             throw new BaseException(DONT_EXIST_MISSION);
+        }
+    }
+
+    public static String getDday(LocalDate missionEndAt){
+        LocalDate currentDateTime = LocalDate.now();
+        long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, missionEndAt);
+        String dDay;
+        if (daysRemaining >= 0) {
+            return   daysRemaining + "일";
+        }  else {
+            return  "미션 종료";
         }
     }
 

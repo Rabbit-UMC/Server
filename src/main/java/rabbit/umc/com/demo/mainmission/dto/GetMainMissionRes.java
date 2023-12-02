@@ -8,11 +8,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
+import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionUsers;
 
 @Data
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class GetMainMissionRes {
     private Long mainMissionId;
     private String mainMissionName;
@@ -22,34 +25,28 @@ public class GetMainMissionRes {
     private List<RankDto> rank;
     private List<MissionProofImageDto> missionProofImages;
 
-    public  GetMainMissionRes(MainMission mainMission){
-        LocalDate currentDateTime = LocalDate.now();
-        LocalDate endDateTime = mainMission.getEndAt();
-        long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, endDateTime);
-        String dDay;
-        if (daysRemaining >= 0) {
-            dDay =  daysRemaining + "일";
-        }  else {
-            dDay = "미션 종료";
-        }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String missionStartDay = mainMission.getStartAt().format(formatter);
-
-        this.startDay = missionStartDay;
-        this.mainMissionId = mainMission.getId();
-        this.mainMissionName = mainMission.getTitle();
-        this.dDay = dDay;
-        this.mainMissionContent = mainMission.getContent();
-
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RankDto {
+        private Long userId;
+        private String userName;
     }
 
-    //Setter
-    public void setGetMainMissionRes(List<RankDto> rankDto, List<MissionProofImageDto> missionProofImageDto){
-        this.rank = rankDto;
-        this.missionProofImages = missionProofImageDto;
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MissionProofImageDto {
+        private Long imageId;
+        private Long userId;
+        private String filePath;
+        private Boolean isLike;
 
-
+        public void setIsLike(){
+            this.isLike = true;
+        }
     }
 }
 
