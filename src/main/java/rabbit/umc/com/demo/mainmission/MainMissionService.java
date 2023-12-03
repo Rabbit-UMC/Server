@@ -1,5 +1,7 @@
 package rabbit.umc.com.demo.mainmission;
 
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -8,14 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.domain.Category;
+import rabbit.umc.com.demo.converter.MainMissionConverter;
 import rabbit.umc.com.demo.mainmission.domain.mapping.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionUsers;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
-import rabbit.umc.com.demo.mainmission.dto.MissionProofImageDto;
+import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.MissionProofImageDto;
+import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.RankDto;
 import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
-import rabbit.umc.com.demo.mainmission.dto.RankDto;
 import rabbit.umc.com.demo.mainmission.repository.LikeMissionProofRepository;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionProofRepository;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
@@ -32,6 +35,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import rabbit.umc.com.utils.DateUtil;
 
 import static rabbit.umc.com.config.BaseResponseStatus.*;
 import static rabbit.umc.com.demo.Status.*;
@@ -41,6 +45,9 @@ import static rabbit.umc.com.demo.user.Domain.UserPermision.*;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MainMissionService {
+
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
     private final MainMissionRepository mainMissionRepository;
     private final MainMissionProofRepository mainMissionProofRepository;
     private final UserRepository userRepository;
@@ -61,10 +68,7 @@ public class MainMissionService {
             List<MainMissionProof> mainMissionProofs = mainMissionProofRepository.findAllByMainMissionIdAndCreatedAtBetween(mainMissionId, targetDate, endDate);
 
             // DTO 매핑
-            List<MissionProofImageDto> missionProofImages = mainMissionProofs
-                    .stream()
-                    .map(MissionProofImageDto::toMissionProofImageDto)
-                    .collect(Collectors.toList());
+            List<MissionProofImageDto> missionProofImages = MainMissionConverter.toMissionProofImageDto(mainMissionProofs);
 
             //JWT 유저가 좋아요한 인증사진 가져오기
             List<LikeMissionProof> likeMissionProofs = likeMissionProofRepository.findLikeMissionProofByUser(user);
@@ -74,28 +78,36 @@ public class MainMissionService {
                 boolean isLiked = likeMissionProofs
                         .stream()
                         .anyMatch(likeProof -> likeProof.getMainMissionProof().getId().equals(imageDto.getImageId()));
-                imageDto.setIsLike(isLiked);
+                if (isLiked) {
+                    imageDto.setIsLike();
+                }
             }
 
             //mainMissionId 메인 미션 랭킹 가져오기
             List<MainMissionUsers> top3 = mainMissionUsersRepository.findTop3OByMainMissionIdOrderByScoreDesc(mainMissionId);
-
-            //DTO 매핑
-            List<RankDto> rankList = new ArrayList<>();
-            for (MainMissionUsers rankUser : top3) {
-                RankDto rankDto = new RankDto();
-                rankDto.setRanking(rankUser);
-                rankList.add(rankDto);
-            }
+            List<RankDto> rankList = top3.stream()
+                    .map(mainMissionUsers -> RankDto.builder()
+                            .userId(mainMissionUsers.getId())
+                            .userName(mainMissionUsers.getUser().getUserName())
+                            .build())
+                    .collect(Collectors.toList());
 
             //Res DTO 에 매핑
-            GetMainMissionRes getMainMissionRes = new GetMainMissionRes(mainMission);
-            getMainMissionRes.setGetMainMissionRes(rankList, missionProofImages);
-            return getMainMissionRes;
+            return GetMainMissionRes.builder()
+                    .mainMissionId(mainMission.getId())
+                    .mainMissionName(mainMission.getTitle())
+                    .startDay(mainMission.getStartAt().format(DATE_TIME_FORMATTER))
+                    .dDay(DateUtil.getMissionDday(mainMission.getEndAt()))
+                    .mainMissionContent(mainMission.getContent())
+                    .rank(rankList)
+                    .missionProofImages(missionProofImages)
+                    .build();
+
         } catch (EntityNotFoundException e) {
             throw new BaseException(DONT_EXIST_MISSION);
         }
     }
+
 
     @Transactional
     public void likeMissionProof(Long userId, Long mainMissionProofId) throws BaseException {

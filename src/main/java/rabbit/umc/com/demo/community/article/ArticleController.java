@@ -1,16 +1,19 @@
 package rabbit.umc.com.demo.community.article;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
-import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.dto.*;
 import rabbit.umc.com.utils.JwtService;
 import rabbit.umc.com.utils.S3Uploader;
@@ -19,7 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Api(tags = {"게시물 관련 Controller"})
+@Tag(name = "article", description = "article API")
 @RestController
 @RequestMapping("/app")
 @RequiredArgsConstructor
@@ -32,14 +35,24 @@ public class ArticleController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "커뮤니티 홈 화면 조회 하는 메소드")
+    @Tag(name = "communityHomeV1")
+    @Operation(summary = "커뮤니티 홈 화면 조회 API V[1.0]")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+    })
     @GetMapping("/home")
     public BaseResponse<CommunityHomeRes> communityHome () throws BaseException {
         CommunityHomeRes communityHomeRes = articleService.getHomeV1();
         return new BaseResponse<>(communityHomeRes);
     }
 
-    @ApiOperation(value = "커뮤니티 홈 V2 화면 조회 하는 메소드")
+    @Tag(name = "communityHomeV2")
+    @Operation(summary = "커뮤니티 홈 화면 조회 API V[2.0]")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
     @GetMapping("/home/v2")
     public BaseResponse<CommunityHomeResV2> communityHomeV2 () throws BaseException {
 
@@ -58,10 +71,20 @@ public class ArticleController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "게시판별 게시물 목록 조회 하는 메소드")
+    @Tag(name = "articleByCategory")
+    @Operation(summary = "카테고리 별 게시물 조회 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "page", description = "페이징 넘버 입니다."),
+            @Parameter(name = "categoryId", description = "조회할 게시물들의 카테고리 ID 입니다")
+    })
     @GetMapping("/article")
-    public BaseResponse<ArticleListsRes> getArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam(name = "categoryId") Long categoryId) throws BaseException{
-        ArticleListsRes articleListRes = articleService.getArticles(page, categoryId);
+    public BaseResponse<ArticleListRes> getArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam(name = "categoryId") Long categoryId) throws BaseException{
+        ArticleListRes articleListRes = articleService.getArticles(page, categoryId);
 
         return new BaseResponse<>(articleListRes);
     }
@@ -71,7 +94,17 @@ public class ArticleController {
      * @param articleId 게시글 ID
      * @return
      */
-    @ApiOperation(value = "게시물 조회 하는 메소드")
+    @Tag(name = "articleDetailed")
+    @Operation(summary = "게시물 상세 조회 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "ARTICLE4006", description = "존재하지 않는 게시물",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "articleId", description = "조회할 게시물 id 입니다.")
+    })
     @GetMapping("/article/{articleId}")
     public BaseResponse<ArticleRes> getArticle(@PathVariable(name = "articleId") Long articleId) throws BaseException{
         try {
@@ -92,7 +125,18 @@ public class ArticleController {
      * @param articleId
      * @return
      */
-    @ApiOperation(value = "게시물 삭제 하는 메소드")
+    @Tag(name = "deleteArticle")
+    @Operation(summary = "게시물 삭제 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "ARTICLE4006", description = "존재하지 않는 게시물",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "게시물 작성자가 아닙니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "articleId", description = "조회할 게시물 id 입니다."),
+    })
     @DeleteMapping("/article/{articleId}")
     public BaseResponse deleteArticle(@PathVariable("articleId") Long articleId) throws BaseException {
         try{
@@ -111,7 +155,17 @@ public class ArticleController {
      * @return
      * @throws IOException
      */
-    @ApiOperation(value = "이미지 저장 하는 메소드")
+    @Tag(name = "saveImage")
+    @Operation(summary = "이미지 저장 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "file", description = "MultipartFile 이미지 업로드 용"),
+            @Parameter(name = "path", description = "이미지 저장될 주소를 지정해 주세요 article/user/category/mainMission 중에 고르면 됩니다."),
+    })
     @PostMapping("/file")
     public BaseResponse<List<String>> uploadFile(@RequestPart(value = "file") List<MultipartFile> multipartFiles, @RequestParam(name = "path") String path) throws IOException {
         List<String> filePathList = new ArrayList<>();
@@ -127,7 +181,17 @@ public class ArticleController {
      * @param postArticleReq
      * @return
      */
-    @ApiOperation(value = "게시물 작성 하는 메소드")
+    @Tag(name = "createArticle")
+    @Operation(summary = "게시물 생성 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "postArticleReq", description = "게시글 정보가 포함되어 있습니다."),
+            @Parameter(name = "categoryId", description = "게시글이 저장될 카테고리 id 입니다."),
+    })
     @PostMapping("/article")
     public BaseResponse postArticle( @RequestBody PostArticleReq postArticleReq, @RequestParam("categoryId") Long categoryId) throws BaseException, IOException {
         System.out.println(jwtService.createJwt(1));
@@ -143,7 +207,19 @@ public class ArticleController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "게시물 수정 하는 메소드")
+    @Tag(name = "patchArticle")
+    @Operation(summary = "게시물 수정 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "ARTICLE4006", description = "게시글 존재 안함",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "게시글 작성자가 아닙니다",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "PatchArticleReq", description = "게시글 수정 정보가 포함되어 있습니다."),
+            @Parameter(name = "articleId", description = "수정될 게시글 id 입니다."),
+    })
     @PatchMapping("/article/{articleId}")
     public BaseResponse patchArticle(@RequestBody PatchArticleReq patchArticleReq, @PathVariable("articleId") Long articleId) throws BaseException {
         try {
@@ -163,7 +239,18 @@ public class ArticleController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "게시물 신고 하는 메소드")
+    @Tag(name = "reportArticle")
+    @Operation(summary = "게시물 신고 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "ARTICLE4006", description = "게시글 존재 안함",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "ARTICLE4001", description = "이미 신고한 게시물",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "articleId", description = "신고할 게시글 id 입니다"),
+    })
     @PostMapping("/article/{articleId}/report")
     public BaseResponse reportArticle (@PathVariable("articleId") Long articleId) throws BaseException {
         try{
@@ -184,10 +271,17 @@ public class ArticleController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "게시물 좋아요 하는 메소드")
+    @Tag(name = "likeArticle")
+    @Operation(summary = "게시물 좋아요 API")
     @ApiResponses({
-            @ApiResponse(code = 400, message = "이미 좋아요 한 게시물 입니다."),
-            @ApiResponse(code = 404, message = "존재하지 않은 게시물 입니다.")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "ARTICLE4006", description = "게시글 존재 안함",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "ARTICLE4002", description = "이미 좋아한 게시물",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "articleId", description = "좋아요할 게시글 id 입니다"),
     })
     @PostMapping("/article/{articleId}/like")
     public BaseResponse likeArticle(@PathVariable("articleId") Long articleId) throws BaseException{
@@ -207,15 +301,21 @@ public class ArticleController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "게시물 좋아요 취소 하는 메소드")
+    @Tag(name = "unlikeArticle")
+    @Operation(summary = "게시물 좋아요 취소 API")
     @ApiResponses({
-            @ApiResponse(code = 400, message = "좋아요하지 않은 게시물 입니다."),
-            @ApiResponse(code = 404, message = "존재하지 않은 게시물 입니다.")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "ARTICLE4006", description = "게시글 존재 안함",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "ARTICLE4003", description = "좋아요 하지 않는 게시물",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "articleId", description = "좋아요 취소 게시글 id 입니다"),
     })
     @DeleteMapping("/article/{articleId}/unlike")
     public BaseResponse unLikeArticle(@PathVariable("articleId")Long articleId) throws BaseException{
         try {
-
             Long userId = (long) jwtService.getUserIdx();
             articleService.unLikeArticle(userId, articleId);
             return new BaseResponse<>(articleId + "번 게시물 좋아요 취소되었습니다");
@@ -230,7 +330,14 @@ public class ArticleController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "인기 게시물 목록 조회 하는 메소드")
+    @Tag(name = "popularArticle")
+    @Operation(summary = "인기 게시물 조회 API" )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+    })
+    @Parameters({
+            @Parameter(name = "page", description = "페이징 번호 입니다"),
+    })
     @GetMapping("/popular-posts")
     public BaseResponse<List<GetPopularArticleRes>> getPopularArticles(@RequestParam(defaultValue = "0", name = "page") int page) throws BaseException {
 
@@ -241,8 +348,4 @@ public class ArticleController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
-
-    
-
-
 }

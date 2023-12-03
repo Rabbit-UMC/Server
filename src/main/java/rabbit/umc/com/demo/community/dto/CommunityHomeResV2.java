@@ -17,7 +17,7 @@ import rabbit.umc.com.demo.community.domain.Article;
 public class CommunityHomeResV2 {
 
 
-    private List<MainMissionListDtoV2> mainMission;
+    private List<MainMissionDtoV2> mainMission;
     private List<PopularArticleDtoV2> popularArticle;
     private List<Long> userHostCategory;
 
@@ -25,7 +25,7 @@ public class CommunityHomeResV2 {
     @AllArgsConstructor
     @Getter
     @Builder
-    public static class MainMissionListDtoV2 {
+    public static class MainMissionDtoV2 {
         private Long mainMissionId;
         private String mainMissionTitle;
         private String dDay;

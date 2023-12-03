@@ -1,6 +1,9 @@
 package rabbit.umc.com.demo.community.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
@@ -11,6 +14,9 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Setter
 @Table(name = "category")
 public class Category extends BaseTimeEntity {

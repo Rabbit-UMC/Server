@@ -1,6 +1,9 @@
 package rabbit.umc.com.demo.mainmission.domain.mapping;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
@@ -15,6 +18,9 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "main_mission_proof")
 public class MainMissionProof extends BaseTimeEntity {
     @Id@GeneratedValue(strategy = IDENTITY)
