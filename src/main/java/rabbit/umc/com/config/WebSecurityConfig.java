@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo;
+package rabbit.umc.com.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
