@@ -185,13 +185,13 @@ public class ArticleService {
     public void deleteArticle(Long articleId, Long userId) throws BaseException {
         try {
             Article findArticle = articleRepository.findArticleById(articleId);
-            // 게시물 존재 여부 체크
+//             게시물 존재 여부 체크
             if (findArticle.getId() == null) {
                 throw new NullPointerException("Unable to find Article with id: " + articleId);
             }
             // JWT 가 게시물 작성유저와 동일한지 체크
             if (!findArticle.getUser().getId().equals(userId)) {
-                throw new BaseException(INVALID_USER_JWT);
+                throw new BaseException(FORBIDDEN);
             }
             articleRepository.deleteById(articleId);
         }catch (NullPointerException e){

@@ -25,6 +25,7 @@ public enum BaseResponseStatus {
     //JWT
     EMPTY_JWT(false, "JWT4001", "JWT TOKEN 값이 존재하지 않습니다."),
     INVALID_JWT(false, "JWT4002", "유효하지 않은 JWT입니다."),
+    FORBIDDEN(false, "JWT4003", "금지된 접근입니다."),
 
     // users
     USERS_EMPTY_USER_ID(false, "USER4001", "유저 아이디 값을 확인해주세요."),
@@ -57,7 +58,7 @@ public enum BaseResponseStatus {
     FAILED_TO_POST_SCHEDULE_DATE(false,"SCHEDULE4002", "종료 시간은 시작 시간보다 커야 합니다."),
 
     //mission
-    DONT_EXIST_MAIN_MISSION(false,"MISSION4001","존재하지 않는 메인 미션입니다."),
+    DONT_EXIST_MISSION(false,"MISSION4001","존재하지 않는 메인 미션입니다."),
     DONT_EXIST_MISSION_PROOF(false,"MISSION4002","존재하지 않는 메인 미션 사진입니다."),
     FAILED_TO_UPLOAD(false,"MISSION4003","이미 오늘 인증을 완료했습니다."),
     FAILED_TO_TOGETHER_MISSION(false,"MISSION4004", "이미 같이하고 있는 미션입니다."),

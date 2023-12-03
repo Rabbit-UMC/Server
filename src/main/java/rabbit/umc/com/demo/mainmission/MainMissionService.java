@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.domain.Category;
+import rabbit.umc.com.demo.converter.MainMissionConverter;
 import rabbit.umc.com.demo.mainmission.domain.mapping.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
@@ -67,15 +68,7 @@ public class MainMissionService {
             List<MainMissionProof> mainMissionProofs = mainMissionProofRepository.findAllByMainMissionIdAndCreatedAtBetween(mainMissionId, targetDate, endDate);
 
             // DTO 매핑
-            List<MissionProofImageDto> missionProofImages = mainMissionProofs
-                    .stream()
-                    .map(mainMissionProof -> MissionProofImageDto.builder()
-                            .imageId(mainMissionProof.getId())
-                            .userId(mainMissionProof.getUser().getId())
-                            .filePath(mainMissionProof.getProofImage())
-                            .isLike(false)
-                            .build())
-                    .collect(Collectors.toList());
+            List<MissionProofImageDto> missionProofImages = MainMissionConverter.toMissionProofImageDto(mainMissionProofs);
 
             //JWT 유저가 좋아요한 인증사진 가져오기
             List<LikeMissionProof> likeMissionProofs = likeMissionProofRepository.findLikeMissionProofByUser(user);
