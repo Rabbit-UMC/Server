@@ -38,4 +38,16 @@ public class DateUtil {
         }
         return uploadTime;
     }
+
+    public static String getMissionDday(LocalDate missionEndAt){
+        LocalDate currentDateTime = LocalDate.now();
+        long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, missionEndAt);
+        String dDay;
+        if (daysRemaining >= 0) {
+            return   daysRemaining + "일";
+        }  else {
+            return  "미션 종료";
+        }
+    }
+
 }

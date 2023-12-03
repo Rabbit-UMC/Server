@@ -40,11 +40,14 @@ public class CommentService {
             if(article.getId() == null){
                 throw new EntityNotFoundException("Unable to find Article with id: " + articleId);
             }
-            //댓글 저장
-            Comment comment = new Comment();
-            comment.setComment(article, user, postCommentReq.getContent());
-            commentRepository.save(comment);
-            return comment.getId();
+
+            Comment comment = Comment.builder()
+                    .article(article)
+                    .user(user)
+                    .content(postCommentReq.getContent())
+                    .build();
+
+            return commentRepository.save(comment).getId();
 
         }catch (EntityNotFoundException e){
             throw new BaseException(DONT_EXIST_ARTICLE);

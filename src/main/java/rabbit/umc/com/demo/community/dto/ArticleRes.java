@@ -29,7 +29,7 @@ public class ArticleRes {
     private String articleContent;
     private Boolean likeArticle;
     private List<ArticleImageDto> articleImage;
-    private List<CommentListDto> commentList;
+    private List<CommentDto> commentList;
 
     @Builder
     @Getter
@@ -45,7 +45,7 @@ public class ArticleRes {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class CommentListDto {
+    public static class CommentDto {
         private Long commentUserId;
         private Long commentId;
         private String commentAuthorProfileImage;

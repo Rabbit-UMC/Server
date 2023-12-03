@@ -1,6 +1,9 @@
 package rabbit.umc.com.demo.report;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
@@ -13,7 +16,10 @@ import javax.persistence.*;
 import static javax.persistence.GenerationType.*;
 
 @Entity
-@Getter@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "report")
 public class Report extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = IDENTITY)

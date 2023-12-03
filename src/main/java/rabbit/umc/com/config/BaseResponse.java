@@ -15,7 +15,7 @@ public class BaseResponse<T> {
     @JsonProperty("isSuccess")
     private final Boolean isSuccess;
     private final String message;
-    private final int code;
+    private final String code;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T result;
 

@@ -50,8 +50,6 @@ public class MissionServiceImpl implements MissionService{
     private final CategoryRepository categoryRepository;
     private final MissionUserSuccessRepository missionUserSuccessRepository;
 
-
-
     @Override
     public List<MissionHomeRes> getMissionHome() {
         LocalDateTime now =  LocalDateTime.now();
@@ -86,8 +84,6 @@ public class MissionServiceImpl implements MissionService{
         }
 
     }
-
-
 
     /**
      * 도전중인 미션리스트
@@ -191,9 +187,10 @@ public class MissionServiceImpl implements MissionService{
 
 
         if(mission != null){
-            Report report = new Report();
-            report.setUser(user);
-            report.setMission(mission);
+            Report report = Report.builder()
+                    .user(user)
+                    .mission(mission)
+                    .build();
             reportRepository.save(report);
         }
     }
