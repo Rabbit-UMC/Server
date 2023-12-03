@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.community.*;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
@@ -144,41 +145,45 @@ public class ArticleService {
                 .build();
     }
 
-    public ArticleRes getArticle(Long articleId, Long userId){
-        // userId 유저가 articleId 게시물 좋아하는지 체크
-        Boolean isLike = likeArticleRepository.existsByArticleIdAndUserId(articleId, userId);
+    public ArticleRes getArticle(Long articleId, Long userId) throws BaseException {
+        try {
+            // userId 유저가 articleId 게시물 좋아하는지 체크
+            Boolean isLike = likeArticleRepository.existsByArticleIdAndUserId(articleId, userId);
 
-        Article article = articleRepository.findArticleById(articleId);
+            Article article = articleRepository.findArticleById(articleId);
 
-        // 게시물의 이미지들에 대해 DTO 에 매핑
-        List<ArticleImageDto> articleImages = article.getImages()
-                .stream()
-                .map(image -> ArticleImageDto.builder()
-                        .imageId(image.getId())
-                        .filePath(image.getFilePath())
-                        .build())
-                .collect(Collectors.toList());
+            // 게시물의 이미지들에 대해 DTO 에 매핑
+            List<ArticleImageDto> articleImages = article.getImages()
+                    .stream()
+                    .map(image -> ArticleImageDto.builder()
+                            .imageId(image.getId())
+                            .filePath(image.getFilePath())
+                            .build())
+                    .collect(Collectors.toList());
 
-        // 게시물의 댓글들에 대해 DTO 매핑
-        List<CommentDto> commentLists = article.getComments()
-                .stream()
-                .sorted(Comparator.comparing(Comment::getCreatedAt))
-                .map(CommentConverter::toCommentDto)
-                .collect(Collectors.toList());
+            // 게시물의 댓글들에 대해 DTO 매핑
+            List<CommentDto> commentLists = article.getComments()
+                    .stream()
+                    .sorted(Comparator.comparing(Comment::getCreatedAt))
+                    .map(CommentConverter::toCommentDto)
+                    .collect(Collectors.toList());
 
-        return ArticleRes.builder()
-                .categoryName(article.getCategory().getName())
-                .articleId(article.getId())
-                .authorId(article.getUser().getId())
-                .authorProfileImage(article.getUser().getUserProfileImage())
-                .authorName(article.getUser().getUserName())
-                .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
-                .articleTitle(article.getTitle())
-                .articleContent(article.getContent())
-                .likeArticle(isLike)
-                .articleImage(articleImages)
-                .commentList(commentLists)
-                .build();
+            return ArticleRes.builder()
+                    .categoryName(article.getCategory().getName())
+                    .articleId(article.getId())
+                    .authorId(article.getUser().getId())
+                    .authorProfileImage(article.getUser().getUserProfileImage())
+                    .authorName(article.getUser().getUserName())
+                    .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
+                    .articleTitle(article.getTitle())
+                    .articleContent(article.getContent())
+                    .likeArticle(isLike)
+                    .articleImage(articleImages)
+                    .commentList(commentLists)
+                    .build();
+        }catch (NullPointerException e){
+            throw new BaseException(DONT_EXIST_ARTICLE);
+        }
     }
 
     @Transactional
