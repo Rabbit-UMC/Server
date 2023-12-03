@@ -1,11 +1,13 @@
 package rabbit.umc.com.demo.user;
 
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.mission.dto.MissionHistoryRes;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.*;
 import rabbit.umc.com.utils.JwtService;
@@ -121,7 +123,7 @@ public class UserController {
     public BaseResponse<UserNicknameResDto> getNickname(@RequestBody UserNicknameReqDto userNicknameReqDto) throws BaseException {
         try{
             Long userId = (long) jwtService.getUserIdx();
-            userService.getnickname(userId, userNicknameReqDto.getUserName());
+            userService.getNickname(userId, userNicknameReqDto.getUserName());
             UserNicknameResDto userNicknameResDto = new UserNicknameResDto(userId, userNicknameReqDto.getUserName());
             return new BaseResponse<>(userNicknameResDto);
         }
@@ -259,6 +261,35 @@ public class UserController {
             return new BaseResponse<>(reissueTokenDto);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 성공 히스토리
+     */
+    @GetMapping("/success")
+    public BaseResponse<UserMissionHistoryDto> getSuccessMissions(){
+        try {
+            Long userId = (long) jwtService.getUserIdx();
+            UserMissionHistoryDto result = userService.getSuccessMissions(userId);
+            return new BaseResponse<>(result);
+        } catch (BaseException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /**
+     * 실패 히스토리
+     */
+    @GetMapping("/failure")
+    public BaseResponse<UserMissionHistoryDto> getFailureMissions(){
+        try {
+            Long userId = (long) jwtService.getUserIdx();
+            UserMissionHistoryDto result = userService.getFailureMissions(userId);
+            return new BaseResponse<>(result);
+        } catch (BaseException e) {
+            return new BaseResponse(e.getMessage());
         }
     }
 
