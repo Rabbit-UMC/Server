@@ -46,6 +46,7 @@ public class CategoryController {
     })
     @Parameters({
             @Parameter(name = "categoryId", description = "이미지 변경할 카테고리 id"),
+            @Parameter(name = "PatchCategoryImageReq", description = "새로운 이미지 url"),
     })
     @PatchMapping("/host/main-image/{categoryId}")
     public BaseResponse editCategoryImage(@PathVariable("categoryId") Long categoryId,
