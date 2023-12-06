@@ -2,6 +2,7 @@ package rabbit.umc.com.demo.schedule.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
@@ -42,6 +43,7 @@ public class ScheduleController {
      * 일정 홈 화면
      */
     @ApiOperation(value = "일정 홈 메소드")
+    @Operation(summary = "일정 홈 조회 API")
     @GetMapping()
     public BaseResponse<ScheduleHomeRes> getHome(){
         try {
@@ -63,6 +65,7 @@ public class ScheduleController {
      * 일정 상세 페이지
      */
     @ApiOperation(value = "일정 상세 페이지 조회 메소드")
+    @Operation(summary = "일정 상세 페이지 조회 API")
     @GetMapping("/{scheduleId}")
     public BaseResponse<ScheduleDetailRes> getScheduleDetail(@PathVariable("scheduleId") Long scheduleId){
 
@@ -79,6 +82,7 @@ public class ScheduleController {
      * 날짜 별 일정 리스트 조회
      */
     @ApiOperation(value = "날짜 별 일정 리스트 조회 메소드")
+    @Operation(summary = "날짜 별 일정 리스트 조회 API")
     @GetMapping("/when/{when}")
     public BaseResponse<List<ScheduleListDto>> getScheduleByWhen(@PathVariable(name = "when") String when) {
         if(!isRegexDate(when)){
@@ -100,6 +104,7 @@ public class ScheduleController {
      * 월 별 일정 날짜 리스트
      */
     @ApiOperation(value = "월 별 일정 날짜 리스트 조회 메소드")
+    @Operation(summary = "월 별 일정 날짜 리스트 조회 API")
     @GetMapping("/month/{month}")
     public BaseResponse<DayRes> getScheduleWhenMonth(@PathVariable(name = "month") String month){
         System.out.println("month = " + month);
@@ -123,6 +128,7 @@ public class ScheduleController {
      * 일정 등록
      */
     @ApiOperation(value = "일정 등록 메소드")
+    @Operation(summary = "일정 등록 API")
     @PostMapping()
     public BaseResponse postSchedule(@RequestBody PostScheduleReq postScheduleReq){
         if(checkStartedAtAndEndedAt(postScheduleReq.getStartAt(),postScheduleReq.getEndAt()))
@@ -140,6 +146,7 @@ public class ScheduleController {
      *  일정 삭제
      */
     @ApiOperation(value = "일정 삭제 메소드")
+    @Operation(summary = "일정 삭제 API")
     @DeleteMapping("/{scheduleIds}")
     public BaseResponse deleteSchedule(@PathVariable List<Long> scheduleIds){
         try {
@@ -157,6 +164,7 @@ public class ScheduleController {
      *  일정 수정
      */
     @ApiOperation(value = "일정 수정 메소드")
+    @Operation(summary = "일정 수정 API")
     @PatchMapping("/{scheduleId}")
     public BaseResponse patchSchedule(@PathVariable(name = "scheduleId") Long scheduleId,@RequestBody PostScheduleReq postScheduleReq) {
         if(checkStartedAtAndEndedAt(postScheduleReq.getStartAt(),postScheduleReq.getEndAt()))

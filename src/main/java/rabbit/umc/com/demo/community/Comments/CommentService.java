@@ -35,12 +35,11 @@ public class CommentService {
     public Long postComment(PostCommentReq postCommentReq, Long userId, Long articleId) throws BaseException{
         try {
             User user = userRepository.getReferenceById(userId);
-            Article article = articleRepository.getReferenceById(articleId);
+            Article article = articleRepository.findArticleById(articleId);
             //존재하는 게시물인지 체크
             if(article.getId() == null){
                 throw new EntityNotFoundException("Unable to find Article with id: " + articleId);
             }
-
             Comment comment = Comment.builder()
                     .article(article)
                     .user(user)
@@ -49,10 +48,9 @@ public class CommentService {
 
             return commentRepository.save(comment).getId();
 
-        }catch (EntityNotFoundException e){
+        }catch (NullPointerException e){
             throw new BaseException(DONT_EXIST_ARTICLE);
         }
-
     }
 
     @Transactional
