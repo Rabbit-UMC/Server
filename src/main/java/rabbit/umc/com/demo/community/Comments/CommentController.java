@@ -64,7 +64,18 @@ public class CommentController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "댓글 삭제 하는 메소드")
+    @Tag(name = "delete comment")
+    @Operation(summary = "댓글 삭제 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "권한 없는 접근",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMENT4002", description = "존재하지 않는 댓글",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "commentsId", description = "삭제할 댓글 id"),
+    })
     @DeleteMapping("/{commentsId}")
     public BaseResponse deleteComment(@PathVariable("commentsId") Long commentsId)throws BaseException{
         try {
@@ -83,7 +94,19 @@ public class CommentController {
      * @param commentsId
      * @return
      */
-    @ApiOperation(value = "댓글 잠금 기능 메소드")
+    @Tag(name = "Lock comment")
+    @Operation(summary = "댓글 잠금 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "권한 없는 접근",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMENT4002", description = "존재하지 않는 댓글",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMENT4001", description = "이미 잠긴 댓글",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "commentsId", description = "비공개 처리 할 댓글 id"),
+    })
     @PatchMapping("/{commentsId}/lock")
     public BaseResponse lockComment(@PathVariable("commentsId") Long commentsId) {
         try {
