@@ -2,6 +2,14 @@ package rabbit.umc.com.demo.mainmission;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
@@ -24,9 +32,21 @@ public class MainMissionController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "메인 미션 조회 하는 메소드")
+    @Tag(name = "mainMissionView")
+    @Operation(summary = "메인 미션 상세 조회 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4001", description = "메인미션 존재 안함",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "mainMissionId", description = "조회할 메인미션 id 입니다"),
+            @Parameter(name = "day", description = "조회할 메인미션 인증사진 날짜입니다 미션 시작일 부터 1일차~ "),
+    })
     @GetMapping("/main-mission/{mainMissionId}")
-    public BaseResponse<GetMainMissionRes> getMainMission(@PathVariable("mainMissionId") Long mainMissionId, @RequestParam("day") int day) throws BaseException{
+    public BaseResponse<GetMainMissionRes> getMainMission(@PathVariable("mainMissionId") Long mainMissionId,
+                                                          @RequestParam("day") int day) throws BaseException{
         try {
             Long userId = (long) jwtService.getUserIdx();
             GetMainMissionRes getMainMissionRes = mainMissionService.getMainMission(mainMissionId, day, userId);
@@ -43,7 +63,19 @@ public class MainMissionController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "메인 미션 인증 사진 좋아요 하는 메소드")
+    @Tag(name = "mainMissionImageLike")
+    @Operation(summary = "메인 미션 인증 사진 좋아요 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4002", description = "메인미션 인증 사진 존재 안함",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4008", description = "이미 좋아요 되어 있음",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4009", description = "아직 좋아요 하지 않음",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "mainMissionProofId", description = "좋아요 처리 할 메인미션의 인증사진 id 입니다"),
+    })
     @PostMapping("/main-mission/proof/{mainMissionProofId}/like")
     public BaseResponse likeMissionProof(@PathVariable("mainMissionProofId")Long mainMissionProofId) throws BaseException{
         try {

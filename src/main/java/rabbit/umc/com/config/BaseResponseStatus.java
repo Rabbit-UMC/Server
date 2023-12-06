@@ -70,7 +70,7 @@ public enum BaseResponseStatus {
     FAILED_TO_MISSION(false,"MISSION4010", "존재하지 않는 미션입니다."),
     FAILED_DELETE_MISSION(false,"MISSION4011","미션 삭제에 실패했습니다(존재하지 않는 미션을 삭제하는 경우)."),
 
-
+    DONT_EXIST_CATEGORY(false, "CATEGORY4001", "존재하지 않는 카테고리 입니다."),
 
     //Database, Server 오류
     DATABASE_ERROR(false, "COMMON500", "데이터베이스 연결에 실패하였습니다."),
