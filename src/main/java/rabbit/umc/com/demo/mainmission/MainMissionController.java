@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
+import rabbit.umc.com.demo.mainmission.dto.MainMissionViewRes;
 import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
 import rabbit.umc.com.utils.JwtService;
 
@@ -166,4 +167,17 @@ public class MainMissionController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+    @ApiOperation(value ="묘집사가 메인 미션 관리 화면 조회 하는 API")
+    @GetMapping("/host/main-mission/{mainMissionId}")
+    public BaseResponse<MainMissionViewRes> getMainMissionView(@PathVariable("mainMissionId") Long mainMissionId){
+        try {
+            Long userId = (long) jwtService.getUserIdx();
+            MainMissionViewRes mainMissionViewRes = mainMissionService.getMainMissionView(mainMissionId, userId);
+            return new BaseResponse<>(mainMissionViewRes);
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
 }
