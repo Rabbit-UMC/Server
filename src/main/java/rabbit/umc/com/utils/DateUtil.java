@@ -7,6 +7,7 @@ import java.time.temporal.ChronoUnit;
 
 public class DateUtil {
 
+    private static final DateTimeFormatter MONTH_DAY_FORMATTER = DateTimeFormatter.ofPattern("MM월 dd일");
     public static String calculateDDay(LocalDate endDateTime) {
         LocalDate currentDateTime = LocalDate.now();
         long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, endDateTime);
@@ -50,4 +51,7 @@ public class DateUtil {
         }
     }
 
+    public static String getMonthDay(LocalDate time){
+        return time.format(MONTH_DAY_FORMATTER);
+    }
 }
