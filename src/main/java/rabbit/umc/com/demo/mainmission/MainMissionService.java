@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.converter.MainMissionConverter;
@@ -18,6 +19,7 @@ import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionUsers;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.MissionProofImageDto;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.RankDto;
+import rabbit.umc.com.demo.mainmission.dto.MainMissionViewRes;
 import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
 import rabbit.umc.com.demo.mainmission.repository.LikeMissionProofRepository;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionProofRepository;
@@ -47,6 +49,8 @@ import static rabbit.umc.com.demo.user.Domain.UserPermision.*;
 public class MainMissionService {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+
 
     private final MainMissionRepository mainMissionRepository;
     private final MainMissionProofRepository mainMissionProofRepository;
@@ -299,6 +303,24 @@ public class MainMissionService {
             }
         }
     }
+
+    public MainMissionViewRes getMainMissionView(Long mainMissionId, Long userId) throws BaseException {
+        MainMission mainMission = mainMissionRepository.getReferenceById(mainMissionId);
+        User user = userRepository.getReferenceById(userId);
+        if (mainMission.getCategory().getUserId() != userId){
+            throw new BaseException(INVALID_USER_JWT);
+        }
+
+        return MainMissionViewRes.builder()
+                .userName(user.getUserName())
+                .missionImageUrl(mainMission.getCategory().getImage())
+                .missionTitle(mainMission.getTitle())
+                .missionStartDay(DateUtil.getMonthDay(mainMission.getStartAt()))
+                .missionEndDay(DateUtil.getMonthDay(mainMission.getEndAt()))
+                .memo(mainMission.getContent())
+                .build();
+    }
+
 }
 
 
