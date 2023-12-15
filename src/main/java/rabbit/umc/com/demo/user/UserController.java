@@ -38,35 +38,12 @@ public class UserController {
      * @throws IOException
      * @throws BaseException
      */
-    @GetMapping("/kakao-login")
-    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken, HttpServletResponse response) throws IOException, BaseException {
-        try {
-            if (accessToken == null) {
-                throw new BaseException(EMPTY_KAKAO_ACCESS);
-            }
-
-            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
-            User user = kakaoService.saveUser(kakaoDto);
-
-            //jwt 토큰 생성(로그인 처리)
-            String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
-            String jwtRefreshToken = jwtService.createRefreshToken();
-            System.out.println(jwtAccessToken);
-            System.out.println(jwtRefreshToken);
-            userService.saveRefreshToken(user.getId(), jwtRefreshToken);
-            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
-
-            return new BaseResponse<>(userLoginResDto);
-        }
-        catch (BaseException exception) {
-            return new BaseResponse<>(exception.getStatus());
-        }
-    }
-
 //    @GetMapping("/kakao-login")
-//    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
+//    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken, HttpServletResponse response) throws IOException, BaseException {
 //        try {
-//            String accessToken = kakaoService.getAccessToken(code);
+//            if (accessToken == null) {
+//                throw new BaseException(EMPTY_KAKAO_ACCESS);
+//            }
 //
 //            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
 //            User user = kakaoService.saveUser(kakaoDto);
@@ -85,6 +62,29 @@ public class UserController {
 //            return new BaseResponse<>(exception.getStatus());
 //        }
 //    }
+
+    @GetMapping("/kakao-login")
+    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
+        try {
+            String accessToken = kakaoService.getAccessToken(code);
+
+            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
+            User user = kakaoService.saveUser(kakaoDto);
+
+            //jwt 토큰 생성(로그인 처리)
+            String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
+            String jwtRefreshToken = jwtService.createRefreshToken();
+            System.out.println(jwtAccessToken);
+            System.out.println(jwtRefreshToken);
+            userService.saveRefreshToken(user.getId(), jwtRefreshToken);
+            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
+
+            return new BaseResponse<>(userLoginResDto);
+        }
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 
     /**
      * 회원 탈퇴(카카오 연결 끊기)
