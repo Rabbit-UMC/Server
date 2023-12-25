@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.converter;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.mapping.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionUsers;
+import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.MissionProofImageDto;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.RankDto;
 import rabbit.umc.com.demo.user.Domain.User;
@@ -18,6 +20,7 @@ import rabbit.umc.com.utils.DateUtil;
 
 @RequiredArgsConstructor
 public class MainMissionConverter {
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public static List<MainMissionDto> toMainMissionDtoList(List<MainMission> missionList){
         return missionList
@@ -55,6 +58,18 @@ public class MainMissionConverter {
         return RankDto.builder()
                 .userId(missionUsers.getId())
                 .userName(missionUsers.getUser().getUserName())
+                .build();
+    }
+
+    public static GetMainMissionRes toGetMainMissionRes(MainMission mainMission, List<MissionProofImageDto> missionProofImages, List<RankDto> rank){
+        return GetMainMissionRes.builder()
+                .mainMissionId(mainMission.getId())
+                .mainMissionName(mainMission.getTitle())
+                .startDay(mainMission.getStartAt().format(DATE_TIME_FORMATTER))
+                .dDay(DateUtil.getMissionDday(mainMission.getEndAt()))
+                .mainMissionContent(mainMission.getContent())
+                .rank(rank)
+                .missionProofImages(missionProofImages)
                 .build();
     }
 

@@ -97,17 +97,8 @@ public class MainMissionService {
 
             //mainMissionId 메인 미션 랭킹 가져오기
             List<RankDto> rankList = getRank(mainMissionId);
-            //Res DTO 에 매핑
-            return GetMainMissionRes.builder()
-                    .mainMissionId(mainMission.getId())
-                    .mainMissionName(mainMission.getTitle())
-                    .startDay(mainMission.getStartAt().format(DATE_TIME_FORMATTER))
-                    .dDay(DateUtil.getMissionDday(mainMission.getEndAt()))
-                    .mainMissionContent(mainMission.getContent())
-                    .rank(rankList)
-                    .missionProofImages(missionProofImages)
-                    .build();
 
+            return MainMissionConverter.toGetMainMissionRes(mainMission, missionProofImages, rankList);
         } catch (EntityNotFoundException e) {
             throw new BaseException(DONT_EXIST_MISSION);
         }
