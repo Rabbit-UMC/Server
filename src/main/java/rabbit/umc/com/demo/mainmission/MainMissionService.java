@@ -208,13 +208,13 @@ public class MainMissionService {
         //유저 자격[HOST] 확인
         User user = userRepository.getReferenceById(userId);
         if (user.getUserPermission() != HOST) {
-            throw new BaseException(INVALID_JWT);
+            throw new BaseException(FORBIDDEN);
         }
 
         //해당 카테고리 자격 확인
         Category category = categoryRepository.getReferenceById(categoryId);
         if (category.getUserId() != userId) {
-            throw new BaseException(INVALID_JWT);
+            throw new BaseException(FORBIDDEN);
         }
 
 
@@ -308,7 +308,7 @@ public class MainMissionService {
         MainMission mainMission = mainMissionRepository.getReferenceById(mainMissionId);
         User user = userRepository.getReferenceById(userId);
         if (mainMission.getCategory().getUserId() != userId){
-            throw new BaseException(INVALID_USER_JWT);
+            throw new BaseException(FORBIDDEN);
         }
 
         return MainMissionViewRes.builder()
