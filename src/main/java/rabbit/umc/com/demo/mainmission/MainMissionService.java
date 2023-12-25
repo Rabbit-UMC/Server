@@ -48,10 +48,7 @@ import static rabbit.umc.com.demo.user.Domain.UserPermision.*;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MainMissionService {
-
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-
 
     private final MainMissionRepository mainMissionRepository;
     private final MainMissionProofRepository mainMissionProofRepository;
@@ -68,6 +65,13 @@ public class MainMissionService {
         return mainMissionProofRepository.findAllByMainMissionIdAndCreatedAtBetween(mainMissionId, targetDate, endDate);
     }
 
+    private List<RankDto> getRank(Long mainMissionId){
+        List<MainMissionUsers> top3 = mainMissionUsersRepository.findTop3OByMainMissionIdOrderByScoreDesc(mainMissionId);
+        return top3.stream()
+                .map(MainMissionConverter::toRankDto)
+                .collect(Collectors.toList());
+    }
+
     public GetMainMissionRes getMainMission(Long mainMissionId, int day, Long userId) throws BaseException {
         try {
             MainMission mainMission = mainMissionRepository.getReferenceById(mainMissionId);
@@ -79,7 +83,6 @@ public class MainMissionService {
 
             //JWT 유저가 좋아요한 인증사진 가져오기
             List<LikeMissionProof> likeMissionProofs = likeMissionProofRepository.findLikeMissionProofByUser(user);
-
             // DTO에 매핑된 해당 일차 인증 사진에 대해 user가 좋아한 사진이면 isLike = ture 설정
             for (MissionProofImageDto imageDto : missionProofImages) {
                 boolean isLiked = likeMissionProofs
@@ -89,12 +92,8 @@ public class MainMissionService {
                     imageDto.setIsLike();
                 }
             }
-
             //mainMissionId 메인 미션 랭킹 가져오기
-            List<MainMissionUsers> top3 = mainMissionUsersRepository.findTop3OByMainMissionIdOrderByScoreDesc(mainMissionId);
-            List<RankDto> rankList = top3.stream()
-                    .map(MainMissionConverter::toRankDto)
-                    .collect(Collectors.toList());
+            List<RankDto> rankList = getRank(mainMissionId);
 
             //Res DTO 에 매핑
             return GetMainMissionRes.builder()
