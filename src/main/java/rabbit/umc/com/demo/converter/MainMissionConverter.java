@@ -7,8 +7,12 @@ import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionDtoV2;
 import rabbit.umc.com.demo.mainmission.MainMissionService;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
+import rabbit.umc.com.demo.mainmission.domain.mapping.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
+import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionUsers;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.MissionProofImageDto;
+import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.RankDto;
+import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.utils.DateUtil;
 
 
@@ -38,6 +42,20 @@ public class MainMissionConverter {
                         .isLike(false)
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public static LikeMissionProof toLikeMissionProof(User user, MainMissionProof mainMissionProof){
+        return LikeMissionProof.builder()
+                .user(user)
+                .mainMissionProof(mainMissionProof)
+                .build();
+    }
+
+    public static RankDto toRankDto(MainMissionUsers missionUsers){
+        return RankDto.builder()
+                .userId(missionUsers.getId())
+                .userName(missionUsers.getUser().getUserName())
+                .build();
     }
 
 }
