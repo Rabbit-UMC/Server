@@ -103,7 +103,12 @@ public class MainMissionService {
             throw new BaseException(DONT_EXIST_MISSION);
         }
     }
-
+    @Transactional
+    public void plusLikeScore(MainMissionProof mainMissionProof){
+        MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(mainMissionProof.getUser(), mainMissionProof.getMainMission());
+        missionUsers.addLikeScore();
+        mainMissionUsersRepository.save(missionUsers);
+    }
 
     @Transactional
     public void likeMissionProof(Long userId, Long mainMissionProofId) throws BaseException {
@@ -116,11 +121,8 @@ public class MainMissionService {
             if (findLikeMissionProof.isPresent()) {
                 throw new BaseException(FAILED_TO_LIKE_MISSION);
             }
-
-            // 좋아요 1점 추가
-            MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(mainMissionProof.getUser(), mainMissionProof.getMainMission());
-            missionUsers.addLikeScore();
-            mainMissionUsersRepository.save(missionUsers);
+            // 좋아요 1점 점수에 추가
+            plusLikeScore(mainMissionProof);
 
             //좋아요 여부 저장
             LikeMissionProof likeMissionProof = MainMissionConverter.toLikeMissionProof(user, mainMissionProof);
