@@ -49,6 +49,7 @@ import static rabbit.umc.com.demo.user.Domain.UserPermision.*;
 @Transactional(readOnly = true)
 public class MainMissionService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final int REPORT_REMIT = 15;
 
     private final MainMissionRepository mainMissionRepository;
     private final MainMissionProofRepository mainMissionProofRepository;
@@ -187,15 +188,18 @@ public class MainMissionService {
             reportRepository.save(report);
 
             //신고 횟수 15회 이상시 비활성화 처리
-            List<Report> countReport = reportRepository.findAllByMainMissionProofId(mainMissionProofId);
-            if (countReport.size() > 14) {
-                mainMissionProof.inActive();
-            }
+            checkInactivation(mainMissionProofId, mainMissionProof);
 
         } catch (EntityNotFoundException e) {
             throw new BaseException(DONT_EXIST_MISSION_PROOF);
         }
-
+    }
+    @Transactional
+    public void checkInactivation(Long mainMissionProofId, MainMissionProof mainMissionProof){
+        List<Report> countReport = reportRepository.findAllByMainMissionProofId(mainMissionProofId);
+        if (countReport.size() >= REPORT_REMIT) {
+            mainMissionProof.inActive();
+        }
     }
 
     @Transactional
