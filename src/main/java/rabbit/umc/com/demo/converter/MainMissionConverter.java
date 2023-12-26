@@ -14,6 +14,7 @@ import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionUsers;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.MissionProofImageDto;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.RankDto;
+import rabbit.umc.com.demo.report.Report;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.utils.DateUtil;
 
@@ -70,6 +71,13 @@ public class MainMissionConverter {
                 .mainMissionContent(mainMission.getContent())
                 .rank(rank)
                 .missionProofImages(missionProofImages)
+                .build();
+    }
+
+    public static Report toMissionProofReport(User user, MainMissionProof mainMissionProof){
+        return Report.builder()
+                .user(user)
+                .mainMissionProof(mainMissionProof)
                 .build();
     }
 

@@ -49,6 +49,7 @@ import static rabbit.umc.com.demo.user.Domain.UserPermision.*;
 @Transactional(readOnly = true)
 public class MainMissionService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final int REPORT_REMIT = 15;
 
     private final MainMissionRepository mainMissionRepository;
     private final MainMissionProofRepository mainMissionProofRepository;
@@ -104,6 +105,12 @@ public class MainMissionService {
         }
     }
 
+    @Transactional
+    public void increaseLikeScore(MainMissionProof mainMissionProof){
+        MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(mainMissionProof.getUser(), mainMissionProof.getMainMission());
+        missionUsers.addLikeScore();
+        mainMissionUsersRepository.save(missionUsers);
+    }
 
     @Transactional
     public void likeMissionProof(Long userId, Long mainMissionProofId) throws BaseException {
@@ -116,19 +123,24 @@ public class MainMissionService {
             if (findLikeMissionProof.isPresent()) {
                 throw new BaseException(FAILED_TO_LIKE_MISSION);
             }
-
-            // 좋아요 1점 추가
-            MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(mainMissionProof.getUser(), mainMissionProof.getMainMission());
-            missionUsers.addLikeScore();
-            mainMissionUsersRepository.save(missionUsers);
+            // 좋아요 1점 증가
+            increaseLikeScore(mainMissionProof);
 
             //좋아요 여부 저장
             LikeMissionProof likeMissionProof = MainMissionConverter.toLikeMissionProof(user, mainMissionProof);
+            //좋아요 생성
             likeMissionProofRepository.save(likeMissionProof);
 
         } catch (EntityNotFoundException e) {
             throw new BaseException(DONT_EXIST_MISSION_PROOF);
         }
+    }
+
+    @Transactional
+    public void decreaseLikeScore(MainMissionProof mainMissionProof){
+        MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(mainMissionProof.getUser(), mainMissionProof.getMainMission());
+        missionUsers.unLikeScore();
+        mainMissionUsersRepository.save(missionUsers);
     }
 
     @Transactional
@@ -145,13 +157,11 @@ public class MainMissionService {
             if (findLikeMissionProof.isEmpty()) {
                 throw new BaseException(FAILED_TO_UNLIKE_MISSION);
             }
-
-            //1점 삭제 로직
-            MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(mainMissionProof.getUser(), mainMissionProof.getMainMission());
-            missionUsers.unLikeScore();
-            mainMissionUsersRepository.save(missionUsers);
-
+            // 좋아요 1점 감소 로직
+            decreaseLikeScore(mainMissionProof);
+            //좋아요 삭제
             likeMissionProofRepository.delete(findLikeMissionProof.get());
+
         } catch (EntityNotFoundException e) {
             throw new BaseException(DONT_EXIST_MISSION_PROOF);
         }
@@ -167,26 +177,28 @@ public class MainMissionService {
                 throw new EntityNotFoundException("Unable to find proofId with id:" + mainMissionProofId);
             }
             User user = userRepository.getReferenceById(userId);
-            Report findReport = reportRepository.findReportByUserIdAndAndMainMissionProofId(userId, mainMissionProofId);
+            Optional<Report> findReport = reportRepository.findReportByUserIdAndAndMainMissionProofId(userId, mainMissionProofId);
             //이미 신고한 사진인지 체크
-            if (findReport != null) {
+            if (findReport.isPresent()) {
                 throw new BaseException(FAILED_TO_REPORT);
             }
             //신고 저장
-            Report report = new Report();
-            report.setReport(user,mainMissionProof);
+            Report report = MainMissionConverter.toMissionProofReport(user, mainMissionProof);
             reportRepository.save(report);
-
             //신고 횟수 15회 이상시 비활성화 처리
-            List<Report> countReport = reportRepository.findAllByMainMissionProofId(mainMissionProofId);
-            if (countReport.size() > 14) {
-                mainMissionProof.inActive();
-            }
+            checkInactivation(mainMissionProofId, mainMissionProof);
 
         } catch (EntityNotFoundException e) {
             throw new BaseException(DONT_EXIST_MISSION_PROOF);
         }
+    }
 
+    @Transactional
+    public void checkInactivation(Long mainMissionProofId, MainMissionProof mainMissionProof){
+        List<Report> countReport = reportRepository.findAllByMainMissionProofId(mainMissionProofId);
+        if (countReport.size() >= REPORT_REMIT) {
+            mainMissionProof.inActive();
+        }
     }
 
     @Transactional
