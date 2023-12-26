@@ -177,16 +177,14 @@ public class MainMissionService {
                 throw new EntityNotFoundException("Unable to find proofId with id:" + mainMissionProofId);
             }
             User user = userRepository.getReferenceById(userId);
-            Report findReport = reportRepository.findReportByUserIdAndAndMainMissionProofId(userId, mainMissionProofId);
+            Optional<Report> findReport = reportRepository.findReportByUserIdAndAndMainMissionProofId(userId, mainMissionProofId);
             //이미 신고한 사진인지 체크
-            if (findReport != null) {
+            if (findReport.isPresent()) {
                 throw new BaseException(FAILED_TO_REPORT);
             }
             //신고 저장
-            Report report = new Report();
-            report.setReport(user,mainMissionProof);
+            Report report = MainMissionConverter.toMissionProofReport(user, mainMissionProof);
             reportRepository.save(report);
-
             //신고 횟수 15회 이상시 비활성화 처리
             checkInactivation(mainMissionProofId, mainMissionProof);
 
@@ -194,6 +192,7 @@ public class MainMissionService {
             throw new BaseException(DONT_EXIST_MISSION_PROOF);
         }
     }
+
     @Transactional
     public void checkInactivation(Long mainMissionProofId, MainMissionProof mainMissionProof){
         List<Report> countReport = reportRepository.findAllByMainMissionProofId(mainMissionProofId);

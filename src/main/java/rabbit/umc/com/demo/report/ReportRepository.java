@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.report;
 
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import rabbit.umc.com.demo.community.domain.Article;
@@ -14,7 +15,7 @@ public interface ReportRepository extends JpaRepository<Report ,Long> {
 
     Report findReportByUserIdAndArticleId(Long userId, Long articleId);
 
-    Report findReportByUserIdAndAndMainMissionProofId(Long userId, Long mainMissionProofId);
+    Optional<Report> findReportByUserIdAndAndMainMissionProofId(Long userId, Long mainMissionProofId);
 
     List<Report> findAllByArticleId(Long articleId);
     List<Report> findAllByMainMissionProofId(Long mainMissionProofId);
