@@ -4,6 +4,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionDtoV2;
 import rabbit.umc.com.demo.mainmission.MainMissionService;
@@ -14,6 +16,7 @@ import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionUsers;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.MissionProofImageDto;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.RankDto;
+import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
 import rabbit.umc.com.demo.report.Report;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.utils.DateUtil;
@@ -78,6 +81,18 @@ public class MainMissionConverter {
         return Report.builder()
                 .user(user)
                 .mainMissionProof(mainMissionProof)
+                .build();
+    }
+
+    public static MainMission toMainMission(PostMainMissionReq postMainMissionReq, Category category){
+        return MainMission.builder()
+                .category(category)
+                .startAt(postMainMissionReq.getMissionStartTime())
+                .endAt(postMainMissionReq.getMissionEndTime())
+                .title(postMainMissionReq.getMainMissionTitle())
+                .content(postMainMissionReq.getMainMissionContent())
+                .lastMission(postMainMissionReq.getLastMission())
+                .status(Status.ACTIVE)
                 .build();
     }
 

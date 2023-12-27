@@ -35,7 +35,6 @@ public class Category extends BaseTimeEntity {
     private Status status = Status.ACTIVE;
 
 
-
     //Setter
     public void changeImage(String filepath){
         image = filepath;

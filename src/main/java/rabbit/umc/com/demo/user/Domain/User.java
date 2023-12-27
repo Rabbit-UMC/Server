@@ -7,7 +7,6 @@ import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 
 @Entity
 @NoArgsConstructor
@@ -30,7 +29,7 @@ public class User extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @JoinColumn(nullable = false)
-    private UserPermision userPermission;
+    private UserPermission userPermission;
 
     private String ageRange;
     private String gender;
@@ -42,7 +41,7 @@ public class User extends BaseTimeEntity {
 
     private String jwtRefreshToken;
 
-    public User(Long kakaoId, String profile_image, UserPermision userPermission, String ageRange,
+    public User(Long kakaoId, String profile_image, UserPermission userPermission, String ageRange,
                 String gender, String birthday, Status status) {
         this.kakaoId = kakaoId;
         this.userProfileImage = profile_image;
@@ -52,6 +51,5 @@ public class User extends BaseTimeEntity {
         this.birthday=birthday;
         this.status=status;
     }
-
 
 }
