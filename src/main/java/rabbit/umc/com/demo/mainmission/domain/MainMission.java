@@ -47,16 +47,6 @@ public class MainMission extends BaseTimeEntity {
     @Column(nullable = false)
     private Status status= Status.ACTIVE;
 
-    //Setter
-    public void setMainMission(PostMainMissionReq postMainMissionReq, Category category){
-        this.category = category;
-        this.startAt = postMainMissionReq.getMissionStartTime();
-        this.endAt = postMainMissionReq.getMissionEndTime();
-        this.title = postMainMissionReq.getMainMissionTitle();
-        this.content = postMainMissionReq.getMainMissionContent();
-        this.lastMission = postMainMissionReq.getLastMission();
-    }
-
     //비즈니스 로직
     public void inActive(){
         this.status = Status.INACTIVE;
