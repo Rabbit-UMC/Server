@@ -33,6 +33,7 @@ import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.report.Report;
 import rabbit.umc.com.demo.report.ReportRepository;
 import rabbit.umc.com.demo.user.Domain.User;
+import rabbit.umc.com.demo.user.UserQueryService;
 import rabbit.umc.com.demo.user.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
@@ -61,9 +62,9 @@ public class ArticleService {
     private final CommentRepository commentRepository;
     private final ImageRepository imageRepository;
     private final LikeArticleRepository likeArticleRepository;
-    private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final ReportRepository reportRepository;
+    private final UserQueryService userQueryService;
 
 
     public CommunityHomeRes getHomeV1() {
@@ -120,7 +121,7 @@ public class ArticleService {
 
     public String getHostUserName(MainMission mainMission){
         Long hostId = mainMission.getCategory().getUserId();
-        User hostUser = userRepository.getReferenceById(hostId);
+        User hostUser = userQueryService.getUser(hostId);
         return  hostUser.getUserName();
     }
 
@@ -206,7 +207,7 @@ public class ArticleService {
 
     @Transactional
     public Long postArticle(PostArticleReq postArticleReq, Long userId , Long categoryId ) {
-        User user = userRepository.getReferenceById(userId);
+        User user = userQueryService.getUser(userId);
         Category category = categoryRepository.getReferenceById(categoryId);
 
         Article article = Article.builder()
@@ -289,7 +290,7 @@ public class ArticleService {
             if(article.getId() == null){
                 throw new EntityNotFoundException("Unable to find article with id:" + articleId);
             }
-            User user = userRepository.getReferenceById(userId);
+            User user = userQueryService.getUser(userId);
 
             // 이미 신고한 게시물인지 체크
             Boolean isReportExists = reportRepository.existsByUserAndArticle(user, article);
@@ -318,7 +319,7 @@ public class ArticleService {
     @Transactional
     public void likeArticle(Long userId, Long articleId) throws BaseException {
         try {
-            User user = userRepository.getReferenceById(userId);
+            User user = userQueryService.getUser(userId);
             Article article = articleRepository.getReferenceById(articleId);
 
             //게시물 존재 체크
