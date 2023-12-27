@@ -16,6 +16,7 @@ import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionUsers;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.MissionProofImageDto;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.RankDto;
+import rabbit.umc.com.demo.mainmission.dto.MainMissionViewRes;
 import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
 import rabbit.umc.com.demo.report.Report;
 import rabbit.umc.com.demo.user.Domain.User;
@@ -93,6 +94,32 @@ public class MainMissionConverter {
                 .content(postMainMissionReq.getMainMissionContent())
                 .lastMission(postMainMissionReq.getLastMission())
                 .status(Status.ACTIVE)
+                .build();
+    }
+
+    public static MainMissionUsers toMainMissionUsers(User user, MainMission mainMission){
+        return MainMissionUsers.builder()
+                .user(user)
+                .mainMission(mainMission)
+                .build();
+    }
+
+    public static MainMissionProof toMainMissionProof(String filePath, User user, MainMission mainMission){
+        return MainMissionProof.builder()
+                .proofImage(filePath)
+                .user(user)
+                .mainMission(mainMission)
+                .build();
+    }
+
+    public static MainMissionViewRes toMainMissionViewRes(User user, MainMission mainMission){
+        return MainMissionViewRes.builder()
+                .userName(user.getUserName())
+                .missionImageUrl(mainMission.getCategory().getImage())
+                .missionTitle(mainMission.getTitle())
+                .missionStartDay(DateUtil.getMonthDay(mainMission.getStartAt()))
+                .missionEndDay(DateUtil.getMonthDay(mainMission.getEndAt()))
+                .memo(mainMission.getContent())
                 .build();
     }
 

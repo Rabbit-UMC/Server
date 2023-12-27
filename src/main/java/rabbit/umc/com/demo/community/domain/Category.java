@@ -39,4 +39,8 @@ public class Category extends BaseTimeEntity {
     public void changeImage(String filepath){
         image = filepath;
     }
+
+    public void  changeHostUser(Long userId){
+        this.userId = userId;
+    }
 }

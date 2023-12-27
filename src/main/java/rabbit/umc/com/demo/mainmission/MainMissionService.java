@@ -119,9 +119,8 @@ public class MainMissionService {
             MainMissionProof mainMissionProof = mainMissionProofRepository.getReferenceById(mainMissionProofId);
 
             User user = userQueryService.getUser(userId);
-            Optional<LikeMissionProof> findLikeMissionProof = likeMissionProofRepository.findLikeMissionProofByUserAndMainMissionProofId(user, mainMissionProofId);
             //이미 좋아한 인증 사진인지 체크
-            if (findLikeMissionProof.isPresent()) {
+            if (isLikedProof(user, mainMissionProofId)) {
                 throw new BaseException(FAILED_TO_LIKE_MISSION);
             }
             // 좋아요 1점 증가
@@ -141,6 +140,11 @@ public class MainMissionService {
         mainMissionUsersRepository.save(missionUsers);
     }
 
+    public boolean isLikedProof(User user, Long mainMissionProofId){
+        Optional<LikeMissionProof> findLikeMissionProof = likeMissionProofRepository.findLikeMissionProofByUserAndMainMissionProofId(user, mainMissionProofId);
+        return findLikeMissionProof.isPresent();
+    }
+
     @Transactional
     public void unLikeMissionProof(Long userId, Long mainMissionProofId) throws BaseException {
         try {
@@ -152,7 +156,7 @@ public class MainMissionService {
             User user = userQueryService.getUser(userId);
             Optional<LikeMissionProof> findLikeMissionProof = likeMissionProofRepository.findLikeMissionProofByUserAndMainMissionProofId(user, mainMissionProofId);
             // 좋아요하지 않은 인증 사진인지 체크
-            if (findLikeMissionProof.isEmpty()) {
+            if (!isLikedProof(user, mainMissionProofId)) {
                 throw new BaseException(FAILED_TO_UNLIKE_MISSION);
             }
             // 좋아요 1점 감소 로직
@@ -165,6 +169,10 @@ public class MainMissionService {
         }
     }
 
+    public boolean isReport(Long userId, Long mainMissionProofId){
+        Optional<Report> findReport = reportRepository.findReportByUserIdAndAndMainMissionProofId(userId, mainMissionProofId);
+        return findReport.isPresent();
+    }
 
     @Transactional
     public void reportMissionProof(Long userId, Long mainMissionProofId) throws BaseException {
@@ -175,16 +183,13 @@ public class MainMissionService {
                 throw new EntityNotFoundException("Unable to find proofId with id:" + mainMissionProofId);
             }
             User user = userQueryService.getUser(userId);
-            Optional<Report> findReport = reportRepository.findReportByUserIdAndAndMainMissionProofId(userId, mainMissionProofId);
-            //이미 신고한 사진인지 체크
-            if (findReport.isPresent()) {
+            if (isReport(userId, mainMissionProofId)) {
                 throw new BaseException(FAILED_TO_REPORT);
             }
             //신고 저장
             reportRepository.save(toMissionProofReport(user, mainMissionProof));
             //신고 횟수 15회 이상시 비활성화 처리
             checkInactivation(mainMissionProofId, mainMissionProof);
-
         } catch (EntityNotFoundException e) {
             throw new BaseException(DONT_EXIST_MISSION_PROOF);
         }
@@ -195,6 +200,7 @@ public class MainMissionService {
         List<Report> countReport = reportRepository.findAllByMainMissionProofId(mainMissionProofId);
         if (countReport.size() >= REPORT_REMIT) {
             mainMissionProof.inActive();
+            mainMissionProofRepository.save(mainMissionProof);
         }
     }
 
@@ -237,11 +243,8 @@ public class MainMissionService {
         // 메인 미션 참여 아직 안했으면 참여 시키기
         MainMissionUsers findUser = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(user, mainMission);
         if (findUser == null) {
-            MainMissionUsers mainMissionUsers = new MainMissionUsers();
-            mainMissionUsers.setMainMissionUsers(user, mainMission);
-            mainMissionUsersRepository.save(mainMissionUsers);
+            mainMissionUsersRepository.save(toMainMissionUsers(user,  mainMission));
         }
-
         //만약 당일 이미 사진을 올렸으면 리젝
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX);
@@ -249,16 +252,17 @@ public class MainMissionService {
         if (!proof.isEmpty()) {
             throw new BaseException(FAILED_TO_UPLOAD);
         }
-
         // 10점 점수 획득
+        increaseUploadScore(user, mainMission);
+        //인증 사진 저장
+        mainMissionProofRepository.save(toMainMissionProof(filePath, user, mainMission));
+    }
+
+    @Transactional
+    public void increaseUploadScore(User user,MainMission mainMission){
         MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(user, mainMission);
         missionUsers.addProofScore();
         mainMissionUsersRepository.save(missionUsers);
-
-        //인증 사진 저장
-        MainMissionProof saveProof = new MainMissionProof();
-        saveProof.setMainMissionProof(filePath, user, mainMission);
-        mainMissionProofRepository.save(saveProof);
     }
 
     /**
@@ -272,7 +276,6 @@ public class MainMissionService {
         List<MainMission> completedMissions = mainMissionRepository.findMainMissionsByEndAtBeforeAndLastMissionTrue(LocalDate.now());
         for (MainMission mainMission : completedMissions) {
             List<MainMissionUsers> topScorers = mainMissionUsersRepository.findTopScorersByMainMissionOrderByScoreDesc(mainMission, PageRequest.of(0, 1));
-
             if (!topScorers.isEmpty()) {
                 //이전 묘집사 강등
                 Long beforeUserId = mainMission.getCategory().getUserId();
@@ -281,16 +284,21 @@ public class MainMissionService {
 
                 MainMissionUsers topScorer = topScorers.get(0);
                 //유저 권한 변경
-                User user = topScorer.getUser();
-                userService.changePermissionToHost(user);
+                User newUser = topScorer.getUser();
+                userService.changePermissionToHost(newUser);
 
                 //해당 카테고리 묘집사 변경
-                Category category = mainMission.getCategory();
-                category.setUserId(user.getId());
-
+                changeCategoryHost(mainMission, newUser);
                 mainMission.setLastMission(Boolean.FALSE);
+                mainMissionRepository.save(mainMission);
             }
         }
+    }
+
+    public void changeCategoryHost(MainMission mainMission, User newUser){
+        Category category = mainMission.getCategory();
+        category.changeHostUser(newUser.getId());
+        categoryRepository.save(category);
     }
 
     public MainMissionViewRes getMainMissionView(Long mainMissionId, Long userId) throws BaseException {
@@ -300,14 +308,7 @@ public class MainMissionService {
             throw new BaseException(FORBIDDEN);
         }
 
-        return MainMissionViewRes.builder()
-                .userName(user.getUserName())
-                .missionImageUrl(mainMission.getCategory().getImage())
-                .missionTitle(mainMission.getTitle())
-                .missionStartDay(DateUtil.getMonthDay(mainMission.getStartAt()))
-                .missionEndDay(DateUtil.getMonthDay(mainMission.getEndAt()))
-                .memo(mainMission.getContent())
-                .build();
+        return toMainMissionViewRes(user, mainMission);
     }
 
 }
