@@ -123,4 +123,13 @@ public class MainMissionConverter {
                 .build();
     }
 
+    public static MainMissionDtoV2 toMainMissionDtoV2(MainMission mainMission, String hostUserName){
+        return MainMissionDtoV2.builder()
+                .mainMissionId(mainMission.getId())
+                .mainMissionTitle(mainMission.getTitle())
+                .dDay(DateUtil.calculateDDay(mainMission.getEndAt()))
+                .hostUserName(hostUserName)
+                .build();
+    }
+
 }

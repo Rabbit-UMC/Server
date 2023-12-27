@@ -69,20 +69,13 @@ public class ArticleService {
 
     public CommunityHomeRes getHomeV1() {
         //상위 4개만 페이징
-        PageRequest pageable = PageRequest.of(0,POPULAR_ARTICLE_LIKE);
-
+        PageRequest pageable = PageRequest.of(0, POPULAR_ARTICLE_LIKE);
         //STATUS:ACTIVE 인기 게시물 4개만 가져오기
         List<Article> articleList = articleRepository.findPopularArticleLimitedToFour(ACTIVE, pageable);
-        List<PopularArticleDto> popularArticleList = ArticleConverter.toPopularArticleDto(articleList);
-
         // STATUS:ACTIVE 미션만 가져오기
         List<MainMission> missionList = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
-        List<MainMissionDto> mainMissionDtoList = MainMissionConverter.toMainMissionDtoList(missionList);
 
-        return CommunityHomeRes.builder()
-                .mainMission(mainMissionDtoList)
-                .popularArticle(popularArticleList)
-                .build();
+        return ArticleConverter.toCommunityHomeRes(missionList, articleList);
     }
 
     public CommunityHomeResV2 getHomeV2(Long userId) {
@@ -110,12 +103,8 @@ public class ArticleService {
         List<MainMission> allMissions = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
 
         return allMissions.stream()
-                .map(mainMission -> MainMissionDtoV2.builder()
-                        .mainMissionId(mainMission.getId())
-                        .mainMissionTitle(mainMission.getTitle())
-                        .dDay(DateUtil.calculateDDay(mainMission.getEndAt()))
-                        .hostUserName(getHostUserName(mainMission))
-                        .build())
+                .map(mainMission -> MainMissionConverter
+                        .toMainMissionDtoV2(mainMission, getHostUserName(mainMission)))
                 .collect(Collectors.toList());
     }
 
@@ -128,22 +117,15 @@ public class ArticleService {
     public ArticleListRes getArticles(int page, Long categoryId){
 
         Category category = categoryRepository.getReferenceById(categoryId);
-
         PageRequest pageRequest =PageRequest.of(page, PAGING_SIZE, Sort.by("createdAt").descending());
+
         // Status:ACTIVE, categoryId에 해당하는 게시물 페이징 해서 가져오기
         List<Article> articlePage = articleRepository.findAllByCategoryIdAndStatusOrderByCreatedAtDesc(categoryId, Status.ACTIVE, pageRequest);
-        List<ArticleDto> articleListRes = ArticleConverter.toArticleDto(articlePage);
 
         //Status:ACTIVE, categoryId에 해당하는 메인미션 가져오기
         MainMission mainMission = mainMissionRepository.findMainMissionsByCategoryIdAndStatus(categoryId, ACTIVE);
-        //DTO 에 매핑 (카테고리 이미지, 메인미션 ID, 카테고리 ID, 페이징된 게시물 DTO)
 
-        return ArticleListRes.builder()
-                .categoryImage(category.getImage())
-                .mainMissionId(mainMission.getId())
-                .categoryHostId(category.getUserId())
-                .articleLists(articleListRes)
-                .build();
+        return ArticleConverter.toArticleListRes(category, mainMission, articlePage);
     }
 
     public ArticleRes getArticle(Long articleId, Long userId) throws BaseException {
@@ -156,10 +138,7 @@ public class ArticleService {
             // 게시물의 이미지들에 대해 DTO 에 매핑
             List<ArticleImageDto> articleImages = article.getImages()
                     .stream()
-                    .map(image -> ArticleImageDto.builder()
-                            .imageId(image.getId())
-                            .filePath(image.getFilePath())
-                            .build())
+                    .map(ArticleConverter::toArticleImageDto)
                     .collect(Collectors.toList());
 
             // 게시물의 댓글들에 대해 DTO 매핑
