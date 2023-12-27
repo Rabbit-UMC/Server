@@ -26,6 +26,7 @@ import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionUsersRepository;
 import rabbit.umc.com.demo.report.Report;
 import rabbit.umc.com.demo.report.ReportRepository;
+import rabbit.umc.com.demo.report.ReportService;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.UserQueryService;
 
@@ -48,16 +49,15 @@ import static rabbit.umc.com.demo.user.Domain.UserPermission.*;
 @Transactional(readOnly = true)
 public class MainMissionService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final int REPORT_REMIT = 15;
 
     private final MainMissionRepository mainMissionRepository;
     private final MainMissionProofRepository mainMissionProofRepository;
     private final LikeMissionProofRepository likeMissionProofRepository;
-    private final ReportRepository reportRepository;
     private final CategoryRepository categoryRepository;
     private final MainMissionUsersRepository mainMissionUsersRepository;
     private final UserQueryService userQueryService;
     private final UserService userService;
+    private final ReportService reportService;
 
     private List<MainMissionProof> findMainMissionProofByDay(MainMission mainMission, int day, Long mainMissionId){
         LocalDateTime startDate = mainMission.getStartAt().atStartOfDay();
@@ -169,11 +169,6 @@ public class MainMissionService {
         }
     }
 
-    public boolean isReport(Long userId, Long mainMissionProofId){
-        Optional<Report> findReport = reportRepository.findReportByUserIdAndAndMainMissionProofId(userId, mainMissionProofId);
-        return findReport.isPresent();
-    }
-
     @Transactional
     public void reportMissionProof(Long userId, Long mainMissionProofId) throws BaseException {
         try {
@@ -183,24 +178,19 @@ public class MainMissionService {
                 throw new EntityNotFoundException("Unable to find proofId with id:" + mainMissionProofId);
             }
             User user = userQueryService.getUser(userId);
-            if (isReport(userId, mainMissionProofId)) {
+            if (reportService.isReport(userId, mainMissionProofId)) {
                 throw new BaseException(FAILED_TO_REPORT);
             }
             //신고 저장
-            reportRepository.save(toMissionProofReport(user, mainMissionProof));
+            reportService.reportMissionProof(toMissionProofReport(user, mainMissionProof));
             //신고 횟수 15회 이상시 비활성화 처리
-            checkInactivation(mainMissionProofId, mainMissionProof);
+            if (reportService.checkInactivation(mainMissionProofId, mainMissionProof)){
+                mainMissionProof.inActive();
+                mainMissionProofRepository.save(mainMissionProof);
+            }
+
         } catch (EntityNotFoundException e) {
             throw new BaseException(DONT_EXIST_MISSION_PROOF);
-        }
-    }
-
-    @Transactional
-    public void checkInactivation(Long mainMissionProofId, MainMissionProof mainMissionProof){
-        List<Report> countReport = reportRepository.findAllByMainMissionProofId(mainMissionProofId);
-        if (countReport.size() >= REPORT_REMIT) {
-            mainMissionProof.inActive();
-            mainMissionProofRepository.save(mainMissionProof);
         }
     }
 
