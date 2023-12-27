@@ -24,6 +24,7 @@ import rabbit.umc.com.demo.schedule.domain.Schedule;
 import rabbit.umc.com.demo.schedule.repository.MissionScheduleRepository;
 import rabbit.umc.com.demo.schedule.repository.ScheduleRepository;
 import rabbit.umc.com.demo.user.Domain.User;
+import rabbit.umc.com.demo.user.Domain.UserPermission;
 import rabbit.umc.com.demo.user.Dto.*;
 
 import javax.transaction.Transactional;
@@ -344,5 +345,15 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void changePermissionToUser(User user){
+        user.setUserPermission(UserPermission.USER);
+        userRepository.save(user);
+    }
 
+    @Transactional
+    public void changePermissionToHost(User user){
+        user.setUserPermission(UserPermission.HOST);
+        userRepository.save(user);
+    }
 }

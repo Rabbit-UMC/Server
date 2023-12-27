@@ -1,5 +1,5 @@
 package rabbit.umc.com.demo.user.Domain;
 
-public enum UserPermision {
+public enum UserPermission {
     ADMIN, HOST, USER
 }
