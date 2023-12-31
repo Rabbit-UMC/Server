@@ -1,6 +1,5 @@
 package rabbit.umc.com.demo.report;
 
-import static rabbit.umc.com.demo.converter.MainMissionConverter.toMissionProofReport;
 
 import java.util.List;
 import java.util.Optional;

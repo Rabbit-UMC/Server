@@ -10,7 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.domain.Category;
-import rabbit.umc.com.demo.converter.MainMissionConverter;
+import rabbit.umc.com.demo.converter.RankConverter;
+import rabbit.umc.com.demo.converter.ReportConverter;
 import rabbit.umc.com.demo.mainmission.domain.mapping.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
@@ -24,8 +25,6 @@ import rabbit.umc.com.demo.mainmission.repository.LikeMissionProofRepository;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionProofRepository;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionUsersRepository;
-import rabbit.umc.com.demo.report.Report;
-import rabbit.umc.com.demo.report.ReportRepository;
 import rabbit.umc.com.demo.report.ReportService;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.UserQueryService;
@@ -37,12 +36,10 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import rabbit.umc.com.demo.user.UserService;
-import rabbit.umc.com.utils.DateUtil;
 
 import static rabbit.umc.com.config.BaseResponseStatus.*;
 import static rabbit.umc.com.demo.Status.*;
 import static rabbit.umc.com.demo.converter.MainMissionConverter.*;
-import static rabbit.umc.com.demo.user.Domain.UserPermission.*;
 
 @Service
 @RequiredArgsConstructor
@@ -69,7 +66,7 @@ public class MainMissionService {
     private List<RankDto> getRank(Long mainMissionId){
         List<MainMissionUsers> top3 = mainMissionUsersRepository.findTop3OByMainMissionIdOrderByScoreDesc(mainMissionId);
         return top3.stream()
-                .map(MainMissionConverter::toRankDto)
+                .map(RankConverter::toRankDto)
                 .collect(Collectors.toList());
     }
 
@@ -182,7 +179,7 @@ public class MainMissionService {
                 throw new BaseException(FAILED_TO_REPORT);
             }
             //신고 저장
-            reportService.reportMissionProof(toMissionProofReport(user, mainMissionProof));
+            reportService.reportMissionProof(ReportConverter.toMissionProofReport(user, mainMissionProof));
             //신고 횟수 15회 이상시 비활성화 처리
             if (reportService.checkInactivation(mainMissionProofId, mainMissionProof)){
                 mainMissionProof.inActive();

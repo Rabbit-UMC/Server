@@ -8,7 +8,6 @@ import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionDtoV2;
-import rabbit.umc.com.demo.mainmission.MainMissionService;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.mapping.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
@@ -18,7 +17,6 @@ import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.MissionProofImageDt
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.RankDto;
 import rabbit.umc.com.demo.mainmission.dto.MainMissionViewRes;
 import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
-import rabbit.umc.com.demo.report.Report;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.utils.DateUtil;
 
@@ -59,13 +57,6 @@ public class MainMissionConverter {
                 .build();
     }
 
-    public static RankDto toRankDto(MainMissionUsers missionUsers){
-        return RankDto.builder()
-                .userId(missionUsers.getId())
-                .userName(missionUsers.getUser().getUserName())
-                .build();
-    }
-
     public static GetMainMissionRes toGetMainMissionRes(MainMission mainMission, List<MissionProofImageDto> missionProofImages, List<RankDto> rank){
         return GetMainMissionRes.builder()
                 .mainMissionId(mainMission.getId())
@@ -75,13 +66,6 @@ public class MainMissionConverter {
                 .mainMissionContent(mainMission.getContent())
                 .rank(rank)
                 .missionProofImages(missionProofImages)
-                .build();
-    }
-
-    public static Report toMissionProofReport(User user, MainMissionProof mainMissionProof){
-        return Report.builder()
-                .user(user)
-                .mainMissionProof(mainMissionProof)
                 .build();
     }
 

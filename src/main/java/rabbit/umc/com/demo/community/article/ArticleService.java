@@ -9,7 +9,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.community.*;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
@@ -17,31 +16,28 @@ import rabbit.umc.com.demo.community.Comments.CommentRepository;
 import rabbit.umc.com.demo.community.domain.*;
 import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
 import rabbit.umc.com.demo.community.dto.*;
-import rabbit.umc.com.demo.community.dto.ArticleListRes.ArticleDto;
 import rabbit.umc.com.demo.community.dto.ArticleRes.ArticleImageDto;
 import rabbit.umc.com.demo.community.dto.ArticleRes.CommentDto;
-import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionDto;
-import rabbit.umc.com.demo.community.dto.CommunityHomeRes.PopularArticleDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionDtoV2;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.PopularArticleDtoV2;
 import rabbit.umc.com.demo.community.dto.PatchArticleReq.ChangeImageDto;
 import rabbit.umc.com.demo.converter.ArticleConverter;
 import rabbit.umc.com.demo.converter.CommentConverter;
+import rabbit.umc.com.demo.converter.ImageConverter;
 import rabbit.umc.com.demo.converter.MainMissionConverter;
+import rabbit.umc.com.demo.converter.ReportConverter;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.report.Report;
 import rabbit.umc.com.demo.report.ReportRepository;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.UserQueryService;
-import rabbit.umc.com.demo.user.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import rabbit.umc.com.utils.DateUtil;
 
 import static rabbit.umc.com.config.BaseResponseStatus.*;
 import static rabbit.umc.com.demo.Status.*;
@@ -148,19 +144,7 @@ public class ArticleService {
                     .map(CommentConverter::toCommentDto)
                     .collect(Collectors.toList());
 
-            return ArticleRes.builder()
-                    .categoryName(article.getCategory().getName())
-                    .articleId(article.getId())
-                    .authorId(article.getUser().getId())
-                    .authorProfileImage(article.getUser().getUserProfileImage())
-                    .authorName(article.getUser().getUserName())
-                    .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
-                    .articleTitle(article.getTitle())
-                    .articleContent(article.getContent())
-                    .likeArticle(isLike)
-                    .articleImage(articleImages)
-                    .commentList(commentLists)
-                    .build();
+            return ArticleConverter.toArticleRes(article,isLike,articleImages,commentLists);
         }catch (NullPointerException e){
             throw new BaseException(DONT_EXIST_ARTICLE);
         }
@@ -189,21 +173,13 @@ public class ArticleService {
         User user = userQueryService.getUser(userId);
         Category category = categoryRepository.getReferenceById(categoryId);
 
-        Article article = Article.builder()
-                .title(postArticleReq.getArticleTitle())
-                .content(postArticleReq.getArticleContent())
-                .user(user)
-                .category(category)
-                .build();
+        Article article = ArticleConverter.toArticle(postArticleReq,user,category);
         articleRepository.save(article);
 
         // 게시물 이미지 생성
         List<String> imageList = postArticleReq.getImageList();
         for (String filepath : imageList) {
-            Image image = Image.builder()
-                    .article(article)
-                    .filePath(filepath)
-                    .build();
+            Image image = ImageConverter.toImage(article, filepath);
             imageRepository.save(image);
         }
         return article.getId();
@@ -275,12 +251,8 @@ public class ArticleService {
             Boolean isReportExists = reportRepository.existsByUserAndArticle(user, article);
             if (isReportExists) {
                 throw new BaseException(FAILED_TO_REPORT);
-
             } else {
-                Report report = Report.builder()
-                        .user(user)
-                        .article(article)
-                        .build();
+                Report report = ReportConverter.toArticleReport(user,article);
                 reportRepository.save(report);
 
                 // 신고 횟수 15회 이상 시 게시물 status 변경 로직  [ACTIVE -> INACTIVE]
@@ -312,12 +284,8 @@ public class ArticleService {
             }
 
             //게시물 좋아요 저장
-            LikeArticle likeArticle = LikeArticle.builder()
-                    .user(user)
-                    .article(article)
-                    .build();
+            LikeArticle likeArticle = ArticleConverter.toLikeArticle(user, article);
             likeArticleRepository.save(likeArticle);
-
         }catch (EntityNotFoundException e){
             throw new BaseException(DONT_EXIST_ARTICLE);
         }

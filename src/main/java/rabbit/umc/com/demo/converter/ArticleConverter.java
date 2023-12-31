@@ -6,16 +6,20 @@ import java.util.stream.Collectors;
 import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.community.domain.Image;
+import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
 import rabbit.umc.com.demo.community.dto.ArticleListRes;
 import rabbit.umc.com.demo.community.dto.ArticleListRes.ArticleDto;
 import rabbit.umc.com.demo.community.dto.ArticleRes;
 import rabbit.umc.com.demo.community.dto.ArticleRes.ArticleImageDto;
+import rabbit.umc.com.demo.community.dto.ArticleRes.CommentDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.PopularArticleDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.PopularArticleDtoV2;
 import rabbit.umc.com.demo.community.dto.GetPopularArticleRes;
+import rabbit.umc.com.demo.community.dto.PostArticleReq;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
+import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.utils.DateUtil;
 
 public class ArticleConverter {
@@ -94,6 +98,38 @@ public class ArticleConverter {
         return ArticleImageDto.builder()
                 .imageId(image.getId())
                 .filePath(image.getFilePath())
+                .build();
+    }
+
+    public static ArticleRes toArticleRes(Article article, Boolean isLike,List<ArticleImageDto> articleImages, List<CommentDto> commentLists ){
+        return ArticleRes.builder()
+                .categoryName(article.getCategory().getName())
+                .articleId(article.getId())
+                .authorId(article.getUser().getId())
+                .authorProfileImage(article.getUser().getUserProfileImage())
+                .authorName(article.getUser().getUserName())
+                .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
+                .articleTitle(article.getTitle())
+                .articleContent(article.getContent())
+                .likeArticle(isLike)
+                .articleImage(articleImages)
+                .commentList(commentLists)
+                .build();
+    }
+
+    public static Article toArticle(PostArticleReq postArticleReq, User user, Category category){
+        return Article.builder()
+                .title(postArticleReq.getArticleTitle())
+                .content(postArticleReq.getArticleContent())
+                .user(user)
+                .category(category)
+                .build();
+    }
+
+    public static LikeArticle toLikeArticle(User user, Article article){
+        return LikeArticle.builder()
+                .user(user)
+                .article(article)
                 .build();
     }
 }
