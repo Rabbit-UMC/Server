@@ -9,7 +9,7 @@ import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.UserRepository;
 
 import static rabbit.umc.com.config.BaseResponseStatus.*;
-import static rabbit.umc.com.demo.user.Domain.UserPermision.*;
+import static rabbit.umc.com.demo.user.Domain.UserPermission.*;
 
 @Service
 @RequiredArgsConstructor

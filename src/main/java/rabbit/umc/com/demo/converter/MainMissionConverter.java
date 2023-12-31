@@ -4,9 +4,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionDtoV2;
-import rabbit.umc.com.demo.mainmission.MainMissionService;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.mapping.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
@@ -14,7 +15,8 @@ import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionUsers;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.MissionProofImageDto;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes.RankDto;
-import rabbit.umc.com.demo.report.Report;
+import rabbit.umc.com.demo.mainmission.dto.MainMissionViewRes;
+import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.utils.DateUtil;
 
@@ -55,13 +57,6 @@ public class MainMissionConverter {
                 .build();
     }
 
-    public static RankDto toRankDto(MainMissionUsers missionUsers){
-        return RankDto.builder()
-                .userId(missionUsers.getId())
-                .userName(missionUsers.getUser().getUserName())
-                .build();
-    }
-
     public static GetMainMissionRes toGetMainMissionRes(MainMission mainMission, List<MissionProofImageDto> missionProofImages, List<RankDto> rank){
         return GetMainMissionRes.builder()
                 .mainMissionId(mainMission.getId())
@@ -74,10 +69,50 @@ public class MainMissionConverter {
                 .build();
     }
 
-    public static Report toMissionProofReport(User user, MainMissionProof mainMissionProof){
-        return Report.builder()
+    public static MainMission toMainMission(PostMainMissionReq postMainMissionReq, Category category){
+        return MainMission.builder()
+                .category(category)
+                .startAt(postMainMissionReq.getMissionStartTime())
+                .endAt(postMainMissionReq.getMissionEndTime())
+                .title(postMainMissionReq.getMainMissionTitle())
+                .content(postMainMissionReq.getMainMissionContent())
+                .lastMission(postMainMissionReq.getLastMission())
+                .status(Status.ACTIVE)
+                .build();
+    }
+
+    public static MainMissionUsers toMainMissionUsers(User user, MainMission mainMission){
+        return MainMissionUsers.builder()
                 .user(user)
-                .mainMissionProof(mainMissionProof)
+                .mainMission(mainMission)
+                .build();
+    }
+
+    public static MainMissionProof toMainMissionProof(String filePath, User user, MainMission mainMission){
+        return MainMissionProof.builder()
+                .proofImage(filePath)
+                .user(user)
+                .mainMission(mainMission)
+                .build();
+    }
+
+    public static MainMissionViewRes toMainMissionViewRes(User user, MainMission mainMission){
+        return MainMissionViewRes.builder()
+                .userName(user.getUserName())
+                .missionImageUrl(mainMission.getCategory().getImage())
+                .missionTitle(mainMission.getTitle())
+                .missionStartDay(DateUtil.getMonthDay(mainMission.getStartAt()))
+                .missionEndDay(DateUtil.getMonthDay(mainMission.getEndAt()))
+                .memo(mainMission.getContent())
+                .build();
+    }
+
+    public static MainMissionDtoV2 toMainMissionDtoV2(MainMission mainMission, String hostUserName){
+        return MainMissionDtoV2.builder()
+                .mainMissionId(mainMission.getId())
+                .mainMissionTitle(mainMission.getTitle())
+                .dDay(DateUtil.calculateDDay(mainMission.getEndAt()))
+                .hostUserName(hostUserName)
                 .build();
     }
 
