@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 public class GetMissionDetailDto {
     private long id;
     private String title;
+    private String image;
     private String startAt;
     private String endAt;
     private String content;
@@ -26,6 +27,7 @@ public class GetMissionDetailDto {
         return new GetMissionDetailDto(
                 mission.getId(),
                 mission.getTitle(),
+                mission.getCategory().getImage(),
                 startAt,
                 endAt,
                 mission.getContent(),
