@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUsers;
@@ -25,11 +26,11 @@ import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static rabbit.umc.com.config.BaseResponseStatus.EMPTY_SCHEDULE;
+
 
 @Service
 @RequiredArgsConstructor
@@ -232,14 +233,22 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public DayRes getScheduleWhenMonth(YearMonth yearMonth, long userId) {
-        System.out.println("yearMonth.getMonthValue() = " + yearMonth.getMonthValue());
-        System.out.println("yearMonth.getYear() = " + yearMonth.getYear());
+    public DayRes getScheduleWhenMonth(YearMonth yearMonth, long userId) throws BaseException {
+        DayRes results = new DayRes();
+        Map<Integer,Integer> map = new HashMap<>();
         List<Schedule> scheduleList = scheduleRepository.findSchedulesByMonth(yearMonth.getMonthValue(),userId,yearMonth.getYear());
 
-        DayRes resultList = new DayRes();
-        resultList.setDayList(scheduleList.stream().map(schedule -> schedule.getEndAt().getDayOfMonth()).distinct().collect(Collectors.toList()));
-        return resultList;
+        // 스케쥴 날짜 가져온거에서 각각 몇 개 잇는지
+        scheduleList.forEach(s -> {
+            Integer cnt = scheduleRepository.countByEndAtIs(s.getEndAt());
+            results.setSchedulesOfDay(s.getEndAt().getDayOfMonth(),cnt);
+        });
+
+        if(results.getSchedulesOfDay().isEmpty())
+                throw  new BaseException(EMPTY_SCHEDULE);
+//        resultList.setDayList(scheduleList.stream().map(schedule -> schedule.getEndAt().getDayOfMonth()).distinct().collect(Collectors.toList()));
+
+        return results;
     }
 
 

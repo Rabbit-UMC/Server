@@ -59,11 +59,11 @@ public class ScheduleController {
     @GetMapping()
     public BaseResponse<ScheduleHomeRes> getHome(){
         try {
-//            String token = jwtService.createJwt(1);
-//            System.out.println("jwtService = " + token);
-//            System.out.println("jwtService.createRefreshToken() = " + jwtService.createRefreshToken());
             String token = jwtService.createJwt(1);
+            System.out.println("jwtService = " + token);
+            System.out.println("jwtService.createRefreshToken() = " + jwtService.createRefreshToken());
             System.out.println("token = " + token);
+
             long userId = (long) jwtService.getUserIdx();
             ScheduleHomeRes scheduleHomeRes = scheduleService.getHome(userId);
 
@@ -143,26 +143,25 @@ public class ScheduleController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "권한 없는 접근",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON401", description = "입력 값을 확인해주세요.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE4003", description = "해당 일정이 없습니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     @Parameters({
             @Parameter(name = "month", description = "날짜(월)"),
     })
     @GetMapping("/month/{month}")
     public BaseResponse<DayRes> getScheduleWhenMonth(@PathVariable(name = "month") String month){
-        System.out.println("month = " + month);
-        System.out.println("isRegexMonth(month) = " + isRegexMonth(month));
+
         if(!isRegexMonth(month)){
             return new BaseResponse<>(BaseResponseStatus.REQUEST_ERROR);
         }
-
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
             YearMonth yearMonth = YearMonth.parse(month, formatter);
             long userId = (long) jwtService.getUserIdx();
-            DayRes result = scheduleService.getScheduleWhenMonth(yearMonth,userId);
-            return new BaseResponse<>(result);
+            DayRes results = scheduleService.getScheduleWhenMonth(yearMonth,userId);
+            return new BaseResponse<>(results);
         } catch (BaseException e) {
-            throw new RuntimeException(e);
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
