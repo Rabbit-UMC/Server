@@ -116,7 +116,6 @@ public class MissionController {
         } catch (BaseException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     /**
