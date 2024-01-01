@@ -56,7 +56,6 @@ public enum BaseResponseStatus {
     //schedule
     FAILED_TO_SCHEDULE(false,"SCHEDULE4001","존재하지 않는 일정입니다."),
     FAILED_TO_POST_SCHEDULE_DATE(false,"SCHEDULE4002", "종료 시간은 시작 시간보다 커야 합니다."),
-    EMPTY_SCHEDULE(true, "SCHEDULE4003","해당 일정이 없습니다."),
 
     //mission
     DONT_EXIST_MISSION(false,"MISSION4001","존재하지 않는 메인 미션입니다."),
