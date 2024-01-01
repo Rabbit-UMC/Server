@@ -245,8 +245,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         if(results.getSchedulesOfDay().isEmpty())
                 throw  new BaseException(EMPTY_SCHEDULE);
-
 //        resultList.setDayList(scheduleList.stream().map(schedule -> schedule.getEndAt().getDayOfMonth()).distinct().collect(Collectors.toList()));
+
         return results;
     }
 
