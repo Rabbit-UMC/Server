@@ -55,13 +55,16 @@ public class ArticleController {
     })
     @GetMapping("/home/v2")
     public BaseResponse<CommunityHomeResV2> communityHomeV2 () throws BaseException {
+        try {
+            String id = jwtService.createJwt(1);
+            System.out.println("토큰" + id);
+            Long userId = (long) jwtService.getUserIdx();
 
-        String id = jwtService.createJwt(1);
-        System.out.println("토큰" + id);
-        Long userId = (long) jwtService.getUserIdx();
-
-        CommunityHomeResV2 communityHomeRes = articleService.getHomeV2(userId);
-        return new BaseResponse<>(communityHomeRes);
+            CommunityHomeResV2 communityHomeRes = articleService.getHomeV2(userId);
+            return new BaseResponse<>(communityHomeRes);
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
     /**
