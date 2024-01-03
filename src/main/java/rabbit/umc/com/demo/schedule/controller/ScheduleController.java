@@ -11,9 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
@@ -22,12 +19,8 @@ import rabbit.umc.com.demo.schedule.dto.*;
 import rabbit.umc.com.demo.schedule.service.ScheduleService;
 import rabbit.umc.com.utils.JwtService;
 
-import javax.validation.constraints.Min;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 
 import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_POST_SCHEDULE_DATE;
@@ -183,7 +176,7 @@ public class ScheduleController {
     })
     @PostMapping()
     public BaseResponse postSchedule(@RequestBody PostScheduleReq postScheduleReq){
-        if(checkStartedAtAndEndedAt(postScheduleReq.getStartAt(),postScheduleReq.getEndAt()))
+        if(checkStartedTimeAndEndedTime(postScheduleReq.getStartAt(),postScheduleReq.getEndAt()))
             return new BaseResponse(FAILED_TO_POST_SCHEDULE_DATE);
         try {
             Long userId = (long) jwtService.getUserIdx();
@@ -241,7 +234,7 @@ public class ScheduleController {
     })
     @PatchMapping("/{scheduleId}")
     public BaseResponse patchSchedule(@PathVariable(name = "scheduleId") Long scheduleId,@RequestBody PostScheduleReq postScheduleReq) {
-        if(checkStartedAtAndEndedAt(postScheduleReq.getStartAt(),postScheduleReq.getEndAt()))
+        if(checkStartedTimeAndEndedTime(postScheduleReq.getStartAt(),postScheduleReq.getEndAt()))
             return new BaseResponse(FAILED_TO_POST_SCHEDULE_DATE);
 
         try {

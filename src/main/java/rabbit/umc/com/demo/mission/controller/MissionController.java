@@ -20,6 +20,10 @@ import rabbit.umc.com.utils.JwtService;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_MISSION_DATE;
+import static rabbit.umc.com.utils.ValidationRegex.checkStartedDateAndEndedDate;
+
 @Api(tags = {"일반 미션 관련 Controller"})
 @RestController
 @RequestMapping("/app/mission")
@@ -77,15 +81,17 @@ public class MissionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "권한 없는 접근",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4005", description = "이미 존재하는 미션명입니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4013", description = "미션 종료일은 미션 시작일보다 커야 합니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     @Parameters({
             @Parameter(name = "postMissionReq", description = "미션 생성시 정보"),
     })
     @PostMapping()
     public BaseResponse postMission(@RequestBody PostMissionReq postMissionReq){
+            if(checkStartedDateAndEndedDate(postMissionReq.getStartAt(),postMissionReq.getEndAt()))
+                return new BaseResponse(FAILED_TO_MISSION_DATE);
         try {
 //            System.out.println("jwtService.createJwt(1) = " + jwtService.createJwt(1));
-
             Long userId = (long) jwtService.getUserIdx();
             missionService.postMission(postMissionReq,userId);
             return new BaseResponse<>("미션 생성 완료");
