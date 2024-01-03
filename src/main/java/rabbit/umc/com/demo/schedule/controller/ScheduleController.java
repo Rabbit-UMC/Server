@@ -190,7 +190,7 @@ public class ScheduleController {
             Long scheduleId = scheduleService.postSchedule(postScheduleReq,userId);
             return new BaseResponse<>(scheduleId);
         } catch (BaseException e) {
-            return new BaseResponse<>(BaseResponseStatus.FAILED_TO_POST_SCHEDULE);
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
@@ -215,7 +215,7 @@ public class ScheduleController {
             Long userId = (long) jwtService.getUserIdx();
             scheduleService.deleteSchedule(scheduleIds,userId);
         } catch (BaseException e) {
-            return new BaseResponse(BaseResponseStatus.FAILED_TO_SCHEDULE);
+            return new BaseResponse(e.getStatus());
         }
         return new BaseResponse<>(scheduleIds + "번 일정 삭제됨");
     }
