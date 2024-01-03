@@ -136,7 +136,7 @@ public class MissionController {
             MissionHistoryRes result = missionService.getFailureMissions(userId);
             return new BaseResponse<>(result);
         } catch (BaseException e) {
-            return new BaseResponse(e.getMessage());
+            return new BaseResponse(e.getStatus());
         }
     }
 
@@ -266,7 +266,7 @@ public class MissionController {
             missionService.deleteMyMissoin(missionsIds,userId);
             return new BaseResponse<>(missionsIds + " 미션 삭제 완료");
         } catch (BaseException e) {
-            return new BaseResponse<>(e.getStatus().getMessage());
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
@@ -293,7 +293,7 @@ public class MissionController {
             missionService.reportMission(missionId, userId);
             return new BaseResponse<>(missionId + "번 미션 신고됨");
         } catch (BaseException e) {
-            return new BaseResponse(e.getStatus().getMessage());
+            return new BaseResponse(e.getStatus());
         }
     }
 
@@ -321,7 +321,7 @@ public class MissionController {
             missionService.togetherMission(missionId,userId);
             return new BaseResponse<>(missionId + " 미션 같이하기 성공");
         } catch (BaseException e) {
-            return new BaseResponse<>(e.getStatus().getMessage());
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
