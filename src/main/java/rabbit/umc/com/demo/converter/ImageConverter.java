@@ -1,7 +1,7 @@
 package rabbit.umc.com.demo.converter;
 
 import rabbit.umc.com.demo.community.domain.Article;
-import rabbit.umc.com.demo.community.domain.Image;
+import rabbit.umc.com.demo.image.Image;
 
 public class ImageConverter {
 

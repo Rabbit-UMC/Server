@@ -6,6 +6,7 @@ import lombok.Setter;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.community.domain.*;
 import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
+import rabbit.umc.com.demo.image.Image;
 import rabbit.umc.com.demo.user.Domain.User;
 
 import java.time.LocalDateTime;

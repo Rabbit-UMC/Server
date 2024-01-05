@@ -1,8 +1,8 @@
-package rabbit.umc.com.demo.community;
+package rabbit.umc.com.demo.image;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import rabbit.umc.com.demo.community.domain.Image;
+import rabbit.umc.com.demo.image.Image;
 
 import java.util.List;
 
