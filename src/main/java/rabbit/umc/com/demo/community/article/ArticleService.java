@@ -1,6 +1,5 @@
 package rabbit.umc.com.demo.community.article;
 
-import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +25,8 @@ import rabbit.umc.com.demo.converter.CommentConverter;
 import rabbit.umc.com.demo.converter.ImageConverter;
 import rabbit.umc.com.demo.converter.MainMissionConverter;
 import rabbit.umc.com.demo.converter.ReportConverter;
+import rabbit.umc.com.demo.image.Image;
+import rabbit.umc.com.demo.image.ImageRepository;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.report.Report;
@@ -48,7 +49,6 @@ import static rabbit.umc.com.demo.Status.*;
 @RequiredArgsConstructor
 @Slf4j
 public class ArticleService {
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
     private static final int POPULAR_ARTICLE_LIKE = 4;
     private static final int PAGING_SIZE = 20;
     private static final int REPORT_LIMIT = 15;
@@ -214,7 +214,6 @@ public class ArticleService {
                     .stream()
                     .filter(image -> !updatedImageIds.contains(image.getId()))
                     .collect(Collectors.toList());
-
             // 이미지 삭제
             imageRepository.deleteAll(imagesToDelete);
 

@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.community.domain;
+package rabbit.umc.com.demo.image;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +8,8 @@ import lombok.Setter;
 import rabbit.umc.com.config.BaseTimeEntity;
 import rabbit.umc.com.demo.Status;
 import javax.persistence.*;
+import rabbit.umc.com.demo.community.domain.Article;
+
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity

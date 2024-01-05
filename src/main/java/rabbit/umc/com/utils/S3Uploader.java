@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import rabbit.umc.com.demo.community.ImageRepository;
+import rabbit.umc.com.demo.image.ImageRepository;
 
 import java.io.File;
 import java.io.FileOutputStream;
