@@ -20,6 +20,7 @@ public class ImageService {
         return imageRepository.findAllByArticleId(articleId);
     }
 
+    @Transactional
     public void deleteImages(List<Image> images, Set<Long> updatedImageIds){
         List<Image> imagesToDelete = images
                 .stream()
@@ -29,6 +30,7 @@ public class ImageService {
         imageRepository.deleteAll(imagesToDelete);
     }
 
+    @Transactional
     public void postArticleImage(List<String> imageList, Article article){
         for (String filepath : imageList) {
             Image image = ImageConverter.toImage(article, filepath);
@@ -36,6 +38,7 @@ public class ImageService {
         }
     }
 
+    @Transactional
     public void updateArticleImage(List<ChangeImageDto> imageDtos, List<Image> findImages, Article targetArticle) {
         for (ChangeImageDto imageDto : imageDtos) {
             Image findImage = findImages
