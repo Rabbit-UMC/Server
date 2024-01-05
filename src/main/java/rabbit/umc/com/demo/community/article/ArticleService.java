@@ -27,6 +27,7 @@ import rabbit.umc.com.demo.converter.MainMissionConverter;
 import rabbit.umc.com.demo.converter.ReportConverter;
 import rabbit.umc.com.demo.image.Image;
 import rabbit.umc.com.demo.image.ImageRepository;
+import rabbit.umc.com.demo.image.ImageService;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.report.Report;
@@ -56,11 +57,11 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final MainMissionRepository mainMissionRepository;
     private final CommentRepository commentRepository;
-    private final ImageRepository imageRepository;
     private final LikeArticleRepository likeArticleRepository;
     private final CategoryRepository categoryRepository;
     private final ReportRepository reportRepository;
     private final UserQueryService userQueryService;
+    private final ImageService imageService;
 
 
     public CommunityHomeRes getHomeV1() {
@@ -177,31 +178,27 @@ public class ArticleService {
         articleRepository.save(article);
 
         // 게시물 이미지 생성
-        List<String> imageList = postArticleReq.getImageList();
-        for (String filepath : imageList) {
-            Image image = ImageConverter.toImage(article, filepath);
-            imageRepository.save(image);
-        }
+        imageService.postArticleImage(postArticleReq.getImageList(), article);
         return article.getId();
     }
 
     @Transactional
     public void updateArticle(Long userId, PatchArticleReq patchArticleReq, Long articleId) throws BaseException {
         try {
-            Article findArticle = articleRepository.findArticleById(articleId);
+            Article targetArticle = articleRepository.findArticleById(articleId);
             //글 존재 여부 체크
-            if (findArticle.getId() == null) {
+            if (targetArticle.getId() == null) {
                 throw new NullPointerException("Unable to find Article with id:" + articleId);
             }
             // JWT 가 글 작성 유저와 동일한지 체크
-            if (!findArticle.getUser().getId().equals(userId)) {
+            if (!targetArticle.getUser().getId().equals(userId)) {
                 throw new BaseException(INVALID_USER_JWT);
             }
 
-            findArticle.setTitle(patchArticleReq.getArticleTitle());
-            findArticle.setContent(patchArticleReq.getArticleContent());
+            targetArticle.setTitle(patchArticleReq.getArticleTitle());
+            targetArticle.setContent(patchArticleReq.getArticleContent());
 
-            List<Image> findImages = imageRepository.findAllByArticleId(articleId);
+            List<Image> findImages = imageService.getArticleImages(articleId);
 
             // 업데이트할 이미지 ID 목록을 생성
             Set<Long> updatedImageIds = patchArticleReq.getImageList()
@@ -210,27 +207,11 @@ public class ArticleService {
                     .collect(Collectors.toSet());
 
             // 기존 이미지 중 업데이트할 이미지 ID 목록에 포함되지 않은 이미지를 삭제
-            List<Image> imagesToDelete = findImages
-                    .stream()
-                    .filter(image -> !updatedImageIds.contains(image.getId()))
-                    .collect(Collectors.toList());
-            // 이미지 삭제
-            imageRepository.deleteAll(imagesToDelete);
+            imageService.deleteImages(findImages, updatedImageIds);
 
             // 업데이트할 이미지를 기존 이미지와 매칭하여 업데이트 또는 추가
-            for (ChangeImageDto imageDto : patchArticleReq.getImageList()) {
-                Image findImage = findImages
-                        .stream()
-                        .filter(image -> image.getId().equals(imageDto.getImageId()))
-                        .findFirst()
-                        .orElse(new Image()); // 새 이미지 생성
+            imageService.updateArticleImage(patchArticleReq.getImageList(), findImages, targetArticle);
 
-                findImage.setArticle(findArticle);
-                findImage.setFilePath(imageDto.getFilePath());
-
-                // 이미지 저장 또는 업데이트
-                imageRepository.save(findImage);
-            }
         }catch (NullPointerException e){
             throw new BaseException(DONT_EXIST_ARTICLE);
         }
