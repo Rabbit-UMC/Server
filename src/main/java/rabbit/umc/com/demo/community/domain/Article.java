@@ -11,10 +11,9 @@ import rabbit.umc.com.demo.Status;
 
 
 import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
-import rabbit.umc.com.demo.community.dto.PostArticleReq;
 
 
-
+import rabbit.umc.com.demo.image.Image;
 import rabbit.umc.com.demo.user.Domain.User;
 
 

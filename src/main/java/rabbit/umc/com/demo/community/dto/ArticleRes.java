@@ -2,17 +2,10 @@ package rabbit.umc.com.demo.community.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.community.domain.Article;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import rabbit.umc.com.demo.community.domain.Comment;
-import rabbit.umc.com.demo.community.domain.Image;
 
 @Getter
 @Builder
