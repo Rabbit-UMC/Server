@@ -282,6 +282,7 @@ public class MainMissionService {
         }
     }
 
+    @Transactional
     public void changeCategoryHost(MainMission mainMission, User newUser){
         Category category = mainMission.getCategory();
         category.changeHostUser(newUser.getId());
