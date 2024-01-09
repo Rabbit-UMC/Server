@@ -131,17 +131,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         MissionSchedule missionSchedule = new MissionSchedule();
         Mission mission = new Mission();
 
-        System.out.println("postScheduleReq = " + postScheduleReq.getMissionId());
-        System.out.println("userId = " + userId);
         // 미션 아이디가 있을 때
         if(postScheduleReq.getMissionId() != null){
             List<MissionSchedule> missionScheduleList = missionScheduleRepository.getMissionScheduleByMissionId(postScheduleReq.getMissionId());
-            System.out.println("missionScheduleList.size() = " + missionScheduleList.size());
             for (MissionSchedule ms: missionScheduleList) {
                 Schedule findSchedule = scheduleRepository.getScheduleByIdAndUserId(ms.getSchedule().getId(),userId);
 
                 if(findSchedule != null){
-                    System.out.println(postScheduleReq.getWhen().equals(findSchedule.getStartAt().toString().substring(0,10)));
                     if (postScheduleReq.getWhen().equals(findSchedule.getStartAt().toString().substring(0,10))){
                         throw new BaseException(BaseResponseStatus.FAILED_TO_POST_SCHEDULE);
                     }
