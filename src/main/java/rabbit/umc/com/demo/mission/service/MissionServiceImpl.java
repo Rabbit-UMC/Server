@@ -165,6 +165,8 @@ public class MissionServiceImpl implements MissionService{
     @Transactional
     public void deleteMyMissoin(List<Long> missionIds, long userId) throws BaseException {
         List<MissionUsers> missionUsers = missionUserRepository.getMissionUsersByMissionIdAndUserId(missionIds,userId);
+        List<MissionSchedule> missionScheduleList = missionScheduleRepository.findMissionSchedulesByMissionIds(missionIds);
+        missionScheduleList.forEach(ms -> ms.setMission(null));
         if(missionUsers.size() == 0 || missionUsers.size() != missionIds.size())
             throw new BaseException(FAILED_TO_MISSION);
         missionUsers.forEach(id -> missionUserRepository.delete(id));

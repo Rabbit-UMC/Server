@@ -24,6 +24,7 @@ public class GetMyMissionRes {
     private int challengerCnt;
     private Long categoryId;
     private String image;
+    private Long during; // 도전한 기간
 
     public static GetMyMissionRes toMyMissions(Mission mission) {
         LocalDate targetDateTime = mission.getEndAt().toLocalDate();
@@ -38,13 +39,18 @@ public class GetMyMissionRes {
             dDay = "D+" + Math.abs(daysUntilTarget);
         }
 
+
+        // 도전 기간
+        long during = ChronoUnit.DAYS.between(mission.getStartAt().toLocalDate(),currentDateTime);
+
         return new GetMyMissionRes(
                 mission.getId(),
                 mission.getTitle(),
                 dDay,
                 mission.getMissionUsers().size(),
                 mission.getCategory().getId(),
-                mission.getCategory().getImage()
+                mission.getCategory().getImage(),
+                during
         );
     }
 }
