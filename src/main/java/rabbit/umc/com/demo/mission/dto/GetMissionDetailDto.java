@@ -18,6 +18,7 @@ public class GetMissionDetailDto {
     private String endAt;
     private String content;
     private String categoryTitle;
+    private Long categoryId;
     private boolean isAlreadyIn;
 
     public static GetMissionDetailDto toGetMissionDetaliDto(Mission mission, boolean isAlreadyIn){
@@ -32,6 +33,7 @@ public class GetMissionDetailDto {
                 endAt,
                 mission.getContent(),
                 mission.getCategory().getName(),
+                mission.getCategory().getId(),
                 isAlreadyIn
         );
     }
