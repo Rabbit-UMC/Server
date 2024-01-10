@@ -113,6 +113,7 @@ public class MainMissionConverter {
                 .mainMissionTitle(mainMission.getTitle())
                 .dDay(DateUtil.calculateDDay(mainMission.getEndAt()))
                 .hostUserName(hostUserName)
+                .missionCategoryId(mainMission.getCategory().getId())
                 .build();
     }
 
