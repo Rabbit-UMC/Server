@@ -30,6 +30,7 @@ public class CommunityHomeResV2 {
         private String mainMissionTitle;
         private String dDay;
         private String hostUserName;
+        private Long missionCategoryId;
     }
 
     @NoArgsConstructor
