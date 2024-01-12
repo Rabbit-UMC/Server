@@ -7,7 +7,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.user.Domain.User;
-import rabbit.umc.com.demo.user.Dto.UserCommentedArticleListResDto;
 
 import java.util.List;
 
@@ -27,14 +26,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<Article> findArticlesByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId, PageRequest pageRequest);
 
     //유저가 댓글을 남긴 글 조회
-        @Query("SELECT a, max(c.createdAt) as maxCreatedAt " +
+    @Query("SELECT a " +
             "FROM Article a " +
             "JOIN a.comments c " +
             "WHERE c.user.id = :userId " +
             "AND a.status = 'ACTIVE' " +
             "GROUP BY a " +
-            "ORDER BY maxCreatedAt DESC")
-    List<UserCommentedArticleListResDto> findCommentedArticlesByUserId(@Param("userId") Long userId, PageRequest pageRequest);
+            "ORDER BY max(c.createdAt) DESC")
+    List<Article> findCommentedArticlesByUserId(@Param("userId") Long userId, PageRequest pageRequest);
+
+
 
     @Query("SELECT CASE WHEN u.jwtRefreshToken = :token " +
             "THEN true ELSE false END " +
