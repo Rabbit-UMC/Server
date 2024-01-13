@@ -13,10 +13,12 @@ import java.time.format.DateTimeFormatter;
 public class GetMissionDetailDto {
     private long id;
     private String title;
+    private String image;
     private String startAt;
     private String endAt;
     private String content;
     private String categoryTitle;
+    private Long categoryId;
     private boolean isAlreadyIn;
 
     public static GetMissionDetailDto toGetMissionDetaliDto(Mission mission, boolean isAlreadyIn){
@@ -26,10 +28,12 @@ public class GetMissionDetailDto {
         return new GetMissionDetailDto(
                 mission.getId(),
                 mission.getTitle(),
+                mission.getCategory().getImage(),
                 startAt,
                 endAt,
                 mission.getContent(),
                 mission.getCategory().getName(),
+                mission.getCategory().getId(),
                 isAlreadyIn
         );
     }

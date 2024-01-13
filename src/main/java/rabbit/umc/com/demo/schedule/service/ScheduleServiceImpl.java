@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUsers;
@@ -25,11 +26,11 @@ import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static rabbit.umc.com.config.BaseResponseStatus.EMPTY_SCHEDULE;
+
 
 @Service
 @RequiredArgsConstructor
@@ -130,17 +131,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         MissionSchedule missionSchedule = new MissionSchedule();
         Mission mission = new Mission();
 
-        System.out.println("postScheduleReq = " + postScheduleReq.getMissionId());
-        System.out.println("userId = " + userId);
         // 미션 아이디가 있을 때
         if(postScheduleReq.getMissionId() != null){
             List<MissionSchedule> missionScheduleList = missionScheduleRepository.getMissionScheduleByMissionId(postScheduleReq.getMissionId());
-            System.out.println("missionScheduleList.size() = " + missionScheduleList.size());
             for (MissionSchedule ms: missionScheduleList) {
                 Schedule findSchedule = scheduleRepository.getScheduleByIdAndUserId(ms.getSchedule().getId(),userId);
 
                 if(findSchedule != null){
-                    System.out.println(postScheduleReq.getWhen().equals(findSchedule.getStartAt().toString().substring(0,10)));
                     if (postScheduleReq.getWhen().equals(findSchedule.getStartAt().toString().substring(0,10))){
                         throw new BaseException(BaseResponseStatus.FAILED_TO_POST_SCHEDULE);
                     }
@@ -232,14 +229,22 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public DayRes getScheduleWhenMonth(YearMonth yearMonth, long userId) {
-        System.out.println("yearMonth.getMonthValue() = " + yearMonth.getMonthValue());
-        System.out.println("yearMonth.getYear() = " + yearMonth.getYear());
+    public DayRes getScheduleWhenMonth(YearMonth yearMonth, long userId) throws BaseException {
+        DayRes results = new DayRes();
+        Map<Integer,Integer> map = new HashMap<>();
         List<Schedule> scheduleList = scheduleRepository.findSchedulesByMonth(yearMonth.getMonthValue(),userId,yearMonth.getYear());
 
-        DayRes resultList = new DayRes();
-        resultList.setDayList(scheduleList.stream().map(schedule -> schedule.getEndAt().getDayOfMonth()).distinct().collect(Collectors.toList()));
-        return resultList;
+        // 스케쥴 날짜 가져온거에서 각각 몇 개 잇는지
+        scheduleList.forEach(s -> {
+            Integer cnt = scheduleRepository.countByEndAtIs(s.getEndAt());
+            results.setSchedulesOfDay(s.getEndAt().getDayOfMonth(),cnt);
+        });
+
+        if(results.getSchedulesOfDay().isEmpty())
+                throw  new BaseException(EMPTY_SCHEDULE);
+//        resultList.setDayList(scheduleList.stream().map(schedule -> schedule.getEndAt().getDayOfMonth()).distinct().collect(Collectors.toList()));
+
+        return results;
     }
 
 

@@ -95,7 +95,18 @@ public class MainMissionController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "메인 미션 인증 사진 좋아요 취소 하는 메소드")
+    @Tag(name = "mainMissionImageUnLike")
+    @Operation(summary = "메인 미션 인증 사진 좋아요 취소 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4002", description = "메인미션 인증 사진 존재 안함",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4009", description = "아직 좋아요 하지 않음",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "mainMissionProofId", description = "좋아요 취소 처리 할 메인미션의 인증사진 id 입니다"),
+    })
     @DeleteMapping("/main-mission/proof/{mainMissionProofId}/unlike")
     public BaseResponse unLikeMissionProof(@PathVariable("mainMissionProofId")Long mainMissionProofId) throws BaseException{
         try {
@@ -115,7 +126,18 @@ public class MainMissionController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "메인 미션 인증 사진 신고 하는 메소드")
+    @Tag(name = "mainMissionImageUnLike")
+    @Operation(summary = "메인 미션 인증 사진 신고 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "ARTICLE4001", description = "이미 신고된 사진",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4002", description = "존재하지 않는 사진",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "mainMissionProofId", description = "신고 처리 할 메인미션의 인증사진 id 입니다"),
+    })
     @PostMapping("/main-mission/proof/{mainMissionProofId}/report")
     public BaseResponse reportMissionProof(@PathVariable("mainMissionProofId") Long mainMissionProofId) throws BaseException{
         try {
@@ -136,7 +158,18 @@ public class MainMissionController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "메인 미션 생성 하는 메소드")
+    @Tag(name = "mainMissionImageUnLike")
+    @Operation(summary = "메인 미션 생성 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "묘집사 자격을 확인해주세요",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4007", description = "아직 이전미션이 끝나지 않았습니다",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "categoryId", description = "미션생성할 카테고리 id 입니다 해당 카테고리의 이전 미션은 비활성화 처리됩니다."),
+    })
     @PostMapping("/host/main-mission/{categoryId}")
     public BaseResponse createMainMission(@PathVariable("categoryId") Long categoryId, @RequestBody PostMainMissionReq postMainMissionReq) throws BaseException {
         System.out.println("jwt" + jwtService.createJwt(1));
@@ -156,7 +189,17 @@ public class MainMissionController {
      * @return
      * @throws BaseException
      */
-    @ApiOperation(value = "메인 미션 인증 사진 업로드 하는 메소드")
+    @Tag(name = "mainMissionImageUnLike")
+    @Operation(summary = "메인 미션 인증사진 업로드 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4003", description = "오늘 이미 인증을 완료했습니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "categoryId", description = "인증 사진을 업로드할 메인 미션의 카테고리 id"),
+    })
     @PostMapping("/main-mission/upload/{categoryId}")
     public BaseResponse uploadProofImage(@PathVariable("categoryId") Long categoryId, @RequestParam("filePath")String filePath)throws BaseException{
         try{
@@ -168,7 +211,22 @@ public class MainMissionController {
         }
     }
 
-    @ApiOperation(value ="묘집사가 메인 미션 관리 화면 조회 하는 API")
+    /**
+     * 메인 미션 관리 화면 조회
+     * @param mainMissionId
+     * @return
+     */
+    @Tag(name = "mainMissionImageUnLike")
+    @Operation(summary = "메인 미션 관리 화면 조회 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "묘집사 권한이 없는 유저입니다",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "mainMissionId", description = "관리할 메인 미션 id"),
+    })
     @GetMapping("/host/main-mission/{mainMissionId}")
     public BaseResponse<MainMissionViewRes> getMainMissionView(@PathVariable("mainMissionId") Long mainMissionId){
         try {

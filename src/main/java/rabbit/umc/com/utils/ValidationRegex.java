@@ -1,7 +1,5 @@
 package rabbit.umc.com.utils;
 
-import org.joda.time.DateTime;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.YearMonth;
@@ -42,10 +40,22 @@ public class ValidationRegex {
         }
     }
 
-    public static boolean checkStartedAtAndEndedAt(String startedAt, String endedAt){
+    public static boolean checkStartedTimeAndEndedTime(String startedAt, String endedAt){
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
             if(sdf.parse(startedAt).after(sdf.parse(endedAt)))
+                return true;
+            else
+                return false;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    public static boolean checkStartedDateAndEndedDate(String startedDate,String endedDate){
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            if (sdf.parse(startedDate).after(sdf.parse(endedDate)))
                 return true;
             else
                 return false;
