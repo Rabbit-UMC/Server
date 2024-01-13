@@ -122,10 +122,10 @@ public class UserService {
 
         PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
-        List<UserCommentedArticleListResDto> articlePage = userRepository.findCommentedArticlesByUserId(userId, pageRequest);
+        List<Article> articlePage = userRepository.findCommentedArticlesByUserId(userId, pageRequest);
 
         List<UserArticleListResDto> userArticleListResDtos = articlePage.stream()
-                .map(UserCommentedArticleListResDto::toArticleListRes)
+                .map(UserArticleListResDto::toArticleListRes)
                 .collect(Collectors.toList());
 
         return userArticleListResDtos;

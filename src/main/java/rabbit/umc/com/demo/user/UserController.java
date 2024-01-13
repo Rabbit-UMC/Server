@@ -63,8 +63,8 @@ public class UserController {
         }
     }
 
-//    @GetMapping("/kakao-login")
-//    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
+//    @GetMapping("/kakao-login-web")
+//    public BaseResponse<UserLoginResDto> kakaoLoginWeb(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
 //        try {
 //            String accessToken = kakaoService.getAccessToken(code);
 //
