@@ -57,6 +57,7 @@ public enum BaseResponseStatus {
     FAILED_TO_SCHEDULE(false,"SCHEDULE4001","존재하지 않는 일정입니다."),
     FAILED_TO_POST_SCHEDULE_DATE(false,"SCHEDULE4002", "종료 시간은 시작 시간보다 커야 합니다."),
     EMPTY_SCHEDULE(true,"SCHEDULE4003", "해당 날짜에 일정이 없습니다."),
+    FAILED_TO_SCHEDULE_DATE(false,"SCHEDULE4004","미션 날짜 범위 안에 해당하는 일정 날짜를 입력해주세요"),
 
     //mission
     DONT_EXIST_MISSION(false,"MISSION4001","존재하지 않는 메인 미션입니다."),
@@ -72,6 +73,7 @@ public enum BaseResponseStatus {
     FAILED_DELETE_MISSION(false,"MISSION4011","미션 삭제에 실패했습니다(존재하지 않는 미션을 삭제하는 경우)."),
     FAILED_CREATE_MISSION(false,"MISSION4012","미션 생성에 실패했습니다."),
     FAILED_TO_MISSION_DATE(false,"MISSION4013","미션 종료일은 미션 시작일보다 커야 합니다."),
+    FAILED_TO_DELETE_MISSION_SCHEDULE(false,"MISSION4014","미션 또는 일정이 존재하지 않습니다."),
 
     DONT_EXIST_CATEGORY(false, "CATEGORY4001", "존재하지 않는 카테고리 입니다."),
 

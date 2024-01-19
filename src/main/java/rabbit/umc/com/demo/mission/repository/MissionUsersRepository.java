@@ -20,5 +20,5 @@ public interface MissionUsersRepository extends JpaRepository<MissionUsers,Long>
     List<MissionUsers> getMissionUsersByMissionIdAndUserId(@Param("missionIds") List<Long> missionIds,@Param("userId") long userId);
 
 
-
+    void deleteByMissionIdAndUserId(Long missionId, long userId);
 }

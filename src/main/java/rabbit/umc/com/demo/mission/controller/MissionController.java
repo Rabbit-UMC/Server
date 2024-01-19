@@ -13,12 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
-import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.demo.mission.dto.*;
 import rabbit.umc.com.demo.mission.service.MissionService;
 import rabbit.umc.com.utils.JwtService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_MISSION_DATE;
@@ -269,8 +267,32 @@ public class MissionController {
     public BaseResponse deleteMyMission(@PathVariable List<Long> missionsIds){
         try {
             long userId = (long) jwtService.getUserIdx();
-            missionService.deleteMyMissoin(missionsIds,userId);
+            missionService.deleteMyMission(missionsIds,userId);
             return new BaseResponse<>(missionsIds + " 미션 삭제 완료");
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+    @ApiOperation(value = "도전중인 미션과 일정들 삭제 메소드")
+    @Operation(summary = "도전중인 미션과 일정들 삭제 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "권한 없는 접근",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4010", description = "존재하지 않는 미션입니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4014", description = "미션 또는 일정이 존재하지 않습니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE4001", description = "존재하지 않는 일정입니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "missionId", description = "미션 아이디"),
+    })
+    @DeleteMapping("/my-missions/missionId={missionId}/scheduleIds={scheduleIds}")
+    public BaseResponse deleteMyMissionAndSchedules(@PathVariable(name = "missionId", required = false) Long missionId, @PathVariable(name = "scheduleIds",required = false) List<Long> scheduleIds){
+        try {
+            long userId = (long) jwtService.getUserIdx();
+            missionService.deleteMyMissoinAndSchedules(missionId,scheduleIds,userId);
+            return new BaseResponse(missionId + " " + scheduleIds + "삭제 완료");
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }

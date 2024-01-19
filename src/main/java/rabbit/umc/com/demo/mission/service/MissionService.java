@@ -20,7 +20,7 @@ public interface MissionService {
 
     List<GetMyMissionSchedule> getMyMissionSchedules(long userId, long missionId) throws BaseException;
 
-    void deleteMyMissoin(List<Long> missionIds, long userId) throws BaseException;
+    void deleteMyMission(List<Long> missionIds, long userId) throws BaseException;
 
     void reportMission(long missionId,long userId) throws BaseException;
 
@@ -31,4 +31,6 @@ public interface MissionService {
     MissionHistoryRes getFailureMissions(Long userId);
 
     List<MissionCategoryRes> getMissionCategory();
+
+    void deleteMyMissoinAndSchedules(Long missionId, List<Long> scheduleIds, long userId) throws BaseException;
 }

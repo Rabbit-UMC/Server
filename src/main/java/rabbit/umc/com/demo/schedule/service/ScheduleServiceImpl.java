@@ -2,6 +2,7 @@ package rabbit.umc.com.demo.schedule.service;
 
 import lombok.RequiredArgsConstructor;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,11 +26,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static rabbit.umc.com.config.BaseResponseStatus.EMPTY_SCHEDULE;
+import static rabbit.umc.com.config.BaseResponseStatus.*;
 
 
 @Service
@@ -129,24 +131,36 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 
         MissionSchedule missionSchedule = new MissionSchedule();
-        Mission mission = new Mission();
 
         // 미션 아이디가 있을 때
         if(postScheduleReq.getMissionId() != null){
+            Mission findMission = missionRepository.getMissionById(postScheduleReq.getMissionId());
+            if(findMission == null){
+                throw new BaseException(FAILED_TO_MISSION);
+            }
+
             List<MissionSchedule> missionScheduleList = missionScheduleRepository.getMissionScheduleByMissionId(postScheduleReq.getMissionId());
+
             for (MissionSchedule ms: missionScheduleList) {
                 Schedule findSchedule = scheduleRepository.getScheduleByIdAndUserId(ms.getSchedule().getId(),userId);
 
                 if(findSchedule != null){
+
                     if (postScheduleReq.getWhen().equals(findSchedule.getStartAt().toString().substring(0,10))){
                         throw new BaseException(BaseResponseStatus.FAILED_TO_POST_SCHEDULE);
                     }
+                    // 미션 날짜 범위 안에 있는지 체크
+                    LocalDate localDate = LocalDate.parse(postScheduleReq.getWhen());
+                    LocalDate startDate = LocalDate.parse(findMission.getStartAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).minusDays(1);
+                    LocalDate endDate = LocalDate.parse(findMission.getEndAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).plusDays(1);
+                    if(!localDate.isAfter(startDate) || !localDate.isBefore(endDate))
+                        throw new BaseException(FAILED_TO_SCHEDULE_DATE);
                 }
                 
             }
 
 //            mission.setId(postScheduleReq.getMissionId());
-            mission = missionRepository.getMissionById(postScheduleReq.getMissionId());
+            Mission mission = missionRepository.getMissionById(postScheduleReq.getMissionId());
             missionSchedule.setMission(mission);
         }
 
