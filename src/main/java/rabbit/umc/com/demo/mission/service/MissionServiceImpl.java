@@ -204,13 +204,13 @@ public class MissionServiceImpl implements MissionService{
                 // 미션,일정 둘 다 있을 때 미션-일정, 미션 삭제
                 missionUserRepository.deleteByMissionIdAndUserId(missionId,userId); // 미션 유저 삭제
                 missionScheduleRepository.deleteByMissionIdAndScheduleIds(missionId,scheduleIds);
-                missionRepository.deleteById(missionId);
+//                missionRepository.deleteById(missionId);
             }else{
                 // 미션만 있고 일정 아이디들은 주어지지 않았을 때
                 missionUserRepository.deleteByMissionIdAndUserId(missionId,userId); // 미션 유저 삭제
                 List<MissionSchedule> missionSchedulesByMissionId = missionScheduleRepository.getMissionScheduleByMissionId(missionId);
                 missionSchedulesByMissionId.forEach(ms -> ms.setMission(null));
-                missionRepository.deleteById(missionId);
+//                missionRepository.deleteById(missionId);
             }
         }else{
             // 미션 아이디 값은 없고 일정 아이디들만 있을 때 해당 일정이 없으면 예외 처리
