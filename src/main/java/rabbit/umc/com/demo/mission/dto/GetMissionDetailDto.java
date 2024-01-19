@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.mission.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,9 @@ public class GetMissionDetailDto {
     private long id;
     private String title;
     private String image;
+    @Schema(example = "yyyy-MM-dd")
     private String startAt;
+    @Schema(example = "yyyy-MM-dd")
     private String endAt;
     private String content;
     private String categoryTitle;

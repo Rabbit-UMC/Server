@@ -285,7 +285,8 @@ public class MissionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE4001", description = "존재하지 않는 일정입니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     @Parameters({
-            @Parameter(name = "missionId", description = "미션 아이디"),
+            @Parameter(name = "missionId", description = "미션 아이디",required = false),
+            @Parameter(name = "scheduleIds",description = "일정 아이디들", required = false)
     })
     @DeleteMapping("/my-missions/missionId={missionId}/scheduleIds={scheduleIds}")
     public BaseResponse deleteMyMissionAndSchedules(@PathVariable(name = "missionId", required = false) Long missionId, @PathVariable(name = "scheduleIds",required = false) List<Long> scheduleIds){
@@ -301,8 +302,8 @@ public class MissionController {
     /**
      * 미션 신고
      */
-    @ApiOperation(value = "일반 미션 삭제 메소드")
-    @Operation(summary = "일반 미션 삭제 API")
+    @ApiOperation(value = "일반 미션 신고 메소드")
+    @Operation(summary = "일반 미션 신고 API")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),

@@ -18,7 +18,7 @@ public interface MissionRepository extends JpaRepository<Mission,Long> {
     @Query("select m from Mission m join MissionUsers ms on m.id = ms.mission.id where m.isOpen = 0 and DATE(m.endAt) >:now")
     List<Mission> getHome(@Param(value = "now") LocalDateTime now);
 
-    @Query("select m from Mission m left join fetch m.category where m.category.id = :missionCategoryId order by m.endAt asc")
+    @Query("select m from Mission m left join fetch m.category where m.category.id = :missionCategoryId and m.isOpen = 0 order by m.endAt asc")
     List<Mission> getMissionByMissionCategoryIdOrderByEndAt(@Param("missionCategoryId") Long missionCategryId);
     Mission getMissionByIdAndEndAtIsBeforeOrderByEndAt(Long id, LocalDateTime currentDateTime);
 

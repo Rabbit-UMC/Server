@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.schedule.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,7 @@ public class MissionListDto {
     private int challengerCnts;
 
     // 종료날짜 - 오늘 날짜
+    @Schema(example = "D+n")
     private String dDAy;
 
     public static MissionListDto toMissionListDto(Mission mission){
