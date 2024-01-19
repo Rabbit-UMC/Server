@@ -1,6 +1,7 @@
 package rabbit.umc.com.demo.schedule.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.Param;
@@ -36,4 +37,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule,Long> {
     List<Schedule> findSchedulesByMonth(@Param(value = "month") int month, @Param(value = "userId") Long userId, @Param(value = "year") int year);
 
     Integer countByEndAtIs(LocalDateTime endAt);
+    @Modifying
+    @Query("delete from Schedule s where s.id in :scheduleIds")
+    void deleteByScheduleIds(List<Long> scheduleIds);
 }

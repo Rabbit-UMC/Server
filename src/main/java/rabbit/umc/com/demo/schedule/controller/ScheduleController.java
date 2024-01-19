@@ -170,6 +170,7 @@ public class ScheduleController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "권한 없는 접근",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE4002", description = "종료 시간은 시작 시간보다 커야 합니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4006", description = "해당 미션에 대한 일정이 같은 날짜에 있습니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE4004", description = "미션 날짜 범위 안에 해당하는 일정 날짜를 입력해주세요",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     @Parameters({
             @Parameter(name = "postScheduleReq", description = "일정 정보"),

@@ -163,13 +163,68 @@ public class MissionServiceImpl implements MissionService{
 
     @Override
     @Transactional
-    public void deleteMyMissoin(List<Long> missionIds, long userId) throws BaseException {
+    public void deleteMyMission(List<Long> missionIds, long userId) throws BaseException {
         List<MissionUsers> missionUsers = missionUserRepository.getMissionUsersByMissionIdAndUserId(missionIds,userId);
         List<MissionSchedule> missionScheduleList = missionScheduleRepository.findMissionSchedulesByMissionIds(missionIds);
-        missionScheduleList.forEach(ms -> ms.setMission(null));
+        // 일정, 미션일정 테이블 값 제거
+        missionScheduleList.forEach(ms -> {
+//            scheduleRepository.delete(ms.getSchedule());
+//            missionScheduleRepository.delete(ms);
+            ms.setMission(null);
+        });
+
         if(missionUsers.size() == 0 || missionUsers.size() != missionIds.size())
             throw new BaseException(FAILED_TO_MISSION);
+
+        // 미션 유저 테이블 값 제거
         missionUsers.forEach(id -> missionUserRepository.delete(id));
+    }
+
+    @Override
+    @Transactional
+    public void deleteMyMissoinAndSchedules(Long missionId, List<Long> scheduleIds, long userId) throws BaseException {
+        // 미션,일정에 대한 값이 둘 다 없을 때
+        if(missionId == null & scheduleIds.isEmpty()){
+            throw new BaseException(FAILED_TO_DELETE_MISSION_SCHEDULE);
+        }
+
+        if(missionId != null){
+            // 미션 아이디 값은 있지만 해당 미션이 없을 때
+            if (missionRepository.getMissionById(missionId) == null)
+                throw new BaseException(FAILED_TO_MISSION);
+
+            if(!scheduleIds.isEmpty()){
+                // 미션 있고 일정 아이디 중에서 없는 일정이 있다면 해당 일정 없다고 예외처리
+                for (Long s : scheduleIds) {
+                    Schedule findSchedule = scheduleRepository.getScheduleByIdAndUserId(s, userId);
+                    if (findSchedule == null) {
+                        throw new BaseException(FAILED_TO_SCHEDULE);
+                    }
+                }
+                // 미션,일정 둘 다 있을 때 미션-일정, 미션 삭제
+                missionUserRepository.deleteByMissionIdAndUserId(missionId,userId); // 미션 유저 삭제
+                missionScheduleRepository.deleteByMissionIdAndScheduleIds(missionId,scheduleIds);
+//                missionRepository.deleteById(missionId);
+            }else{
+                // 미션만 있고 일정 아이디들은 주어지지 않았을 때
+                missionUserRepository.deleteByMissionIdAndUserId(missionId,userId); // 미션 유저 삭제
+                List<MissionSchedule> missionSchedulesByMissionId = missionScheduleRepository.getMissionScheduleByMissionId(missionId);
+                missionSchedulesByMissionId.forEach(ms -> ms.setMission(null));
+//                missionRepository.deleteById(missionId);
+            }
+        }else{
+            // 미션 아이디 값은 없고 일정 아이디들만 있을 때 해당 일정이 없으면 예외 처리
+            for (Long s : scheduleIds) {
+                Schedule findSchedule = scheduleRepository.getScheduleByIdAndUserId(s, userId);
+                if (findSchedule == null) {
+                    throw new BaseException(FAILED_TO_SCHEDULE);
+                }
+            }
+            // 해당 일정들이 있다면 미션-일정, 일정 삭제
+            if(!scheduleIds.isEmpty())
+                missionScheduleRepository.deleteByScheduleIds(scheduleIds);
+                scheduleRepository.deleteByScheduleIds(scheduleIds);
+        }
     }
 
     @Override
