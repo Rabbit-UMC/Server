@@ -18,6 +18,7 @@ import rabbit.umc.com.demo.mission.service.MissionService;
 import rabbit.umc.com.utils.JwtService;
 
 import java.util.List;
+import java.util.Optional;
 
 import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_MISSION_DATE;
 import static rabbit.umc.com.utils.ValidationRegex.checkStartedDateAndEndedDate;
@@ -289,7 +290,7 @@ public class MissionController {
             @Parameter(name = "scheduleIds",description = "일정 아이디들", required = false)
     })
     @DeleteMapping("/my-missions/missionId={missionId}/scheduleIds={scheduleIds}")
-    public BaseResponse deleteMyMissionAndSchedules(@PathVariable(name = "missionId", required = false) Long missionId, @PathVariable(name = "scheduleIds",required = false) List<Long> scheduleIds){
+    public BaseResponse deleteMyMissionAndSchedules(@PathVariable(name = "missionId", required = false) String missionId, @PathVariable(name = "scheduleIds",required = false) List<Long> scheduleIds){
         try {
             long userId = (long) jwtService.getUserIdx();
             missionService.deleteMyMissoinAndSchedules(missionId,scheduleIds,userId);

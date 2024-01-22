@@ -4,6 +4,7 @@ import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.demo.mission.dto.*;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MissionService {
     List<MissionHomeRes> getMissionHome();
@@ -32,5 +33,5 @@ public interface MissionService {
 
     List<MissionCategoryRes> getMissionCategory();
 
-    void deleteMyMissoinAndSchedules(Long missionId, List<Long> scheduleIds, long userId) throws BaseException;
+    void deleteMyMissoinAndSchedules(String missionId, List<Long> scheduleIds, long userId) throws BaseException;
 }
