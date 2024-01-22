@@ -114,12 +114,11 @@ public class MainMissionService {
     public void likeMissionProof(Long userId, Long mainMissionProofId) throws BaseException {
         try {
             MainMissionProof mainMissionProof = mainMissionProofRepository.getReferenceById(mainMissionProofId);
-
             User user = userQueryService.getUser(userId);
-            //이미 좋아한 인증 사진인지 체크
-            if (isLikedProof(user, mainMissionProofId)) {
-                throw new BaseException(FAILED_TO_LIKE_MISSION);
-            }
+
+            likeMissionProofRepository.findLikeMissionProofByUserAndMainMissionProofId(user, mainMissionProofId)
+                    .ifPresent( m -> {throw new IllegalStateException("이미 좋아요 눌른 사진");});
+
             // 좋아요 1점 증가
             increaseLikeScore(mainMissionProof);
 
@@ -127,6 +126,8 @@ public class MainMissionService {
             likeMissionProofRepository.save(toLikeMissionProof(user, mainMissionProof));
         } catch (EntityNotFoundException e) {
             throw new BaseException(DONT_EXIST_MISSION_PROOF);
+        }catch (IllegalStateException m){
+            throw new BaseException(FAILED_TO_LIKE_MISSION);
         }
     }
 
@@ -135,11 +136,6 @@ public class MainMissionService {
         MainMissionUsers missionUsers = mainMissionUsersRepository.findMainMissionUsersByUserAndAndMainMission(mainMissionProof.getUser(), mainMissionProof.getMainMission());
         missionUsers.unLikeScore();
         mainMissionUsersRepository.save(missionUsers);
-    }
-
-    public boolean isLikedProof(User user, Long mainMissionProofId){
-        Optional<LikeMissionProof> findLikeMissionProof = likeMissionProofRepository.findLikeMissionProofByUserAndMainMissionProofId(user, mainMissionProofId);
-        return findLikeMissionProof.isPresent();
     }
 
     @Transactional
@@ -152,10 +148,9 @@ public class MainMissionService {
             }
             User user = userQueryService.getUser(userId);
             Optional<LikeMissionProof> findLikeMissionProof = likeMissionProofRepository.findLikeMissionProofByUserAndMainMissionProofId(user, mainMissionProofId);
-            // 좋아요하지 않은 인증 사진인지 체크
-            if (!isLikedProof(user, mainMissionProofId)) {
-                throw new BaseException(FAILED_TO_UNLIKE_MISSION);
-            }
+
+            if (findLikeMissionProof.isEmpty()) throw new BaseException(FAILED_TO_UNLIKE_MISSION);
+
             // 좋아요 1점 감소 로직
             decreaseLikeScore(mainMissionProof);
             //좋아요 삭제
