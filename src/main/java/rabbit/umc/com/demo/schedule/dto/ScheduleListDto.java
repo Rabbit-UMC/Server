@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.schedule.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,8 +20,11 @@ public class ScheduleListDto {
     //일정
     private Long scheduleId;
     private String scheduleTitle; // 일정 이름
+    @Schema(example = "HH:mm")
     private String scheduleStart; // 시작 시간
+    @Schema(example = "HH:mm")
     private String scheduleEnd; // 종료 시간
+    @Schema(example = "yyyy-MM-dd")
     private String scheduleWhen; // 일정 날짜
 
     public static ScheduleListDto toScheduleDto(Schedule schedule) {

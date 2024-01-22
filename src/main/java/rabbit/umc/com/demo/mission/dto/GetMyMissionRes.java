@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.mission.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,10 +21,12 @@ public class GetMyMissionRes {
 
     private Long id;
     private String title;
+    @Schema(example = "D+n")
     private String dDay;
     private int challengerCnt;
     private Long categoryId;
     private String image;
+    @Schema(description = "도전한 기간")
     private Long during; // 도전한 기간
 
     public static GetMyMissionRes toMyMissions(Mission mission) {

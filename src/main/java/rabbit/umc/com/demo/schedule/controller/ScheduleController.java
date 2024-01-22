@@ -106,7 +106,7 @@ public class ScheduleController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON401", description = "입력 값을 확인해주세요.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     @Parameters({
-            @Parameter(name = "when", description = "날짜 정보"),
+            @Parameter(name = "when", description = "날짜 정보",example = "yyyy-MM-dd"),
     })
     @GetMapping("/when/{when}")
     public BaseResponse<List<ScheduleListDto>> getScheduleByWhen(@PathVariable(name = "when") String when) {
@@ -139,7 +139,7 @@ public class ScheduleController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE4003", description = "해당 일정이 없습니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     @Parameters({
-            @Parameter(name = "month", description = "날짜(월)"),
+            @Parameter(name = "month", description = "날짜(월)", example = "yyyy-MM"),
     })
     @GetMapping("/month/{month}")
     public BaseResponse<DayRes> getScheduleWhenMonth(@PathVariable(name = "month") String month){

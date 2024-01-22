@@ -182,7 +182,20 @@ public class MissionServiceImpl implements MissionService{
 
     @Override
     @Transactional
-    public void deleteMyMissoinAndSchedules(Long missionId, List<Long> scheduleIds, long userId) throws BaseException {
+    public void deleteMyMissoinAndSchedules(String missionIdString, List<Long> scheduleIds, long userId) throws BaseException {
+        if(missionIdString.equals("")){
+            throw new BaseException(REQUEST_ERROR);
+        }
+        Long missionId = 0L;
+
+        if(missionIdString.equals("null")){
+            missionId = null;
+        }else{
+            missionId = Long.valueOf(missionIdString);
+            System.out.println("missionIdString = " + missionIdString);
+            System.out.println("missionId = " + missionId);
+        }
+
         // 미션,일정에 대한 값이 둘 다 없을 때
         if(missionId == null & scheduleIds.isEmpty()){
             throw new BaseException(FAILED_TO_DELETE_MISSION_SCHEDULE);

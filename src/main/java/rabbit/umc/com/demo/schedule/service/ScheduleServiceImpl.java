@@ -103,7 +103,11 @@ public class ScheduleServiceImpl implements ScheduleService {
         if(schedule == null || schedule.getUser().getId() != userId){
             throw new BaseException(BaseResponseStatus.FAILED_TO_SCHEDULE);
         } else{
-            missionSchedule.setSchedule(schedule);
+            if(missionSchedule != null){
+                missionSchedule.setSchedule(schedule);
+            }else {
+                throw new BaseException(BaseResponseStatus.FAILED_TO_SCHEDULE);
+            }
         }
 
         // 일정에 미션이 없을 때
