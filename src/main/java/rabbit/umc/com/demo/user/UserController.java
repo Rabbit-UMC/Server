@@ -1,6 +1,15 @@
 package rabbit.umc.com.demo.user;
 
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +32,7 @@ import static rabbit.umc.com.config.BaseResponseStatus.*;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@Tag(name = "user", description = "사용자 API")
 @RequestMapping("/app/users")
 public class UserController {
     private final UserService userService;
@@ -33,13 +43,23 @@ public class UserController {
     /**
      * 카카오 로그인 api
      // * @param accessToken
-     * @param response
      * @return
      * @throws IOException
      * @throws BaseException
      */
+
+
     @GetMapping("/kakao-login")
-    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken, HttpServletResponse response) throws IOException, BaseException {
+        @Operation(summary = "카카오 회원가입 및 로그인 API")
+        @ApiResponses({
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        })
+        @Parameters({
+                @Parameter(name = "Authorization", description = "카카오에서 받아오는 엑세스 토큰을 넣어주세요.", in = ParameterIn.HEADER)
+        })
+    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken) throws IOException, BaseException {
         try {
             if (accessToken == null) {
                 throw new BaseException(EMPTY_KAKAO_ACCESS);
@@ -94,6 +114,12 @@ public class UserController {
      * @throws IOException
      */
     @GetMapping("/kakao-unlink")
+        @Operation(summary = "회원 탈퇴 API")
+        @ApiResponses({
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        })
     public BaseResponse<Long> kakaoUnlink(HttpServletResponse response) throws BaseException, IOException {
         try {
             //jwt 토큰으로 로그아웃할 유저 아이디 받아오기
@@ -120,6 +146,15 @@ public class UserController {
      * @throws BaseException
      */
     @PostMapping("/sign-up")
+        @Operation(summary = "회원 가입시, 닉네임 수집 API")
+        @ApiResponses({
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        })
+        @Parameters({
+                @Parameter(name = "userNicknameReqDto", description = "유저 닉네임 수집하는 DTO입니다")
+        })
     public BaseResponse<UserNicknameResDto> getNickname(@RequestBody UserNicknameReqDto userNicknameReqDto) throws BaseException {
         try{
             Long userId = (long) jwtService.getUserIdx();
@@ -140,6 +175,16 @@ public class UserController {
      * @return
      */
     @PatchMapping("/profile")
+        @Operation(summary = "닉네임 및 프로필 이미지 수정 API")
+        @ApiResponses({
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        })
+        @Parameters({
+                @Parameter(name = "userProfileImage", description = "유저 프로필 이미지 경로입니다.", in = ParameterIn.QUERY),
+                @Parameter(name = "userName", description = "유저 닉네임입니다.", in = ParameterIn.QUERY)
+        })
     public BaseResponse<Long> updateProfile(@RequestParam String userProfileImage, @RequestParam String userName){
         try {
             Long userId = (long) jwtService.getUserIdx();
@@ -162,6 +207,15 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/checkDuplication")
+        @Operation(summary = "닉네임 중복 확인 API")
+        @ApiResponses({
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        })
+        @Parameters({
+                @Parameter(name = "userName", description = "중복인지 확인할 닉네임입니다", in = ParameterIn.QUERY)
+        })
     public BaseResponse<Boolean> updateNickname(@RequestParam String userName) throws BaseException{
         try {
             Long jwtUserId = (long) jwtService.getUserIdx();
@@ -178,6 +232,12 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/profile")
+        @Operation(summary = "유저 프로필 조회 API")
+        @ApiResponses({
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        })
     public BaseResponse<UserGetProfileResDto> getProfile() throws BaseException {
         try {
             Long jwtUserId = (long) jwtService.getUserIdx();
@@ -197,6 +257,15 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/articleList")
+        @Operation(summary = "유저가 작성한 글 전체 조회 API")
+        @ApiResponses({
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        })
+        @Parameters({
+                @Parameter(name = "page", description = "유저가 작성한 글 목록 중 몇번째 페이지를 조회할지 선택할 수 있습니다", in = ParameterIn.QUERY, required = false)
+        })
     public BaseResponse<List<UserArticleListResDto>> getArticles(@RequestParam(defaultValue = "0", name = "page") int page) throws BaseException {
         try {
             Long jwtUserId = (long) jwtService.getUserIdx();
@@ -216,6 +285,15 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/commented-articles")
+        @Operation(summary = "유저가 댓글단 글 전체 조회 API")
+        @ApiResponses({
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        })
+        @Parameters({
+                @Parameter(name = "page", description = "유저가 댓글단 글 목록 중 몇번째 페이지를 조회할지 선택할 수 있습니다", in = ParameterIn.QUERY, required = false)
+        })
     public BaseResponse<List<UserArticleListResDto>> getCommentedArticles(@RequestParam(defaultValue = "0", name = "page") int page) throws BaseException
     {
         try {
@@ -237,6 +315,16 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/reissue")
+        @Operation(summary = "access token 재발급 API")
+        @ApiResponses({
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        })
+        @Parameters({
+                @Parameter(name = "X-ACCESS-TOKEN", description = "JWT에서 받아오는 엑세스 토큰입니다.", in = ParameterIn.HEADER),
+                @Parameter(name = "X-REFRESH-TOKEN", description = "JWT에서 받아오는 리프레시 토큰입니다.", in = ParameterIn.HEADER)
+        })
     public BaseResponse<ReissueTokenDto> reissueToken(@RequestHeader("X-ACCESS-TOKEN") String accessToken, @RequestHeader("X-REFRESH-TOKEN") String refreshToken) throws BaseException{
         try{
             ReissueTokenDto reissueTokenDto = null;
@@ -268,6 +356,12 @@ public class UserController {
      * 성공 히스토리
      */
     @GetMapping("/success")
+        @Operation(summary = "성공 히스토리 API")
+        @ApiResponses({
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        })
     public BaseResponse<UserMissionHistoryDto> getSuccessMissions(){
         try {
             Long userId = (long) jwtService.getUserIdx();
@@ -283,6 +377,12 @@ public class UserController {
      * 실패 히스토리
      */
     @GetMapping("/failure")
+        @Operation(summary = "실패 히스토리 API")
+        @ApiResponses({
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        })
     public BaseResponse<UserMissionHistoryDto> getFailureMissions(){
         try {
             Long userId = (long) jwtService.getUserIdx();
