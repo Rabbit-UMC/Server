@@ -11,7 +11,4 @@ import java.util.List;
 public class PostArticleReq {
     private String articleTitle;
     private String articleContent;
-    private List<String> imageList;
-
-
 }
