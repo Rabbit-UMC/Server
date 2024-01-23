@@ -190,7 +190,6 @@ public class MainMissionController {
     /**
      * 메인 미션 인증 사진 업로드
      * @param categoryId
-     * @param filePath
      * @return
      * @throws BaseException
      */

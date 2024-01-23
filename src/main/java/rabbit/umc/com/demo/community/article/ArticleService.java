@@ -1,5 +1,7 @@
 package rabbit.umc.com.demo.community.article;
 
+import java.io.IOException;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.community.*;
@@ -22,11 +25,9 @@ import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.PopularArticleDtoV2;
 import rabbit.umc.com.demo.community.dto.PatchArticleReq.ChangeImageDto;
 import rabbit.umc.com.demo.converter.ArticleConverter;
 import rabbit.umc.com.demo.converter.CommentConverter;
-import rabbit.umc.com.demo.converter.ImageConverter;
 import rabbit.umc.com.demo.converter.MainMissionConverter;
 import rabbit.umc.com.demo.converter.ReportConverter;
 import rabbit.umc.com.demo.image.Image;
-import rabbit.umc.com.demo.image.ImageRepository;
 import rabbit.umc.com.demo.image.ImageService;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
@@ -170,15 +171,20 @@ public class ArticleService {
     }
 
     @Transactional
-    public Long postArticle(PostArticleReq postArticleReq, Long userId , Long categoryId ) {
+    public Long postArticle(List<MultipartFile> multipartFiles, PostArticleReq postArticleReq, Long userId , Long categoryId ) throws IOException {
         User user = userQueryService.getUser(userId);
         Category category = categoryRepository.getReferenceById(categoryId);
 
         Article article = ArticleConverter.toArticle(postArticleReq,user,category);
         articleRepository.save(article);
+        System.out.println("tqtqtqtq" + multipartFiles);
 
+        if (multipartFiles != null ) {
+            List<String> imageList= imageService.getImageUrl(multipartFiles, "article");
+            imageService.postArticleImage(imageList, article);
+        }
         // 게시물 이미지 생성
-        imageService.postArticleImage(postArticleReq.getImageList(), article);
+
         return article.getId();
     }
 

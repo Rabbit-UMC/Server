@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
@@ -168,11 +169,12 @@ public class ArticleController {
             @Parameter(name = "postArticleReq", description = "게시글 정보가 포함되어 있습니다."),
             @Parameter(name = "categoryId", description = "게시글이 저장될 카테고리 id 입니다."),
     })
-    @PostMapping("/article")
-    public BaseResponse postArticle( @RequestBody PostArticleReq postArticleReq, @RequestParam("categoryId") Long categoryId) throws BaseException, IOException {
+    @PostMapping(value = "/article" )
+    public BaseResponse postArticle(@RequestPart(name = "postArticleReq") PostArticleReq postArticleReq,@RequestPart(required = false, name = "multipartFiles") List<MultipartFile> multipartFiles ,
+                                    @RequestParam("categoryId") Long categoryId) throws BaseException, IOException {
         System.out.println(jwtService.createJwt(1));
         Long userId = (long) jwtService.getUserIdx();
-        Long articleId = articleService.postArticle(postArticleReq, userId, categoryId);
+        Long articleId = articleService.postArticle(multipartFiles, postArticleReq, userId, categoryId);
         return new BaseResponse<>(articleId + "번 게시물 생성 완료되었습니다.");
     }
 
