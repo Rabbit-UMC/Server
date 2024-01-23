@@ -45,6 +45,7 @@ public class MainMissionConverter {
                         .imageId(mainMissionProof.getId())
                         .userId(mainMissionProof.getUser().getId())
                         .filePath(mainMissionProof.getProofImage())
+                        .likeCount(mainMissionProof.getLikeMissionProofs().size())
                         .isLike(false)
                         .build())
                 .collect(Collectors.toList());
