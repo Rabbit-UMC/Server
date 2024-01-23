@@ -10,8 +10,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
@@ -201,10 +203,10 @@ public class MainMissionController {
             @Parameter(name = "categoryId", description = "인증 사진을 업로드할 메인 미션의 카테고리 id"),
     })
     @PostMapping("/main-mission/upload/{categoryId}")
-    public BaseResponse uploadProofImage(@PathVariable("categoryId") Long categoryId, @RequestParam("filePath")String filePath)throws BaseException{
+    public BaseResponse uploadProofImage(@RequestPart(value = "file") List<MultipartFile> multipartFiles, @PathVariable("categoryId") Long categoryId, @RequestParam("filePath")String filePath)throws BaseException{
         try{
             Long userId = (long) jwtService.getUserIdx();
-            mainMissionService.uploadProofImage(categoryId, userId, filePath);
+            mainMissionService.uploadProofImage(multipartFiles, categoryId, userId, filePath);
             return new BaseResponse<>("인증 사진 업로드 완료");
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
