@@ -18,8 +18,15 @@ import rabbit.umc.com.utils.S3Uploader;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ImageService {
+    private static final String MISSION_PROOF_PATH = "main";
+
     private final ImageRepository imageRepository;
     private final S3Uploader s3Uploader;
+
+    @Transactional
+    public String uploadMainMissionProof(MultipartFile multipartFile) throws IOException {
+        return s3Uploader.upload(multipartFile, MISSION_PROOF_PATH );
+    }
 
     @Transactional
     public List<String> getImageUrl(List<MultipartFile> multipartFiles, String path) throws IOException {

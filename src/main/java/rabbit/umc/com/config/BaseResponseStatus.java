@@ -74,6 +74,7 @@ public enum BaseResponseStatus {
     FAILED_CREATE_MISSION(false,"MISSION4012","미션 생성에 실패했습니다."),
     FAILED_TO_MISSION_DATE(false,"MISSION4013","미션 종료일은 미션 시작일보다 커야 합니다."),
     FAILED_TO_DELETE_MISSION_SCHEDULE(false,"MISSION4014","미션 또는 일정이 존재하지 않습니다."),
+    FAILED_TO_UPLOAD_PROOF_IMAGE(false, "MISSION4015", "인증 이미지 업로드에 실패했습니다."),
 
     DONT_EXIST_CATEGORY(false, "CATEGORY4001", "존재하지 않는 카테고리 입니다."),
 
