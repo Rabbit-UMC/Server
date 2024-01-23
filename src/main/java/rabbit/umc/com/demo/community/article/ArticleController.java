@@ -167,7 +167,6 @@ public class ArticleController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "415", description = "postArticleReq 전송시 콘텐트 타입 application/json 을명시해주세요",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     @Parameters({
-            @Parameter(name = "postArticleReq", description = "게시글 정보가 포함되어 있습니다."),
             @Parameter(name = "categoryId", description = "게시글이 저장될 카테고리 id 입니다."),
     })
     @PostMapping(value = "/article" )
