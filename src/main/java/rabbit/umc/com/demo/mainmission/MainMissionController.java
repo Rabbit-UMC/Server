@@ -1,5 +1,7 @@
 package rabbit.umc.com.demo.mainmission;
 
+import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_UPLOAD_PROOF_IMAGE;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,8 +12,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
@@ -185,7 +190,6 @@ public class MainMissionController {
     /**
      * 메인 미션 인증 사진 업로드
      * @param categoryId
-     * @param filePath
      * @return
      * @throws BaseException
      */
@@ -201,13 +205,14 @@ public class MainMissionController {
             @Parameter(name = "categoryId", description = "인증 사진을 업로드할 메인 미션의 카테고리 id"),
     })
     @PostMapping("/main-mission/upload/{categoryId}")
-    public BaseResponse uploadProofImage(@PathVariable("categoryId") Long categoryId, @RequestParam("filePath")String filePath)throws BaseException{
+    public BaseResponse uploadProofImage(@RequestPart(value = "multipartFile") MultipartFile multipartFile, @PathVariable("categoryId") Long categoryId)throws BaseException{
         try{
             Long userId = (long) jwtService.getUserIdx();
-            mainMissionService.uploadProofImage(categoryId, userId, filePath);
+            mainMissionService.uploadProofImage(multipartFile, categoryId, userId);
             return new BaseResponse<>("인증 사진 업로드 완료");
-        } catch (BaseException exception){
-            return new BaseResponse<>(exception.getStatus());
+
+        } catch (BaseException | IOException exception){
+            return new BaseResponse<>(FAILED_TO_UPLOAD_PROOF_IMAGE);
         }
     }
 

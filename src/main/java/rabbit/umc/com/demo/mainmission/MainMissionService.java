@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.mainmission;
 
+import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -7,11 +8,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.converter.RankConverter;
 import rabbit.umc.com.demo.converter.ReportConverter;
+import rabbit.umc.com.demo.image.ImageService;
 import rabbit.umc.com.demo.mainmission.domain.mapping.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
@@ -55,6 +58,7 @@ public class MainMissionService {
     private final UserQueryService userQueryService;
     private final UserService userService;
     private final ReportService reportService;
+    private final ImageService imageService;
 
     private List<MainMissionProof> findMainMissionProofByDay(MainMission mainMission, int day, Long mainMissionId){
         LocalDateTime startDate = mainMission.getStartAt().atStartOfDay();
@@ -218,7 +222,9 @@ public class MainMissionService {
     }
 
     @Transactional
-    public void uploadProofImage(Long categoryId, Long userId, String filePath) throws BaseException {
+    public void uploadProofImage(MultipartFile multipartFile, Long categoryId, Long userId) throws BaseException, IOException {
+        String filePath = imageService.uploadMainMissionProof(multipartFile);
+
         MainMission mainMission = mainMissionRepository.findMainMissionByCategoryIdAndStatus(categoryId, ACTIVE);
         User user = userQueryService.getUser(userId);
 
