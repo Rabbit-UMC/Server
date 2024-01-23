@@ -43,7 +43,7 @@ public class GetMainMissionRes {
         private Long userId;
         private String filePath;
         private Boolean isLike;
-
+        private int likeCount;
         public void setIsLike(){
             this.isLike = true;
         }
