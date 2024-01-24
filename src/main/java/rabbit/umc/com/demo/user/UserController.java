@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.demo.Status;
@@ -84,10 +85,12 @@ public class UserController {
         }
     }
 
-//    @GetMapping("/kakao-login-web")
+//    @GetMapping("/kakao-login")
 //    public BaseResponse<UserLoginResDto> kakaoLoginWeb(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
 //        try {
 //            String accessToken = kakaoService.getAccessToken(code);
+//
+//            System.out.println("kakao access token: "+accessToken);
 //
 //            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
 //            User user = kakaoService.saveUser(kakaoDto);
@@ -200,7 +203,7 @@ public class UserController {
                 @Parameter(name = "userProfileImage", description = "유저 프로필 이미지 경로입니다.", in = ParameterIn.QUERY),
                 @Parameter(name = "userName", description = "유저 닉네임입니다.", in = ParameterIn.QUERY)
         })
-    public BaseResponse<Long> updateProfile(@RequestParam String userProfileImage, @RequestParam String userName){
+    public BaseResponse<Long> updateProfile(@RequestPart MultipartFile userProfileImage, @RequestParam String userName) throws IOException {
         try {
             Long userId = (long) jwtService.getUserIdx();
             User user = userService.findUser(userId);
