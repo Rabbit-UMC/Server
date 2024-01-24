@@ -36,7 +36,8 @@ public class MainMissionUsers extends BaseTimeEntity {
 
 
     @Enumerated(EnumType.STRING)
-    private Status status = Status.ACTIVE;
+    @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
+    private Status status;
 
     public void setMainMissionUsers(User user, MainMission mainMission){
         this.user = user;

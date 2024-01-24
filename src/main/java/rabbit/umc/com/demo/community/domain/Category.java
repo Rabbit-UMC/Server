@@ -32,7 +32,8 @@ public class Category extends BaseTimeEntity {
     private Long userId;
 
     @Enumerated(EnumType.STRING)
-    private Status status = Status.ACTIVE;
+    @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
+    private Status status;
 
 
     //Setter

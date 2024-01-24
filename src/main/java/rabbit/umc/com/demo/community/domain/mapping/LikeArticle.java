@@ -32,7 +32,8 @@ public class LikeArticle extends BaseTimeEntity {
     private Article article;
 
     @Enumerated(EnumType.STRING)
-    private Status status = Status.ACTIVE;
+    @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
+    private Status status;
 
 
     //Setter
