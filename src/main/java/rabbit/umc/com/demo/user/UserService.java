@@ -6,11 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponseStatus;
 import rabbit.umc.com.config.secret.Secret;
 import rabbit.umc.com.demo.Status;
 import rabbit.umc.com.demo.community.domain.Article;
+import rabbit.umc.com.demo.image.ImageService;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUserSuccess;
 import rabbit.umc.com.demo.mission.MissionUsers;
@@ -28,6 +30,7 @@ import rabbit.umc.com.demo.user.Domain.UserPermission;
 import rabbit.umc.com.demo.user.Dto.*;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -49,6 +52,7 @@ public class UserService {
     private final MissionScheduleRepository missionScheduleRepository;
     private final MissionUserSuccessRepository missionUserSuccessRepository;
     private final ScheduleRepository scheduleRepository;
+    private final ImageService imageService;
 
     //유저 아이디로 User 객체 찾기
     public User findUser(Long id) throws BaseException {
@@ -99,8 +103,9 @@ public class UserService {
 
     //닉네임, 프로필 이미지 수정
     @Transactional
-    public void updateProfile(Long userId, String newNickname, String newProfileImage) throws BaseException {
+    public void updateProfile(Long userId, String newNickname, /*String*/MultipartFile multipartFile) throws BaseException, IOException {
         User user = findUser(userId);
+        String newProfileImage = imageService.getImageUrl(multipartFile, "user");
         user.setUserProfileImage(newProfileImage);
         user.setUserName(newNickname);
         userRepository.save(user);
