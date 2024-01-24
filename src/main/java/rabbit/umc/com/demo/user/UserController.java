@@ -142,21 +142,23 @@ public class UserController {
     }
 
     /**
-     * 회원가입시, 닉네임 수집
+     * 회원가입 API
      * @return
      * @throws BaseException
      */
     @PostMapping("/sign-up")
-        @Operation(summary = "회원 가입시, 닉네임 수집 API")
+        @Operation(summary = "회원 가입 API")
         @ApiResponses({
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
         })
         @Parameters({
+                @Parameter(name = "Authorization", description = "카카오에서 받아오는 엑세스 토큰을 넣어주세요.", in = ParameterIn.HEADER),
                 @Parameter(name = "userNicknameReqDto", description = "유저 닉네임 수집하는 DTO입니다")
         })
-    public BaseResponse<UserNicknameResDto> getNickname(@RequestBody UserNicknameReqDto userNicknameReqDto) throws BaseException {
+    public BaseResponse<UserNicknameResDto> getNickname(@RequestHeader("Authorization") String accessToken,
+                                                        @RequestBody UserNicknameReqDto userNicknameReqDto) throws BaseException {
         try{
             Long userId = (long) jwtService.getUserIdx();
             userService.getNickname(userId, userNicknameReqDto.getUserName());
