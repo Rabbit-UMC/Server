@@ -40,6 +40,11 @@ public class ImageService {
         return filePathList;
     }
 
+    @Transactional
+    public String getImageUrl(MultipartFile multipartFile, String path) throws IOException {
+        return s3Uploader.upload(multipartFile, path);
+    }
+
     public List<Image> getArticleImages(Long articleId){
         return imageRepository.findAllByArticleId(articleId);
     }
