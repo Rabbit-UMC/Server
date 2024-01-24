@@ -86,6 +86,16 @@ public class UserService {
         return false;
     }
 
+    public boolean isExistSameNicknameWithoutUserId(String nickname) throws BaseException {
+        //전체 DB에서 같은 닉네임이 있는지 확인
+        boolean existSameName = userRepository.existsByUserName(nickname);
+        if(existSameName){
+            log.info("이미 DB에 존재하는 닉네임입니다.");
+            return true;
+        }
+        return false;
+    }
+
 
     //닉네임, 프로필 이미지 수정
     @Transactional

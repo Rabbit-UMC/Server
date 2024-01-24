@@ -229,12 +229,18 @@ public class UserController {
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
         })
         @Parameters({
-                @Parameter(name = "userName", description = "중복인지 확인할 닉네임입니다", in = ParameterIn.QUERY)
+                @Parameter(name = "userName", description = "중복인지 확인할 닉네임입니다", in = ParameterIn.QUERY),
+                @Parameter(name="hasAccount", description = "기존 계정이 있는지 여부 (회원가입 하는 경우: false, 닉네임 수정하는 경우: true)")
         })
-    public BaseResponse<Boolean> updateNickname(@RequestParam String userName) throws BaseException{
+    public BaseResponse<Boolean> updateNickname(@RequestParam String userName, @RequestParam boolean hasAccount) throws BaseException{
         try {
-            Long jwtUserId = (long) jwtService.getUserIdx();
-            return new BaseResponse<>(userService.isExistSameNickname(userName, jwtUserId));
+            if(hasAccount){
+                Long jwtUserId = (long) jwtService.getUserIdx();
+                return new BaseResponse<>(userService.isExistSameNickname(userName, jwtUserId));
+            } else{
+                return new BaseResponse<>(userService.isExistSameNicknameWithoutUserId(userName));
+            }
+
         }
         catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
