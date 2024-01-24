@@ -200,7 +200,7 @@ public class UserController {
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
         })
         @Parameters({
-                @Parameter(name = "userProfileImage", description = "유저 프로필 이미지 경로입니다.", in = ParameterIn.QUERY),
+                @Parameter(name = "userProfileImage", description = "MultipartFile 유저 프로필 이미지"),
                 @Parameter(name = "userName", description = "유저 닉네임입니다.", in = ParameterIn.QUERY)
         })
     public BaseResponse<Long> updateProfile(@RequestPart MultipartFile userProfileImage, @RequestParam String userName) throws IOException {
