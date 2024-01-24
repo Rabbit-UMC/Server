@@ -42,7 +42,8 @@ public class MainMissionProof extends BaseTimeEntity {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private Status status = Status.ACTIVE;
+    @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
+    private Status status;
 
     //비즈니스 로직
     public void inActive(){

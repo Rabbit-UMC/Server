@@ -37,6 +37,7 @@ public enum BaseResponseStatus {
     POST_USERS_EXISTS_NICKNAME(false,"USER4007","중복된 닉네임입니다."),
     FAILED_TO_LOGIN(false,"USER4008","없는 아이디거나 비밀번호가 틀렸습니다."),
     FAILED_TO_AUTHENTICATION(false, "USER4009","올바른 인증이 아닙니다."),
+    USER_NOT_FOUND(false, "USER4010","존재하지 않는 회원입니다."),
 
     // Token
     UNEXPIRED_JWT_ACCESS(false, "TOKEN4001", "유효기간이 남아있는 ACCESS TOKEN입니다."),

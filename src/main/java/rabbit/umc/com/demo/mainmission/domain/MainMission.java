@@ -44,8 +44,8 @@ public class MainMission extends BaseTimeEntity {
     private LocalDate endAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status= Status.ACTIVE;
+    @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
+    private Status status;
 
     //비즈니스 로직
     public void inActive(){

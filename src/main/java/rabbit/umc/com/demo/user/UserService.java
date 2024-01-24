@@ -63,15 +63,16 @@ public class UserService {
         return user;
     }
 
-    //유저 email, nickname 저장
-    public void getNickname(Long userId, String userName) throws BaseException {
-        User user = findUser(userId);
-        if(isExistSameNickname(userName,userId)){
-            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
-        }
-        user.setUserName(userName);
-        userRepository.save(user);
-    }
+    //유저 nickname 저장
+//    public void getNickname(Long userId, String userName) throws BaseException {
+//        User user = findUser(userId);
+//        if(isExistSameNickname(userName,userId)){
+//            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+//        }
+//        user.setUserName(userName);
+//        userRepository.save(user);
+//    }
+
 
     public boolean isExistSameNickname(String nickname, Long jwtUserId) throws BaseException {
         //본인을 제외하고, 같은 닉네임이 있는지 확인
@@ -80,6 +81,16 @@ public class UserService {
         if(existSameName){
             log.info("중복된 닉네임입니다.");
             System.out.println("중복된 닉네임: "+nickname);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isExistSameNicknameWithoutUserId(String nickname) throws BaseException {
+        //전체 DB에서 같은 닉네임이 있는지 확인
+        boolean existSameName = userRepository.existsByUserName(nickname);
+        if(existSameName){
+            log.info("이미 DB에 존재하는 닉네임입니다.");
             return true;
         }
         return false;

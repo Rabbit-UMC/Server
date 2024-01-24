@@ -50,15 +50,16 @@ public class UserController {
 
 
     @GetMapping("/kakao-login")
-        @Operation(summary = "카카오 회원가입 및 로그인 API")
-        @ApiResponses({
-                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
-                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-                @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-        })
-        @Parameters({
-                @Parameter(name = "Authorization", description = "카카오에서 받아오는 엑세스 토큰을 넣어주세요.", in = ParameterIn.HEADER)
-        })
+    @Operation(summary = "카카오 회원가입 및 로그인 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER4010", description = "DB에 존재하지 않는 회원", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "Authorization", description = "카카오에서 받아오는 엑세스 토큰을 넣어주세요.", in = ParameterIn.HEADER)
+    })
     public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken) throws IOException, BaseException {
         try {
             if (accessToken == null) {
@@ -141,26 +142,40 @@ public class UserController {
     }
 
     /**
-     * 회원가입시, 닉네임 수집
+     * 회원가입 API
      * @return
      * @throws BaseException
      */
     @PostMapping("/sign-up")
-        @Operation(summary = "회원 가입시, 닉네임 수집 API")
+        @Operation(summary = "회원 가입 API")
         @ApiResponses({
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
         })
         @Parameters({
+                @Parameter(name = "Authorization", description = "카카오에서 받아오는 엑세스 토큰을 넣어주세요.", in = ParameterIn.HEADER),
                 @Parameter(name = "userNicknameReqDto", description = "유저 닉네임 수집하는 DTO입니다")
         })
-    public BaseResponse<UserNicknameResDto> getNickname(@RequestBody UserNicknameReqDto userNicknameReqDto) throws BaseException {
-        try{
-            Long userId = (long) jwtService.getUserIdx();
-            userService.getNickname(userId, userNicknameReqDto.getUserName());
-            UserNicknameResDto userNicknameResDto = new UserNicknameResDto(userId, userNicknameReqDto.getUserName());
-            return new BaseResponse<>(userNicknameResDto);
+    public BaseResponse<UserLoginResDto> getNickname(@RequestHeader("Authorization") String accessToken,
+                                                        @RequestBody UserNicknameReqDto userNicknameReqDto) throws IOException, BaseException {
+        try {
+            if (accessToken == null) {
+                throw new BaseException(EMPTY_KAKAO_ACCESS);
+            }
+
+            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
+            User user = kakaoService.signUpUser(userNicknameReqDto.getUserName(), kakaoDto);
+
+            //jwt 토큰 생성(로그인 처리)
+            String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
+            String jwtRefreshToken = jwtService.createRefreshToken();
+            System.out.println(jwtAccessToken);
+            System.out.println(jwtRefreshToken);
+            userService.saveRefreshToken(user.getId(), jwtRefreshToken);
+            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
+
+            return new BaseResponse<>(userLoginResDto);
         }
         catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -214,12 +229,18 @@ public class UserController {
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
         })
         @Parameters({
-                @Parameter(name = "userName", description = "중복인지 확인할 닉네임입니다", in = ParameterIn.QUERY)
+                @Parameter(name = "userName", description = "중복인지 확인할 닉네임입니다", in = ParameterIn.QUERY),
+                @Parameter(name="hasAccount", description = "기존 계정이 있는지 여부 (회원가입 하는 경우: false, 닉네임 수정하는 경우: true)")
         })
-    public BaseResponse<Boolean> updateNickname(@RequestParam String userName) throws BaseException{
+    public BaseResponse<Boolean> updateNickname(@RequestParam String userName, @RequestParam boolean hasAccount) throws BaseException{
         try {
-            Long jwtUserId = (long) jwtService.getUserIdx();
-            return new BaseResponse<>(userService.isExistSameNickname(userName, jwtUserId));
+            if(hasAccount){
+                Long jwtUserId = (long) jwtService.getUserIdx();
+                return new BaseResponse<>(userService.isExistSameNickname(userName, jwtUserId));
+            } else{
+                return new BaseResponse<>(userService.isExistSameNicknameWithoutUserId(userName));
+            }
+
         }
         catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());

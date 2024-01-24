@@ -33,7 +33,8 @@ public class LikeMissionProof extends BaseTimeEntity {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private Status status= Status.ACTIVE;
+    @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
+    private Status status;
 
 
 }

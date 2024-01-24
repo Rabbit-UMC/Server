@@ -27,7 +27,8 @@ public class User extends BaseTimeEntity {
     @Schema(description = "유저 식별자", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1234")
     private String userEmail;
 
-    @Schema(description = "유저 식별자", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1234")
+    @Schema(description = "유저 식별자", requiredMode = Schema.RequiredMode.REQUIRED, example = "1234")
+    @JoinColumn(nullable = false)
     private String userName;
 
     @Schema(description = "유저 식별자", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1234")
@@ -56,9 +57,10 @@ public class User extends BaseTimeEntity {
     @Schema(description = "유저 식별자", requiredMode = Schema.RequiredMode.REQUIRED, example = "1234")
     private String jwtRefreshToken;
 
-    public User(Long kakaoId, String profile_image, UserPermission userPermission, String ageRange,
+    public User(Long kakaoId, String userName, String profile_image, UserPermission userPermission, String ageRange,
                 String gender, String birthday, Status status) {
         this.kakaoId = kakaoId;
+        this.userName = userName;
         this.userProfileImage = profile_image;
         this.userPermission=userPermission;
         this.ageRange=ageRange;
