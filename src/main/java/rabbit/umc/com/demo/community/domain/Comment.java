@@ -40,7 +40,8 @@ public class Comment extends BaseTimeEntity {
     private String content;
 
     @Enumerated(EnumType.STRING)
-    private Status status = Status.ACTIVE;
+    @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
+    private Status status;
 
     //비즈니스 로직
     public void lockComment(){

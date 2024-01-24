@@ -62,7 +62,8 @@ public class Article extends BaseTimeEntity {
     private List<Image> images;
 
     @Enumerated(EnumType.STRING)
-    private Status status = Status.ACTIVE;
+    @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
+    private Status status;
 
     public void setInactive(){
         this.status = Status.INACTIVE;
