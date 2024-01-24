@@ -157,13 +157,25 @@ public class UserController {
                 @Parameter(name = "Authorization", description = "카카오에서 받아오는 엑세스 토큰을 넣어주세요.", in = ParameterIn.HEADER),
                 @Parameter(name = "userNicknameReqDto", description = "유저 닉네임 수집하는 DTO입니다")
         })
-    public BaseResponse<UserNicknameResDto> getNickname(@RequestHeader("Authorization") String accessToken,
-                                                        @RequestBody UserNicknameReqDto userNicknameReqDto) throws BaseException {
-        try{
-            Long userId = (long) jwtService.getUserIdx();
-            userService.getNickname(userId, userNicknameReqDto.getUserName());
-            UserNicknameResDto userNicknameResDto = new UserNicknameResDto(userId, userNicknameReqDto.getUserName());
-            return new BaseResponse<>(userNicknameResDto);
+    public BaseResponse<UserLoginResDto> getNickname(@RequestHeader("Authorization") String accessToken,
+                                                        @RequestBody UserNicknameReqDto userNicknameReqDto) throws IOException, BaseException {
+        try {
+            if (accessToken == null) {
+                throw new BaseException(EMPTY_KAKAO_ACCESS);
+            }
+
+            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
+            User user = kakaoService.signUpUser(userNicknameReqDto.getUserName(), kakaoDto);
+
+            //jwt 토큰 생성(로그인 처리)
+            String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
+            String jwtRefreshToken = jwtService.createRefreshToken();
+            System.out.println(jwtAccessToken);
+            System.out.println(jwtRefreshToken);
+            userService.saveRefreshToken(user.getId(), jwtRefreshToken);
+            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
+
+            return new BaseResponse<>(userLoginResDto);
         }
         catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
