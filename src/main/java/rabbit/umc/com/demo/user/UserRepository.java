@@ -14,6 +14,8 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByKakaoId(Long kakaoId);
     boolean existsByKakaoId(Long kakaoId);
+    boolean existsByUserName(String userName);
+
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END " +
             "FROM User u WHERE u.userName = :nickname AND u.id <> :userId")
     boolean existsByNicknameAndNotUserId(@Param("nickname") String nickname, @Param("userId") Long userId);

@@ -40,6 +40,7 @@ public class KakaoService {
     private String kakao_secret_key;
 
     private final UserRepository userRepository;
+    private final UserService userService;
 
     //카카오 엑세스 토큰 얻기
     public String getAccessToken(String code) throws IOException, BaseException {
@@ -169,7 +170,7 @@ public class KakaoService {
     }
 
     //유저 회원가입 or 로그인
-    public User saveUser(KakaoDto kakaoDto) {
+    public User saveUser(KakaoDto kakaoDto) throws BaseException {
         User user = new User();
 
         boolean isUser = userRepository.existsByKakaoId(kakaoDto.getKakaoId());
@@ -177,10 +178,7 @@ public class KakaoService {
         //회원이 아닌 경우
         //회원가입 진행(이메일, 닉네임 제외 모두)
         if(!isUser){
-            log.info("회원 가입을 진행하겠습니다.");
-            user = new User(kakaoDto.getKakaoId(), kakaoDto.getUserProfileImage(), USER, kakaoDto.getAgeRange(),
-                    kakaoDto.getGender(), kakaoDto.getBirthday(), ACTIVE);
-            userRepository.save(user);
+            throw new BaseException(USER_NOT_FOUND);
         }
 
         //회원인 경우, 회원 조회
@@ -191,6 +189,17 @@ public class KakaoService {
 
             user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
         }
+        return user;
+    }
+
+    public User signUpUser(String userName, KakaoDto kakaoDto) throws BaseException {
+
+        log.info("회원 가입을 진행하겠습니다.");
+
+        User user = new User(kakaoDto.getKakaoId(), userName,kakaoDto.getUserProfileImage(), USER, kakaoDto.getAgeRange(),
+        kakaoDto.getGender(), kakaoDto.getBirthday(), ACTIVE);
+
+        userRepository.save(user);
         return user;
     }
 
