@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.community.article;
+package rabbit.umc.com.demo.community.article.service;
 
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.*;
+import rabbit.umc.com.demo.community.article.ArticleRepository;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.Comments.CommentRepository;
 import rabbit.umc.com.demo.community.domain.*;
@@ -62,6 +63,7 @@ public class ArticleService {
     private final ReportRepository reportRepository;
     private final UserQueryService userQueryService;
     private final ImageService imageService;
+    private final ArticleQueryService articleQueryService;
 
 
     public CommunityHomeRes getHomeV1() {

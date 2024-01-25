@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.config.apiPayload.BaseResponse;
+import rabbit.umc.com.demo.community.article.service.ArticleService;
 import rabbit.umc.com.demo.community.dto.*;
 import rabbit.umc.com.utils.JwtService;
 
