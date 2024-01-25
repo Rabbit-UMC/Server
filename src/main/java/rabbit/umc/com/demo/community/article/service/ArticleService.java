@@ -132,7 +132,7 @@ public class ArticleService {
             // userId 유저가 articleId 게시물 좋아하는지 체크
             Boolean isLike = likeArticleRepository.existsByArticleIdAndUserId(articleId, userId);
 
-            Article article = articleRepository.findArticleById(articleId);
+            Article article = articleQueryService.findById(articleId);
 
             // 게시물의 이미지들에 대해 DTO 에 매핑
             List<ArticleImageDto> articleImages = article.getImages()
@@ -156,11 +156,8 @@ public class ArticleService {
     @Transactional
     public void deleteArticle(Long articleId, Long userId) throws BaseException {
         try {
-            Article findArticle = articleRepository.findArticleById(articleId);
-//             게시물 존재 여부 체크
-            if (findArticle.getId() == null) {
-                throw new NullPointerException("Unable to find Article with id: " + articleId);
-            }
+            Article findArticle = articleQueryService.findById(articleId);
+
             // JWT 가 게시물 작성유저와 동일한지 체크
             if (!findArticle.getUser().getId().equals(userId)) {
                 throw new BaseException(FORBIDDEN);
@@ -189,11 +186,8 @@ public class ArticleService {
     @Transactional
     public void updateArticle(Long userId, PatchArticleReq patchArticleReq, Long articleId) throws BaseException {
         try {
-            Article targetArticle = articleRepository.findArticleById(articleId);
-            //글 존재 여부 체크
-            if (targetArticle.getId() == null) {
-                throw new NullPointerException("Unable to find Article with id:" + articleId);
-            }
+            Article targetArticle = articleQueryService.findById(articleId);
+
             // JWT 가 글 작성 유저와 동일한지 체크
             if (!targetArticle.getUser().getId().equals(userId)) {
                 throw new BaseException(INVALID_USER_JWT);
@@ -224,13 +218,9 @@ public class ArticleService {
     @Transactional
     public void reportArticle(Long userId, Long articleId) throws BaseException {
         try {
-            Article article = articleRepository.getReferenceById(articleId);
-            // 게시물 존재 체크
-            if(article.getId() == null){
-                throw new EntityNotFoundException("Unable to find article with id:" + articleId);
-            }
-            User user = userQueryService.getUser(userId);
+            Article article = articleQueryService.findById(articleId);
 
+            User user = userQueryService.getUser(userId);
             // 이미 신고한 게시물인지 체크
             Boolean isReportExists = reportRepository.existsByUserAndArticle(user, article);
             if (isReportExists) {
@@ -255,12 +245,8 @@ public class ArticleService {
     public void likeArticle(Long userId, Long articleId) throws BaseException {
         try {
             User user = userQueryService.getUser(userId);
-            Article article = articleRepository.getReferenceById(articleId);
+            Article article = articleQueryService.findById(articleId);
 
-            //게시물 존재 체크
-            if (article.getId() == null) {
-                throw new EntityNotFoundException("Unable to find article with id:" + articleId);
-            }
             LikeArticle existlikeArticle = likeArticleRepository.findLikeArticleByArticleIdAndUserId(articleId, userId);
             //이미 좋아한 게시물인지 체크
             if (existlikeArticle != null) {
@@ -278,11 +264,8 @@ public class ArticleService {
     @Transactional
     public void unLikeArticle(Long userId, Long articleId) throws BaseException {
         try {
-            Article article = articleRepository.getReferenceById(articleId);
-            //게시물 존재 체크
-            if (article.getId() == null) {
-                throw new EntityNotFoundException("Unable to find article with id:" + articleId);
-            }
+            Article article = articleQueryService.findById(articleId);
+
             LikeArticle existlikeArticle = likeArticleRepository.findLikeArticleByArticleIdAndUserId(articleId, userId);
             //좋아요 했던 게시물인지 체크
             if (existlikeArticle == null) {
