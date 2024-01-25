@@ -173,14 +173,11 @@ public class KakaoService {
     public User saveUser(KakaoDto kakaoDto) throws BaseException {
         User user = new User();
 
-        boolean isUser = userRepository.existsByKakaoId(kakaoDto.getKakaoId());
-
         //회원이 아닌 경우
         //회원가입 진행(이메일, 닉네임 제외 모두)
-        if(!isUser){
+        if(!existsUser(kakaoDto.getKakaoId())){
             throw new BaseException(USER_NOT_FOUND);
         }
-
         //회원인 경우, 회원 조회
         else{
             log.info("로그인을 진행하겠습니다.");
