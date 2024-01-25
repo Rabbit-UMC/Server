@@ -158,8 +158,7 @@ public class UserController {
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER4011", description= "이미 존재하는 회원", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
         })
         @Parameters({
-                @Parameter(name = "Authorization", description = "카카오에서 받아오는 엑세스 토큰을 넣어주세요.", in = ParameterIn.HEADER),
-                @Parameter(name = "userNicknameReqDto", description = "유저 닉네임 수집하는 DTO입니다")
+                @Parameter(name = "Authorization", description = "카카오에서 받아오는 엑세스 토큰을 넣어주세요.", in = ParameterIn.HEADER)
         })
     public BaseResponse<UserLoginResDto> getNickname(@RequestHeader("Authorization") String accessToken,
                                                         @RequestBody UserNicknameReqDto userNicknameReqDto) throws IOException, BaseException {
