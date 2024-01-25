@@ -12,9 +12,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponse;
-import rabbit.umc.com.config.BaseResponseStatus;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseResponse;
+import rabbit.umc.com.config.apiPayload.BaseResponseStatus;
 import rabbit.umc.com.demo.schedule.dto.*;
 import rabbit.umc.com.demo.schedule.service.ScheduleService;
 import rabbit.umc.com.utils.JwtService;
@@ -23,7 +23,7 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_POST_SCHEDULE_DATE;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.FAILED_TO_POST_SCHEDULE_DATE;
 import static rabbit.umc.com.utils.ValidationRegex.*;
 @Api(tags = {"일정 관련 Controller"})
 @RestController

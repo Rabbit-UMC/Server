@@ -1,4 +1,4 @@
-package rabbit.umc.com.config;
+package rabbit.umc.com.demo.base;
 
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;

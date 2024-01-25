@@ -11,16 +11,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponse;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseResponse;
 import rabbit.umc.com.demo.mission.dto.*;
 import rabbit.umc.com.demo.mission.service.MissionService;
 import rabbit.umc.com.utils.JwtService;
 
 import java.util.List;
-import java.util.Optional;
 
-import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_MISSION_DATE;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.FAILED_TO_MISSION_DATE;
 import static rabbit.umc.com.utils.ValidationRegex.checkStartedDateAndEndedDate;
 
 @Api(tags = {"일반 미션 관련 Controller"})

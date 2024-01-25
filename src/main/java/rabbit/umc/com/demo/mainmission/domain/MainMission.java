@@ -5,10 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import rabbit.umc.com.config.BaseTimeEntity;
-import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.base.BaseTimeEntity;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.domain.Category;
-import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
 
 import javax.persistence.*;
 import java.time.LocalDate;

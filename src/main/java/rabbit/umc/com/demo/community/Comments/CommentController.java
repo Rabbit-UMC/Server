@@ -1,7 +1,6 @@
 package rabbit.umc.com.demo.community.Comments;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -12,8 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponse;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseResponse;
 import rabbit.umc.com.demo.community.dto.PostCommentReq;
 import rabbit.umc.com.utils.JwtService;
 

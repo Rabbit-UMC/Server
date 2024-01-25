@@ -4,10 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.mission.MissionUsers;
 import rabbit.umc.com.demo.schedule.domain.MissionSchedule;
-import rabbit.umc.com.demo.schedule.dto.ScheduleDetailRes;
 
 import java.util.List;
 

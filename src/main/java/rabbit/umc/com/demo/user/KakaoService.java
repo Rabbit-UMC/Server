@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.KakaoDto;
 
@@ -22,8 +22,8 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
-import static rabbit.umc.com.config.BaseResponseStatus.*;
-import static rabbit.umc.com.demo.Status.ACTIVE;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
+import static rabbit.umc.com.demo.base.Status.ACTIVE;
 import static rabbit.umc.com.demo.user.Domain.UserPermission.USER;
 
 @Slf4j

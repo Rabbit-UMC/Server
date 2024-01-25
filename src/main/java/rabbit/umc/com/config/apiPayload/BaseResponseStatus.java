@@ -1,4 +1,4 @@
-package rabbit.umc.com.config;
+package rabbit.umc.com.config.apiPayload;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
