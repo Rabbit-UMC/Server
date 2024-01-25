@@ -67,16 +67,6 @@ public class UserService {
         return user;
     }
 
-    //유저 nickname 저장
-//    public void getNickname(Long userId, String userName) throws BaseException {
-//        User user = findUser(userId);
-//        if(isExistSameNickname(userName,userId)){
-//            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
-//        }
-//        user.setUserName(userName);
-//        userRepository.save(user);
-//    }
-
 
     public boolean isExistSameNickname(String nickname, Long jwtUserId) throws BaseException {
         //본인을 제외하고, 같은 닉네임이 있는지 확인

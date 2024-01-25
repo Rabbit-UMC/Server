@@ -173,14 +173,11 @@ public class KakaoService {
     public User saveUser(KakaoDto kakaoDto) throws BaseException {
         User user = new User();
 
-        boolean isUser = userRepository.existsByKakaoId(kakaoDto.getKakaoId());
-
         //회원이 아닌 경우
         //회원가입 진행(이메일, 닉네임 제외 모두)
-        if(!isUser){
+        if(!existsUser(kakaoDto.getKakaoId())){
             throw new BaseException(USER_NOT_FOUND);
         }
-
         //회원인 경우, 회원 조회
         else{
             log.info("로그인을 진행하겠습니다.");
@@ -195,12 +192,19 @@ public class KakaoService {
     public User signUpUser(String userName, KakaoDto kakaoDto) throws BaseException {
 
         log.info("회원 가입을 진행하겠습니다.");
+        if(existsUser(kakaoDto.getKakaoId())){
+            throw new BaseException(USER_ALREADY_EXIST);
+        }
 
         User user = new User(kakaoDto.getKakaoId(), userName,kakaoDto.getUserProfileImage(), USER, kakaoDto.getAgeRange(),
         kakaoDto.getGender(), kakaoDto.getBirthday(), ACTIVE);
 
         userRepository.save(user);
         return user;
+    }
+
+    public boolean existsUser(Long kakaoId){
+        return userRepository.existsByKakaoId(kakaoId);
     }
 
     //카카오 로그아웃
