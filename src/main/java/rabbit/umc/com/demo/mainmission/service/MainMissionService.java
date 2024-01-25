@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.mainmission;
+package rabbit.umc.com.demo.mainmission.service;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
@@ -9,12 +9,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.converter.RankConverter;
 import rabbit.umc.com.demo.converter.ReportConverter;
-import rabbit.umc.com.demo.image.ImageService;
+import rabbit.umc.com.demo.image.service.ImageService;
 import rabbit.umc.com.demo.mainmission.domain.mapping.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
@@ -40,8 +40,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import rabbit.umc.com.demo.user.UserService;
 
-import static rabbit.umc.com.config.BaseResponseStatus.*;
-import static rabbit.umc.com.demo.Status.*;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
+import static rabbit.umc.com.demo.base.Status.*;
 import static rabbit.umc.com.demo.converter.MainMissionConverter.*;
 
 @Service
@@ -223,7 +223,7 @@ public class MainMissionService {
 
     @Transactional
     public void uploadProofImage(MultipartFile multipartFile, Long categoryId, Long userId) throws BaseException, IOException {
-        String filePath = imageService.uploadMainMissionProof(multipartFile);
+
 
         MainMission mainMission = mainMissionRepository.findMainMissionByCategoryIdAndStatus(categoryId, ACTIVE);
         User user = userQueryService.getUser(userId);
@@ -240,6 +240,7 @@ public class MainMissionService {
         if (!proof.isEmpty()) {
             throw new BaseException(FAILED_TO_UPLOAD);
         }
+        String filePath = imageService.createImage(multipartFile, "mission");
         // 10점 점수 획득
         increaseUploadScore(user, mainMission);
         //인증 사진 저장

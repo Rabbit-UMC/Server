@@ -4,15 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import rabbit.umc.com.config.BaseTimeEntity;
-import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.base.BaseTimeEntity;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.user.Domain.User;
 
 import javax.persistence.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
-import static rabbit.umc.com.demo.Status.INACTIVE;
+import static rabbit.umc.com.demo.base.Status.INACTIVE;
 
 @Entity
 @Getter

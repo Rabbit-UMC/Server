@@ -1,4 +1,4 @@
-package rabbit.umc.com.config;
+package rabbit.umc.com.config.apiPayload;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import static rabbit.umc.com.config.BaseResponseStatus.SUCCESS;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.SUCCESS;
 
 @Getter
 @AllArgsConstructor

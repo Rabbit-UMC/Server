@@ -2,8 +2,8 @@ package rabbit.umc.com.demo.mission;
 
 import lombok.Getter;
 import lombok.Setter;
-import rabbit.umc.com.config.BaseTimeEntity;
-import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.base.BaseTimeEntity;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.mission.dto.PostMissionReq;
 

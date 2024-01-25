@@ -1,14 +1,10 @@
 package rabbit.umc.com.demo.schedule.service;
 
 import lombok.RequiredArgsConstructor;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponse;
-import rabbit.umc.com.config.BaseResponseStatus;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseResponseStatus;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUsers;
 import rabbit.umc.com.demo.mission.repository.MissionRepository;
@@ -24,14 +20,13 @@ import rabbit.umc.com.demo.user.UserRepository;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Year;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static rabbit.umc.com.config.BaseResponseStatus.*;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
 
 
 @Service

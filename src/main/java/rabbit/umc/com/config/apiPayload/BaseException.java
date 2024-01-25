@@ -1,4 +1,4 @@
-package rabbit.umc.com.config;
+package rabbit.umc.com.config.apiPayload;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

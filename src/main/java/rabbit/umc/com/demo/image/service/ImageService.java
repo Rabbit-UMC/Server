@@ -1,9 +1,8 @@
-package rabbit.umc.com.demo.image;
+package rabbit.umc.com.demo.image.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,7 +11,11 @@ import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.dto.PatchArticleReq.ChangeImageDto;
 import rabbit.umc.com.demo.converter.ImageConverter;
-import rabbit.umc.com.utils.S3Uploader;
+import rabbit.umc.com.demo.image.domain.Image;
+import rabbit.umc.com.demo.image.repository.ImageRepository;
+import rabbit.umc.com.demo.image.uuid.Uuid;
+import rabbit.umc.com.demo.image.uuid.UuidRepository;
+import rabbit.umc.com.s3.AmazonS3Manager;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,29 +24,35 @@ public class ImageService {
     private static final String MISSION_PROOF_PATH = "main";
 
     private final ImageRepository imageRepository;
-    private final S3Uploader s3Uploader;
+    private final AmazonS3Manager s3Manager;
+    private final UuidRepository uuidRepository;
 
     @Transactional
-    public String uploadMainMissionProof(MultipartFile multipartFile) throws IOException {
-        return s3Uploader.upload(multipartFile, MISSION_PROOF_PATH );
+    public Uuid makeUuid(){
+        String uuid = UUID.randomUUID().toString();
+        Uuid saveUuid = uuidRepository.save(Uuid.builder()
+                .uuid(uuid)
+                .build());
+        return saveUuid;
     }
 
     @Transactional
-    public List<String> getImageUrl(List<MultipartFile> multipartFiles, String path) throws IOException {
-        List<String> filePathList = new ArrayList<>();
+    public void createArticleImage(List<MultipartFile> files, Article article){
+        for (MultipartFile file : files) {
+            Uuid uuid = makeUuid();
+            String imageUrl = s3Manager.uploadFile(s3Manager.generateKeyName(uuid, "article"), file);
 
-        for (MultipartFile multipartFile : multipartFiles) {
-            String filePath = s3Uploader.upload(multipartFile, path );
-            filePathList.add(filePath);
+            Image image = ImageConverter.toImage(article, imageUrl, uuid.toString());
+            imageRepository.save(image);
         }
-
-        return filePathList;
     }
 
     @Transactional
-    public String getImageUrl(MultipartFile multipartFile, String path) throws IOException {
-        return s3Uploader.upload(multipartFile, path);
+    public String createImage(MultipartFile file, String path){
+        Uuid uuid = makeUuid();
+        return s3Manager.uploadFile(s3Manager.generateKeyName(uuid, path), file);
     }
+
 
     public List<Image> getArticleImages(Long articleId){
         return imageRepository.findAllByArticleId(articleId);
@@ -59,13 +68,6 @@ public class ImageService {
         imageRepository.deleteAll(imagesToDelete);
     }
 
-    @Transactional
-    public void postArticleImage(List<String> imageList, Article article){
-        for (String filepath : imageList) {
-            Image image = ImageConverter.toImage(article, filepath);
-            imageRepository.save(image);
-        }
-    }
 
     @Transactional
     public void updateArticleImage(List<ChangeImageDto> imageDtos, List<Image> findImages, Article targetArticle) {

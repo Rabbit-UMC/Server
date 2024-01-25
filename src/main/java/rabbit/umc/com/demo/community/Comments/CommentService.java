@@ -5,8 +5,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.demo.community.Comments.CommentRepository;
+import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.demo.community.article.ArticleRepository;
 import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.domain.Comment;
@@ -16,8 +15,8 @@ import rabbit.umc.com.demo.user.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
 
-import static rabbit.umc.com.config.BaseResponseStatus.*;
-import static rabbit.umc.com.demo.Status.*;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
+import static rabbit.umc.com.demo.base.Status.*;
 
 @ToString
 @Service

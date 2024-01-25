@@ -3,9 +3,7 @@ package rabbit.umc.com.demo.schedule.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
-import rabbit.umc.com.config.BaseTimeEntity;
-
-import java.sql.Timestamp;
+import rabbit.umc.com.demo.base.BaseTimeEntity;
 
 @Getter
 @Setter

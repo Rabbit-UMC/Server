@@ -1,12 +1,12 @@
-package rabbit.umc.com.demo.image;
+package rabbit.umc.com.demo.image.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import rabbit.umc.com.config.BaseTimeEntity;
-import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.base.BaseTimeEntity;
+import rabbit.umc.com.demo.base.Status;
 import javax.persistence.*;
 import rabbit.umc.com.demo.community.domain.Article;
 

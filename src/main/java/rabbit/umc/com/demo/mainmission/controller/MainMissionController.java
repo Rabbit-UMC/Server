@@ -1,9 +1,8 @@
-package rabbit.umc.com.demo.mainmission;
+package rabbit.umc.com.demo.mainmission.controller;
 
-import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_UPLOAD_PROOF_IMAGE;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.FAILED_TO_UPLOAD_PROOF_IMAGE;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -13,12 +12,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponse;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseResponse;
+import rabbit.umc.com.demo.mainmission.service.MainMissionService;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
 import rabbit.umc.com.demo.mainmission.dto.MainMissionViewRes;
 import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;

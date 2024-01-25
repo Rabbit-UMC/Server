@@ -3,8 +3,8 @@ package rabbit.umc.com.demo.mission.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.mission.Mission;
@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static rabbit.umc.com.config.BaseResponseStatus.*;
-import static rabbit.umc.com.demo.Status.ACTIVE;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
+import static rabbit.umc.com.demo.base.Status.ACTIVE;
 
 @Service
 @RequiredArgsConstructor
