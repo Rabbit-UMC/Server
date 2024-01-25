@@ -195,6 +195,9 @@ public class KakaoService {
     public User signUpUser(String userName, KakaoDto kakaoDto) throws BaseException {
 
         log.info("회원 가입을 진행하겠습니다.");
+        if(existsUser(kakaoDto.getKakaoId())){
+            throw new BaseException(USER_ALREADY_EXIST);
+        }
 
         User user = new User(kakaoDto.getKakaoId(), userName,kakaoDto.getUserProfileImage(), USER, kakaoDto.getAgeRange(),
         kakaoDto.getGender(), kakaoDto.getBirthday(), ACTIVE);
