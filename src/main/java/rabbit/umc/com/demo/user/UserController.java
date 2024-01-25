@@ -51,7 +51,7 @@ public class UserController {
 
 
     @GetMapping("/kakao-login")
-    @Operation(summary = "카카오 회원가입 및 로그인 API")
+    @Operation(summary = "카카오 로그인 API")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
