@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseResponse;
-import rabbit.umc.com.utils.S3Uploader;
 
 @Tag(name = "image", description = "image API")
 @RestController
@@ -27,7 +26,6 @@ import rabbit.umc.com.utils.S3Uploader;
 @RequestMapping("/app")
 public class ImageController {
     private final ImageService imageService;
-    private final S3Uploader s3Uploader;
 
     /**
      * 이미지 저장 API
@@ -51,7 +49,7 @@ public class ImageController {
         List<String> filePathList = new ArrayList<>();
 
         for (MultipartFile multipartFile : multipartFiles) {
-            String filePath = s3Uploader.upload(multipartFile, path );
+            String filePath = imageService.createImage(multipartFile, path );
             filePathList.add(filePath);
         }
 

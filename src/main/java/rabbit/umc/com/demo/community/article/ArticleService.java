@@ -177,13 +177,10 @@ public class ArticleService {
 
         Article article = ArticleConverter.toArticle(postArticleReq,user,category);
         articleRepository.save(article);
-        System.out.println("tqtqtqtq" + multipartFiles);
 
         if (multipartFiles != null ) {
-            List<String> imageList= imageService.getImageUrl(multipartFiles, "article");
-            imageService.postArticleImage(imageList, article);
+            imageService.createArticleImage(multipartFiles, article);
         }
-        // 게시물 이미지 생성
 
         return article.getId();
     }

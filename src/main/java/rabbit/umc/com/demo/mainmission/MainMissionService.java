@@ -223,7 +223,7 @@ public class MainMissionService {
 
     @Transactional
     public void uploadProofImage(MultipartFile multipartFile, Long categoryId, Long userId) throws BaseException, IOException {
-        String filePath = imageService.uploadMainMissionProof(multipartFile);
+
 
         MainMission mainMission = mainMissionRepository.findMainMissionByCategoryIdAndStatus(categoryId, ACTIVE);
         User user = userQueryService.getUser(userId);
@@ -240,6 +240,7 @@ public class MainMissionService {
         if (!proof.isEmpty()) {
             throw new BaseException(FAILED_TO_UPLOAD);
         }
+        String filePath = imageService.createImage(multipartFile, "mission");
         // 10점 점수 획득
         increaseUploadScore(user, mainMission);
         //인증 사진 저장

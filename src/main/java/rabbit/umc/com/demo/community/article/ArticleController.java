@@ -10,17 +10,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
 import rabbit.umc.com.config.BaseResponse;
 import rabbit.umc.com.demo.community.dto.*;
 import rabbit.umc.com.utils.JwtService;
-import rabbit.umc.com.utils.S3Uploader;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "article", description = "article API")

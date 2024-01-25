@@ -95,7 +95,7 @@ public class UserService {
     @Transactional
     public void updateProfile(Long userId, String newNickname, /*String*/MultipartFile multipartFile) throws BaseException, IOException {
         User user = findUser(userId);
-        String newProfileImage = imageService.getImageUrl(multipartFile, "user");
+        String newProfileImage = imageService.createImage(multipartFile, "user");
         user.setUserProfileImage(newProfileImage);
         user.setUserName(newNickname);
         userRepository.save(user);
