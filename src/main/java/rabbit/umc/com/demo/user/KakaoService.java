@@ -203,6 +203,10 @@ public class KakaoService {
         return user;
     }
 
+    public boolean existsUser(Long kakaoId){
+        return userRepository.existsByKakaoId(kakaoId);
+    }
+
     //카카오 로그아웃
     public Long logout(Long kakaoId) throws IOException, BaseException {
         //String adminKey= JwtAndKakaoProperties.Admin;
