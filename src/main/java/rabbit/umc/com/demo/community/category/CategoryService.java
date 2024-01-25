@@ -3,12 +3,12 @@ package rabbit.umc.com.demo.community.category;
 import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.UserRepository;
 
-import static rabbit.umc.com.config.BaseResponseStatus.*;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
 import static rabbit.umc.com.demo.user.Domain.UserPermission.*;
 
 @Service

@@ -12,8 +12,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponse;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseResponse;
 import rabbit.umc.com.demo.community.dto.*;
 import rabbit.umc.com.utils.JwtService;
 

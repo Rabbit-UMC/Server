@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import rabbit.umc.com.config.BaseTimeEntity;
-import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.base.BaseTimeEntity;
+import rabbit.umc.com.demo.base.Status;
 
 import javax.persistence.*;
 

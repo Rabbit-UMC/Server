@@ -1,7 +1,6 @@
 package rabbit.umc.com.demo.community.article;
 
 import java.io.IOException;
-import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +9,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.*;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.Comments.CommentRepository;
@@ -27,8 +26,8 @@ import rabbit.umc.com.demo.converter.ArticleConverter;
 import rabbit.umc.com.demo.converter.CommentConverter;
 import rabbit.umc.com.demo.converter.MainMissionConverter;
 import rabbit.umc.com.demo.converter.ReportConverter;
-import rabbit.umc.com.demo.image.Image;
-import rabbit.umc.com.demo.image.ImageService;
+import rabbit.umc.com.demo.image.domain.Image;
+import rabbit.umc.com.demo.image.service.ImageService;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.report.Report;
@@ -42,8 +41,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static rabbit.umc.com.config.BaseResponseStatus.*;
-import static rabbit.umc.com.demo.Status.*;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
+import static rabbit.umc.com.demo.base.Status.*;
 
 @ToString
 @Service

@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.image;
+package rabbit.umc.com.demo.image.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import rabbit.umc.com.config.BaseResponse;
+import rabbit.umc.com.config.apiPayload.BaseResponse;
+import rabbit.umc.com.demo.image.service.ImageService;
 
 @Tag(name = "image", description = "image API")
 @RestController

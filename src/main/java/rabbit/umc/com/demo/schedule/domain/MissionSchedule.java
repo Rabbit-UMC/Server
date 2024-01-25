@@ -2,13 +2,11 @@ package rabbit.umc.com.demo.schedule.domain;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import rabbit.umc.com.config.BaseTimeEntity;
-import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.base.BaseTimeEntity;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.mission.Mission;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 
 import static javax.persistence.GenerationType.IDENTITY;
 

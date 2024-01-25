@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.image;
+package rabbit.umc.com.demo.image.service;
 
 import java.util.List;
 import java.util.Set;
@@ -11,6 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.dto.PatchArticleReq.ChangeImageDto;
 import rabbit.umc.com.demo.converter.ImageConverter;
+import rabbit.umc.com.demo.image.domain.Image;
+import rabbit.umc.com.demo.image.repository.ImageRepository;
 import rabbit.umc.com.demo.image.uuid.Uuid;
 import rabbit.umc.com.demo.image.uuid.UuidRepository;
 import rabbit.umc.com.s3.AmazonS3Manager;

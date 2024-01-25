@@ -1,10 +1,9 @@
 package rabbit.umc.com.demo.mission.service;
 
-import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.demo.mission.dto.*;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface MissionService {
     List<MissionHomeRes> getMissionHome();

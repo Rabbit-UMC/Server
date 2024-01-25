@@ -10,7 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import rabbit.umc.com.config.BaseTimeEntity;
+import rabbit.umc.com.demo.base.BaseTimeEntity;
 
 @Entity
 @Builder

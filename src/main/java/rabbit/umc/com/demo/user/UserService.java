@@ -7,17 +7,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponseStatus;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseResponseStatus;
 import rabbit.umc.com.config.secret.Secret;
-import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.domain.Article;
-import rabbit.umc.com.demo.image.ImageService;
+import rabbit.umc.com.demo.image.service.ImageService;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUserSuccess;
 import rabbit.umc.com.demo.mission.MissionUsers;
-import rabbit.umc.com.demo.mission.dto.MissionHistoryRes;
-import rabbit.umc.com.demo.mission.dto.MissionHomeRes;
 import rabbit.umc.com.demo.mission.repository.MissionRepository;
 import rabbit.umc.com.demo.mission.repository.MissionUserSuccessRepository;
 import rabbit.umc.com.demo.mission.repository.MissionUsersRepository;
@@ -39,8 +37,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static rabbit.umc.com.config.BaseResponseStatus.*;
-import static rabbit.umc.com.demo.Status.ACTIVE;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor

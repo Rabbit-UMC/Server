@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 
-import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.demo.base.Status;
 
 import java.time.LocalDate;
 import java.util.List;
