@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.image;
+package rabbit.umc.com.demo.image.uuid;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
