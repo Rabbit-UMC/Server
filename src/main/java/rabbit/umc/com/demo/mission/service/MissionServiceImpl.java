@@ -1,6 +1,7 @@
 package rabbit.umc.com.demo.mission.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.apiPayload.BaseException;
@@ -50,12 +51,17 @@ public class MissionServiceImpl implements MissionService{
     private final CategoryRepository categoryRepository;
     private final MissionUserSuccessRepository missionUserSuccessRepository;
 
+    private static final int PAGING_SIZE = 20;
+
     @Override
-    public List<MissionHomeRes> getMissionHome() {
+    public List<MissionHomeRes> getMissionHome(int page) throws BaseException {
         LocalDateTime now =  LocalDateTime.now();
-        List<Mission> missionList = missionRepository.getMissions(now,0, ACTIVE);
+        PageRequest pageRequest = PageRequest.of(page,PAGING_SIZE);
+        List<Mission> missionList = missionRepository.getMissions(now,0, ACTIVE,pageRequest);
 
-
+        if (missionList.size() == 0 ) {
+            throw new BaseException(END_PAGE);
+        }
 
         List<MissionHomeRes> resultList = missionList.stream()
                 .map(MissionHomeRes::toMissionHomeRes)
@@ -68,13 +74,12 @@ public class MissionServiceImpl implements MissionService{
      * 미션 카테고리별 확인
      */
     @Override
-    public List<MissionHomeRes> getMissionByMissionCategoryId(Long categoryId) {
-
-        List<Mission> missionList = missionRepository.getMissionByMissionCategoryIdOrderByEndAt(categoryId);
+    public List<MissionHomeRes> getMissionByMissionCategoryId(Long categoryId, int page) throws BaseException {
+        PageRequest pageRequest = PageRequest.of(page,PAGING_SIZE);
+        List<Mission> missionList = missionRepository.getMissionByMissionCategoryIdOrderByEndAt(categoryId,pageRequest);
 
         if(missionList == null){
-            List<MissionHomeRes> resultList = new ArrayList<>();
-            return resultList;
+                throw new BaseException(END_PAGE);
         }else{
 
             List<MissionHomeRes> resultList = missionList.stream()

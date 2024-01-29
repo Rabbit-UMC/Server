@@ -42,14 +42,22 @@ public class MissionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "권한 없는 접근",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
+    @Parameters({
+            @Parameter(name = "page", description = "페이지 번호")
+    })
     @GetMapping()
-    public BaseResponse<List<MissionHomeRes>> getHome(){
+    public BaseResponse<List<MissionHomeRes>> getHome(@RequestParam(defaultValue = "0", name = "page") int page){
 //        String token = jwtService.createJwt(102);
 //        System.out.println("token = " + token);
-        List<MissionHomeRes> resultList = missionService.getMissionHome();
+
+        try {
+            List<MissionHomeRes> resultList = missionService.getMissionHome(page);
+            return new BaseResponse<>(resultList);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
 //        System.out.println("jwtService = " + jwtService.createJwt(1));
 
-        return new BaseResponse<>(resultList);
     }
 
     /**
@@ -59,13 +67,17 @@ public class MissionController {
     @Operation(summary = "일반 미션 카테고리 별 리스트 조회하는 API")
     @Parameters({
             @Parameter(name = "categoryId", description = "카테고리 아이디"),
+            @Parameter(name = "page", description = "페이지 번호")
     })
     @GetMapping("category/{categoryId}")
-    public BaseResponse<List<MissionHomeRes>> getHomeByCategoryId(@PathVariable(name = "categoryId") Long categoryId){
+    public BaseResponse<List<MissionHomeRes>> getHomeByCategoryId(@PathVariable(name = "categoryId") Long categoryId, @RequestParam(defaultValue = "0", name = "page") int page){
+        try {
+            List<MissionHomeRes> resultList = missionService.getMissionByMissionCategoryId(categoryId,page);
+            return new BaseResponse<>(resultList);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
 
-        List<MissionHomeRes> resultList = missionService.getMissionByMissionCategoryId(categoryId);
-
-        return new BaseResponse<>(resultList);
     }
 
     /**
