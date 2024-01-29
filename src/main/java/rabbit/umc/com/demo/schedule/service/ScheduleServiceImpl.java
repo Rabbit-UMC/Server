@@ -21,6 +21,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -246,10 +247,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         DayRes results = new DayRes();
         Map<Integer,Integer> map = new HashMap<>();
         List<Schedule> scheduleList = scheduleRepository.findSchedulesByMonth(yearMonth.getMonthValue(),userId,yearMonth.getYear());
+        Date date = new Date();
 
         // 스케쥴 날짜 가져온거에서 각각 몇 개 잇는지
         scheduleList.forEach(s -> {
-            Integer cnt = scheduleRepository.countByEndAtIs(s.getEndAt());
+            LocalDate localDate = s.getEndAt().toLocalDate();
+            Date endDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            Integer cnt = scheduleRepository.countByEndAtAndUserId(endDate, userId);
             results.setSchedulesOfDay(s.getEndAt().getDayOfMonth(),cnt);
         });
 
