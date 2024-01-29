@@ -195,15 +195,9 @@ public class ScheduleServiceImpl implements ScheduleService {
                 schedule ->
                 {
                     missionScheduleRepository.deleteByScheduleId(schedule.getId());
-                    System.out.println("schedule.getId() = " + schedule.getId());
                     scheduleRepository.deleteById(schedule.getId());
                 }
         );
-
-
-
-
-
     }
 
 
