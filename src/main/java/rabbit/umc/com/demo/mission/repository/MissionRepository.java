@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.mission.repository;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +18,7 @@ public interface MissionRepository extends JpaRepository<Mission,Long> {
     List<Mission> getHome(@Param(value = "now") LocalDateTime now);
 
     @Query("select m from Mission m left join fetch m.category where m.category.id = :missionCategoryId and m.isOpen = 0 order by m.endAt asc")
-    List<Mission> getMissionByMissionCategoryIdOrderByEndAt(@Param("missionCategoryId") Long missionCategryId);
+    List<Mission> getMissionByMissionCategoryIdOrderByEndAt(@Param("missionCategoryId") Long missionCategryId, PageRequest pageRequest);
     Mission getMissionByIdAndEndAtIsBeforeOrderByEndAt(Long id, LocalDateTime currentDateTime);
 
     Mission getMissionById(long missionId);
@@ -32,7 +33,8 @@ public interface MissionRepository extends JpaRepository<Mission,Long> {
         "ORDER BY m.endAt")
     List<Mission> getMissions(@Param("now") LocalDateTime now,
                               @Param("isOpen") int isOpen,
-                              @Param("status") Status status);
+                              @Param("status") Status status,
+                              PageRequest pageRequest);
 
     Mission getMissionByIdAndEndAtIsAfterOrderByEndAt(Long id, LocalDateTime currentDateTime);
 
