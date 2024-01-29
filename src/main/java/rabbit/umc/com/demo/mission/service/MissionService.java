@@ -6,11 +6,11 @@ import rabbit.umc.com.demo.mission.dto.*;
 import java.util.List;
 
 public interface MissionService {
-    List<MissionHomeRes> getMissionHome();
+    List<MissionHomeRes> getMissionHome(int page) throws BaseException;
 
     void postMission(PostMissionReq postMissionReq, Long userId) throws BaseException;
 
-    List<MissionHomeRes> getMissionByMissionCategoryId(Long categoryId);
+    List<MissionHomeRes> getMissionByMissionCategoryId(Long categoryId, int page) throws BaseException;
 
     MissionHistoryRes getSuccessMissions(Long userId);
 
