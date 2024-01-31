@@ -36,7 +36,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule,Long> {
 
 //    @Query("select s from Schedule s where month(s.endAt) = :month and s.user.id = :userId order by s.endAt asc")
     @Query("select s from Schedule s where s.user.id= :userId and year(s.endAt) = :year and month(s.endAt) = :month order by  s.endAt asc")
-    List<Schedule> findSchedulesByMonth(@Param(value = "month") int month, @Param(value = "userId") Long userId, @Param(value = "year") int year);
+    List<Schedule> findSchedulesByMonthOrderByEndAt(@Param(value = "month") int month, @Param(value = "userId") Long userId, @Param(value = "year") int year);
     @Query("select count(*) from Schedule s where DATE(s.endAt)= :endDate and s.user.id = :userId ")
     Integer countByEndAtAndUserId(@Param("endDate") Date endDate, @Param("userId") Long userId);
     @Modifying

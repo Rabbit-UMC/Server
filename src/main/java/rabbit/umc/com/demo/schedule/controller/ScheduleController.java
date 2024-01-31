@@ -21,6 +21,7 @@ import rabbit.umc.com.utils.JwtService;
 
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.FAILED_TO_POST_SCHEDULE_DATE;
@@ -152,6 +153,7 @@ public class ScheduleController {
             YearMonth yearMonth = YearMonth.parse(month, formatter);
             long userId = (long) jwtService.getUserIdx();
             DayRes results = scheduleService.getScheduleWhenMonth(yearMonth,userId);
+
             return new BaseResponse<>(results);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
