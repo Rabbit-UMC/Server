@@ -236,9 +236,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public DayRes getScheduleWhenMonth(YearMonth yearMonth, long userId) throws BaseException {
         DayRes results = new DayRes();
-        Map<Integer,Integer> map = new HashMap<>();
-        List<Schedule> scheduleList = scheduleRepository.findSchedulesByMonth(yearMonth.getMonthValue(),userId,yearMonth.getYear());
-        Date date = new Date();
+        List<Schedule> scheduleList = scheduleRepository.findSchedulesByMonthOrderByEndAt(yearMonth.getMonthValue(),userId,yearMonth.getYear());
 
         // 스케쥴 날짜 가져온거에서 각각 몇 개 잇는지
         scheduleList.forEach(s -> {
