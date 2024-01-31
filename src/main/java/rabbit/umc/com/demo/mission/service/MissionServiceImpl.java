@@ -8,6 +8,7 @@ import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.domain.Category;
+import rabbit.umc.com.demo.mission.DDayComparator;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUserSuccess;
 import rabbit.umc.com.demo.mission.MissionUsers;
@@ -65,6 +66,7 @@ public class MissionServiceImpl implements MissionService{
 
         List<MissionHomeRes> resultList = missionList.stream()
                 .map(MissionHomeRes::toMissionHomeRes)
+                .sorted(Comparator.comparing(MissionHomeRes::getDDay, new DDayComparator()))
                 .collect(Collectors.toList());
 
         return resultList;
@@ -76,7 +78,12 @@ public class MissionServiceImpl implements MissionService{
     @Override
     public List<MissionHomeRes> getMissionByMissionCategoryId(Long categoryId, int page) throws BaseException {
         PageRequest pageRequest = PageRequest.of(page,PAGING_SIZE);
-        List<Mission> missionList = missionRepository.getMissionByMissionCategoryIdOrderByEndAt(categoryId,pageRequest);
+        List<Mission> missionList;
+        if(categoryId == 0){
+            missionList = missionRepository.getMissions(pageRequest);
+        }else{
+            missionList = missionRepository.getMissionByMissionCategoryIdOrderByEndAt(categoryId,pageRequest);
+        }
 
         if(missionList == null){
                 throw new BaseException(END_PAGE);
@@ -84,7 +91,9 @@ public class MissionServiceImpl implements MissionService{
 
             List<MissionHomeRes> resultList = missionList.stream()
                     .map(MissionHomeRes::toMissionHomeRes)
+                    .sorted(Comparator.comparing(MissionHomeRes::getDDay, new DDayComparator()))
                     .collect(Collectors.toList());
+
             return resultList;
         }
 
@@ -120,6 +129,7 @@ public class MissionServiceImpl implements MissionService{
             List<GetMyMissionRes> resultList = missionList.stream()
                     .map(GetMyMissionRes::toMyMissions)
                     .collect(Collectors.toList());
+
 
             return resultList;
         }
