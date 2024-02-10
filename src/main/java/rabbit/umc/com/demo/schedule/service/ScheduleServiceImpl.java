@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.config.apiPayload.BaseResponseStatus;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUsers;
 import rabbit.umc.com.demo.mission.repository.MissionRepository;
@@ -25,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
+import static rabbit.umc.com.demo.base.Status.ACTIVE;
 
 
 @Service
@@ -59,7 +61,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         // 미션 유저 테이블의 미션 번호로 종료되지 않은 미션 찾기
         for (MissionUsers mu :missionUsersList) {
-            Mission mission = missionRepository.getMissionByIdAndEndAtIsAfterOrderByEndAt(mu.getMission().getId(), currentDateTime);
+            Mission mission = missionRepository.findByIdAndEndAtIsAfterAndStatusAndIsOpenOrderByEndAt(mu.getMission().getId(), currentDateTime, ACTIVE,0);
             if(mission != null)
                 missionList.add(mission);
         }

@@ -17,13 +17,21 @@ public class GetMyMissionSchedule {
     private String title;
     @Schema(example = "yyyy-MM-dd")
     private String when;
+    @Schema(example = "HH:mm")
+    private String startAt;
+    @Schema(example = "HH:mm")
+    private String endAt;
 
     public static GetMyMissionSchedule toGetMyMissionSchedule(Schedule schedule){
         String when = schedule.getStartAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String startTime = schedule.getStartAt().format(DateTimeFormatter.ofPattern("HH:mm"));
+        String endTime = schedule.getEndAt().format(DateTimeFormatter.ofPattern("HH:mm"));
         return new GetMyMissionSchedule(
                 schedule.getId(),
                 schedule.getTitle(),
-                when
+                when,
+                startTime,
+                endTime
         );
     }
 }

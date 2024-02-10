@@ -2,6 +2,7 @@ package rabbit.umc.com.demo.mission.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.apiPayload.BaseException;
@@ -57,16 +58,16 @@ public class MissionServiceImpl implements MissionService{
     @Override
     public List<MissionHomeRes> getMissionHome(int page) throws BaseException {
         LocalDateTime now =  LocalDateTime.now();
-        PageRequest pageRequest = PageRequest.of(page,PAGING_SIZE);
-        List<Mission> missionList = missionRepository.getMissions(now,0, ACTIVE,pageRequest);
+        PageRequest pageRequest = PageRequest.of(page,PAGING_SIZE,Sort.by("startAt"));
+        List<Mission> missionList = missionRepository.findAllByStatusAndEndAtAfterAndIsOpenOrderByStartAt(ACTIVE,now,0,pageRequest);
 
-        if (missionList.size() == 0 ) {
+        if (missionList.isEmpty()) {
             throw new BaseException(END_PAGE);
         }
 
         List<MissionHomeRes> resultList = missionList.stream()
                 .map(MissionHomeRes::toMissionHomeRes)
-                .sorted(Comparator.comparing(MissionHomeRes::getDDay, new DDayComparator()))
+//                .sorted(Comparator.comparing(MissionHomeRes::getDDay, new DDayComparator()))
                 .collect(Collectors.toList());
 
         return resultList;
@@ -77,21 +78,22 @@ public class MissionServiceImpl implements MissionService{
      */
     @Override
     public List<MissionHomeRes> getMissionByMissionCategoryId(Long categoryId, int page) throws BaseException {
-        PageRequest pageRequest = PageRequest.of(page,PAGING_SIZE);
+        LocalDateTime now =  LocalDateTime.now();
+        PageRequest pageRequest = PageRequest.of(page,PAGING_SIZE,Sort.by("startAt"));
         List<Mission> missionList;
         if(categoryId == 0){
-            missionList = missionRepository.getMissions(pageRequest);
+            missionList = missionRepository.findAllByStatusAndEndAtAfterAndIsOpenOrderByStartAt(ACTIVE,now,0,pageRequest);
         }else{
-            missionList = missionRepository.getMissionByMissionCategoryIdOrderByEndAt(categoryId,pageRequest);
+            missionList = missionRepository.getMissionByMissionCategoryIdOrderByStartAt(ACTIVE,now,0,categoryId,pageRequest);
         }
 
-        if(missionList == null){
+        if(missionList.isEmpty()){
                 throw new BaseException(END_PAGE);
         }else{
 
             List<MissionHomeRes> resultList = missionList.stream()
                     .map(MissionHomeRes::toMissionHomeRes)
-                    .sorted(Comparator.comparing(MissionHomeRes::getDDay, new DDayComparator()))
+//                    .sorted(Comparator.comparing(MissionHomeRes::getDDay, new DDayComparator()))
                     .collect(Collectors.toList());
 
             return resultList;
@@ -111,10 +113,8 @@ public class MissionServiceImpl implements MissionService{
         List<Mission> missionList = new ArrayList<>();
         LocalDateTime currentDateTime = LocalDateTime.now();
 
-
-
         for (MissionUsers mu :missionUsersList) {
-            Mission mission = missionRepository.getMissionByIdAndEndAtIsAfterOrderByEndAt(mu.getMission().getId(), currentDateTime);
+            Mission mission = missionRepository.findByIdAndEndAtIsAfterAndStatusAndIsOpenOrderByEndAt(mu.getMission().getId(),currentDateTime,ACTIVE,0);
             if(mission != null)
                 missionList.add(mission);
         }
