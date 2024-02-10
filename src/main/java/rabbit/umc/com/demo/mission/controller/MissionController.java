@@ -47,8 +47,8 @@ public class MissionController {
     })
     @GetMapping()
     public BaseResponse<List<MissionHomeRes>> getHome(@RequestParam(defaultValue = "0", name = "page") int page){
-//        String token = jwtService.createJwt(102);
-//        System.out.println("token = " + token);
+//        String token = jwtService.createJwt(1);
+//        System.out.println("token진또배기 = " + token);
 
         try {
             List<MissionHomeRes> resultList = missionService.getMissionHome(page);
