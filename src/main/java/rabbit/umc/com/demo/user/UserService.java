@@ -366,9 +366,12 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new UsernameNotFoundException(username + "님을 찾을 수 없습니다."));
+    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+
+        User user = userRepository.getReferenceById(new Long(userId));
+        if (user == null) {
+            new UsernameNotFoundException("회원번호 " + userId + " 님을 찾을 수 없습니다.");
+        }
 
         return new UserDetailsImpl(user);
     }

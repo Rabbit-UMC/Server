@@ -1,17 +1,22 @@
 package rabbit.umc.com.config;
 
-import org.springframework.context.annotation.Bean;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@RequiredArgsConstructor
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final JwtAuthenticateFilter jwtAuthenticateFilter;
+
+//    public WebSecurityConfig(JwtAuthenticateFilter jwtAuthenticateFilter) {
+//        this.jwtAuthenticateFilter = jwtAuthenticateFilter;
+//    }
 //    @Bean
 //    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 //        return http
@@ -45,8 +50,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/app/admin/**").hasRole("ADMIN")
                 .antMatchers("/app/host/**").hasRole("HOST")
 
-                // 그 외 어떤 요청이든 '인증'과정 필요
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+                .and()
 
+//                .exceptionHandling()
+//                .accessDeniedHandler(customAccessDeniedHandler);
+                .addFilterBefore(jwtAuthenticateFilter,
+                        UsernamePasswordAuthenticationFilter.class);
     }
 }
