@@ -366,12 +366,14 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
 
         User user = userRepository.getReferenceById(new Long(userId));
         if (user == null) {
             new UsernameNotFoundException("회원번호 " + userId + " 님을 찾을 수 없습니다.");
         }
+        System.out.println("유저 롤: "+user.getUserPermission());
 
         return new UserDetailsImpl(user);
     }
