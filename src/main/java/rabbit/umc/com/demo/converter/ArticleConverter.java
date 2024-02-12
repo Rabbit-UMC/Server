@@ -89,7 +89,7 @@ public class ArticleConverter {
         return ArticleListRes.builder()
                 .categoryImage(category.getImage())
                 .mainMissionId(mainMission.getId())
-                .categoryHostId(category.getUserId())
+                .categoryHostId(category.getUser().getId())
                 .articleLists(ArticleConverter.toArticleDto(articlePage))
                 .build();
     }
