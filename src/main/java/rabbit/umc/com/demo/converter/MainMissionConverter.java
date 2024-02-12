@@ -101,7 +101,7 @@ public class MainMissionConverter {
 
     public static MainMissionViewRes toMainMissionViewRes(User user, MainMission mainMission){
         return MainMissionViewRes.builder()
-                .userName(user.getUserName())
+                .nowHostUserName(user.getUserName())
                 .missionImageUrl(mainMission.getCategory().getImage())
                 .missionTitle(mainMission.getTitle())
                 .missionStartDay(DateUtil.getMonthDay(mainMission.getStartAt()))

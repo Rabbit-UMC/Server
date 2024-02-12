@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.community.domain;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,6 +10,8 @@ import rabbit.umc.com.demo.base.BaseTimeEntity;
 import rabbit.umc.com.demo.base.Status;
 
 import javax.persistence.*;
+import rabbit.umc.com.demo.mainmission.domain.MainMission;
+import rabbit.umc.com.demo.user.Domain.User;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -29,11 +32,16 @@ public class Category extends BaseTimeEntity {
     @Column(nullable = false)
     private String image;
 
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
     private Status status;
+
+    @OneToMany(mappedBy = "category")
+    private List<MainMission> mainMissions;
 
 
     //Setter
@@ -41,7 +49,7 @@ public class Category extends BaseTimeEntity {
         image = filepath;
     }
 
-    public void  changeHostUser(Long userId){
-        this.userId = userId;
+    public void  changeHostUser(User user){
+        this.user = user;
     }
 }

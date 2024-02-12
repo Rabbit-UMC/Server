@@ -11,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
+import rabbit.umc.com.demo.community.category.CategoryService;
 import rabbit.umc.com.demo.community.domain.Category;
+import rabbit.umc.com.demo.converter.MainMissionConverter;
 import rabbit.umc.com.demo.converter.RankConverter;
 import rabbit.umc.com.demo.converter.ReportConverter;
 import rabbit.umc.com.demo.image.service.ImageService;
@@ -43,6 +45,7 @@ import rabbit.umc.com.demo.user.UserService;
 import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
 import static rabbit.umc.com.demo.base.Status.*;
 import static rabbit.umc.com.demo.converter.MainMissionConverter.*;
+import static rabbit.umc.com.demo.converter.MainMissionConverter.toMainMissionViewRes;
 
 @Service
 @RequiredArgsConstructor
@@ -59,6 +62,7 @@ public class MainMissionService {
     private final UserService userService;
     private final ReportService reportService;
     private final ImageService imageService;
+    private final CategoryService categoryService;
 
     private List<MainMissionProof> findMainMissionProofByDay(MainMission mainMission, int day, Long mainMissionId){
         LocalDateTime startDate = mainMission.getStartAt().atStartOfDay();
@@ -191,7 +195,7 @@ public class MainMissionService {
     }
 
     public boolean isCategoryUser(Long userId, Category category){
-        return category.getUserId() == userId;
+        return category.getUser().getId() == userId;
     }
 
     @Transactional
@@ -267,7 +271,7 @@ public class MainMissionService {
             List<MainMissionUsers> topScorers = mainMissionUsersRepository.findTopScorersByMainMissionOrderByScoreDesc(mainMission, PageRequest.of(0, 1));
             if (!topScorers.isEmpty()) {
                 //이전 묘집사 강등
-                Long beforeUserId = mainMission.getCategory().getUserId();
+                Long beforeUserId = mainMission.getCategory().getUser().getId();
                 User beforeUser =userQueryService.getUser(beforeUserId);
                 userService.changePermissionToUser(beforeUser);
 
@@ -287,18 +291,18 @@ public class MainMissionService {
     @Transactional
     public void changeCategoryHost(MainMission mainMission, User newUser){
         Category category = mainMission.getCategory();
-        category.changeHostUser(newUser.getId());
+        category.changeHostUser(newUser);
         categoryRepository.save(category);
     }
 
-    public MainMissionViewRes getMainMissionView(Long mainMissionId, Long userId) throws BaseException {
-        MainMission mainMission = mainMissionRepository.getReferenceById(mainMissionId);
+    public List<MainMissionViewRes> getMainMissionView(Long categoryId, Long userId) throws BaseException {
         User user = userQueryService.getUser(userId);
-        if (mainMission.getCategory().getUserId() != userId){
-            throw new BaseException(FORBIDDEN);
-        }
+        Category category = categoryService.getCategory(categoryId);
+        List<MainMission> mainMissions = category.getMainMissions();
 
-        return toMainMissionViewRes(user, mainMission);
+        return mainMissions.stream()
+                .map(mainMission -> toMainMissionViewRes(user, mainMission))
+                .collect(Collectors.toList());
     }
 
 }

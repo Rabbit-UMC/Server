@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -217,7 +218,7 @@ public class MainMissionController {
 
     /**
      * 메인 미션 관리 화면 조회
-     * @param mainMissionId
+     * @param categoryId
      * @return
      */
     @Tag(name = "mainMissionImageUnLike")
@@ -229,13 +230,13 @@ public class MainMissionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "묘집사 권한이 없는 유저입니다",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     @Parameters({
-            @Parameter(name = "mainMissionId", description = "관리할 메인 미션 id"),
+            @Parameter(name = "categoryId", description = "관리할 카테고리 ID"),
     })
-    @GetMapping("/host/main-mission/{mainMissionId}")
-    public BaseResponse<MainMissionViewRes> getMainMissionView(@PathVariable("mainMissionId") Long mainMissionId){
+    @GetMapping("/host/main-mission/{categoryId}")
+    public BaseResponse<List<MainMissionViewRes>> getMainMissionView(@PathVariable Long categoryId){
         try {
             Long userId = (long) jwtService.getUserIdx();
-            MainMissionViewRes mainMissionViewRes = mainMissionService.getMainMissionView(mainMissionId, userId);
+            List<MainMissionViewRes> mainMissionViewRes = mainMissionService.getMainMissionView(categoryId, userId);
             return new BaseResponse<>(mainMissionViewRes);
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
