@@ -1,18 +1,15 @@
 package rabbit.umc.com.demo.user.Domain;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class UserDetailsImpl implements UserDetails {
     private final User user;
-
 
     public UserDetailsImpl(User user) {
         this.user = user;

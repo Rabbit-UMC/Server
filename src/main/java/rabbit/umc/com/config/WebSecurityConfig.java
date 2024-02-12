@@ -11,7 +11,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private CustomAccessDeniedHandler customAccessDeniedHandler;
+//    private CustomAccessDeniedHandler customAccessDeniedHandler;
     private final JwtAuthenticateFilter jwtAuthenticateFilter;
 
 //    public WebSecurityConfig(JwtAuthenticateFilter jwtAuthenticateFilter) {

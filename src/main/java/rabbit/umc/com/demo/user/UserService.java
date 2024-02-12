@@ -373,7 +373,6 @@ public class UserService implements UserDetailsService {
         if (user == null) {
             new UsernameNotFoundException("회원번호 " + userId + " 님을 찾을 수 없습니다.");
         }
-        System.out.println("유저 롤: "+user.getUserPermission());
 
         return new UserDetailsImpl(user);
     }
