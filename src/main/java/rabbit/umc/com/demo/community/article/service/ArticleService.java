@@ -103,7 +103,7 @@ public class ArticleService {
 
         return allMissions.stream()
                 .map(mainMission -> MainMissionConverter
-                        .toMainMissionDtoV2(mainMission, getHostUserName(mainMission)))
+                        .toMainMissionDtoV2(mainMission))
                 .collect(Collectors.toList());
     }
 
