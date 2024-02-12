@@ -29,7 +29,7 @@ public class CommunityHomeResV2 {
         private Long mainMissionId;
         private String mainMissionTitle;
         private String dDay;
-        private String hostUserName;
+        private String rankTopUser;
         private Long missionCategoryId;
     }
 
