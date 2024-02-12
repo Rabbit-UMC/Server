@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.mainmission.domain;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +12,10 @@ import rabbit.umc.com.demo.community.domain.Category;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
+import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionUsers;
 
+import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
@@ -45,6 +49,9 @@ public class MainMission extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
     private Status status;
+
+    @OneToMany(mappedBy = "mainMission")
+    private List<MainMissionUsers> mainMissionUsers;
 
     //비즈니스 로직
     public void inActive(){
