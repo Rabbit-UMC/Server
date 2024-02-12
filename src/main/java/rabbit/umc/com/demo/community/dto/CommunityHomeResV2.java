@@ -1,14 +1,10 @@
 package rabbit.umc.com.demo.community.dto;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import rabbit.umc.com.demo.community.domain.Article;
 
 @Getter
 @Builder
@@ -29,7 +25,7 @@ public class CommunityHomeResV2 {
         private Long mainMissionId;
         private String mainMissionTitle;
         private String dDay;
-        private String rankTopUser;
+        private String topRankUser;
         private Long missionCategoryId;
     }
 
