@@ -167,8 +167,9 @@ public class ArticleController {
     @Parameters({
             @Parameter(name = "categoryId", description = "게시글이 저장될 카테고리 id 입니다."),
     })
-    @PostMapping(value = "/article" )
-    public BaseResponse postArticle(@RequestPart(name = "postArticleReq") PostArticleReq postArticleReq,@RequestPart(required = false, name = "multipartFiles") List<MultipartFile> multipartFiles ,
+    @PostMapping(value = "/article" , consumes = {"multipart/form-data"})
+    public BaseResponse postArticle(@RequestPart(name = "postArticleReq") PostArticleReq postArticleReq,
+                                    @RequestPart(required = false, name = "multipartFiles") List<MultipartFile> multipartFiles ,
                                     @RequestParam("categoryId") Long categoryId) throws BaseException, IOException {
         System.out.println(jwtService.createJwt(1));
         Long userId = (long) jwtService.getUserIdx();

@@ -188,10 +188,7 @@ public class ArticleService {
         try {
             Article targetArticle = articleQueryService.findById(articleId);
 
-            // JWT 가 글 작성 유저와 동일한지 체크
-            if (!targetArticle.getUser().getId().equals(userId)) {
-                throw new BaseException(INVALID_USER_JWT);
-            }
+            articleQueryService.validBoardOwner(userId, targetArticle);
 
             targetArticle.setTitle(patchArticleReq.getArticleTitle());
             targetArticle.setContent(patchArticleReq.getArticleContent());
