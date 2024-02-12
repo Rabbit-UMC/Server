@@ -1,6 +1,7 @@
 package rabbit.umc.com.demo.user.Domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,6 +9,7 @@ import rabbit.umc.com.demo.base.BaseTimeEntity;
 import rabbit.umc.com.demo.base.Status;
 
 import javax.persistence.*;
+import rabbit.umc.com.demo.community.domain.Category;
 
 @Entity
 @NoArgsConstructor
@@ -56,6 +58,9 @@ public class User extends BaseTimeEntity {
 
     @Schema(description = "유저 식별자", requiredMode = Schema.RequiredMode.REQUIRED, example = "1234")
     private String jwtRefreshToken;
+
+    @OneToMany(mappedBy = "user")
+    private List<Category> category;
 
     public User(Long kakaoId, String userName, String profile_image, UserPermission userPermission, String ageRange,
                 String gender, String birthday, Status status) {

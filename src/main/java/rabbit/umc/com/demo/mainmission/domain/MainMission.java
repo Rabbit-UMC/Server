@@ -25,7 +25,7 @@ public class MainMission extends BaseTimeEntity {
     @Column(name = "main_mission_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 

@@ -108,8 +108,7 @@ public class ArticleService {
     }
 
     public String getHostUserName(MainMission mainMission){
-        Long hostId = mainMission.getCategory().getUserId();
-        User hostUser = userQueryService.getUser(hostId);
+        User hostUser = mainMission.getCategory().getUser();
         return  hostUser.getUserName();
     }
 

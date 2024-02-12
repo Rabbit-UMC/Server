@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MainMissionViewRes {
-    String userName;
+    String nowHostUserName;
     String missionImageUrl;
     String missionTitle;
     String missionStartDay;
