@@ -63,7 +63,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/app/users/kakao-login").permitAll()
                 .antMatchers("/app/users/sign-up").permitAll()
                 .antMatchers("/app/users/checkDuplication").permitAll()
-                .antMatchers("/swagger-ui/**").permitAll()
+                .antMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                 .antMatchers("/app/admin/**").hasRole("ADMIN")
                 .antMatchers("/app/host/**").hasRole("HOST")
