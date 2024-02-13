@@ -366,7 +366,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-//    @Transactional
+    @Transactional
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
 
         User user = userRepository.getReferenceById(new Long(userId));

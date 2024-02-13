@@ -3,6 +3,8 @@ package rabbit.umc.com.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,7 +25,7 @@ import static rabbit.umc.com.config.BaseResponseStatus.*;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final ObjectMapper objectMapper;
     private final JwtAuthenticateFilter jwtAuthenticateFilter;
 
 //    public WebSecurityConfig(JwtAuthenticateFilter jwtAuthenticateFilter) {
@@ -69,40 +71,39 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         UsernamePasswordAuthenticationFilter.class)
 
                 .exceptionHandling()
+                //인증되지 않은 경우
                 .authenticationEntryPoint(new AuthenticationEntryPoint() {
                     @Override
                     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+                        BaseResponse<?> baseResponse = new BaseResponse<>(UNAUTHORIZED_USER);
 
+                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        response.setCharacterEncoding("UTF-8");
+                        response.getWriter().write(objectMapper.writeValueAsString(baseResponse));
                     }
                 })
+                //인증되었으나 권한이 없는 경우
                 .accessDeniedHandler(new AccessDeniedHandler() {
                     @Override
                     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-                        // HTTP 응답 상태 코드 설정
-                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                        System.out.println("fail!!!");
+                        String responseBody = "";
 
-                        // JSON 형식의 응답 본문 생성
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        String responseBody = "fail";
-
-                        // 예외 처리
                         if (request.getRequestURI().startsWith("/app/admin/")) {
-                            // /app/admin/**에 대한 권한 부족
+                            // ADMIN이 아닌 경우
                             BaseResponse<Object> baseResponse = new BaseResponse<>(ADMIN_PERMISSION_REQUIRED);
                             responseBody = objectMapper.writeValueAsString(baseResponse);
                         } else if (request.getRequestURI().startsWith("/app/host/")) {
-                            // /app/host/**에 대한 권한 부족
+                            // HOST가 아닌 경우
                             BaseResponse<Object> baseResponse = new BaseResponse<>(HOST_PERMISSION_REQUIRED);
-                            responseBody = objectMapper.writeValueAsString(baseResponse);
-                            System.out.println("요기");
-                        } else {
-                            // 로그인 안된 경우
-                            BaseResponse<Object> baseResponse = new BaseResponse<>(UNAUTHORIZED_USER);
                             responseBody = objectMapper.writeValueAsString(baseResponse);
                         }
 
-                        // 응답 본문을 HTTP 응답에 쓰고 전송
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                        response.setCharacterEncoding("UTF-8");
+
                         response.getWriter().write(responseBody);
                         response.getWriter().flush();
                     }
