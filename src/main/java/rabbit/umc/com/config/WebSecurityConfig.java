@@ -13,13 +13,14 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import rabbit.umc.com.config.apiPayload.BaseResponse;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static rabbit.umc.com.config.BaseResponseStatus.*;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
 
 @Configuration
 @RequiredArgsConstructor
