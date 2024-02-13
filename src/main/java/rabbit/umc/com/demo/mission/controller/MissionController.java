@@ -11,16 +11,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponse;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseResponse;
 import rabbit.umc.com.demo.mission.dto.*;
 import rabbit.umc.com.demo.mission.service.MissionService;
 import rabbit.umc.com.utils.JwtService;
 
 import java.util.List;
-import java.util.Optional;
 
-import static rabbit.umc.com.config.BaseResponseStatus.FAILED_TO_MISSION_DATE;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.FAILED_TO_MISSION_DATE;
 import static rabbit.umc.com.utils.ValidationRegex.checkStartedDateAndEndedDate;
 
 @Api(tags = {"일반 미션 관련 Controller"})
@@ -43,14 +42,22 @@ public class MissionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "권한 없는 접근",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
+    @Parameters({
+            @Parameter(name = "page", description = "페이지 번호")
+    })
     @GetMapping()
-    public BaseResponse<List<MissionHomeRes>> getHome(){
-//        String token = jwtService.createJwt(102);
-//        System.out.println("token = " + token);
-        List<MissionHomeRes> resultList = missionService.getMissionHome();
+    public BaseResponse<List<MissionHomeRes>> getHome(@RequestParam(defaultValue = "0", name = "page") int page){
+//        String token = jwtService.createJwt(1);
+//        System.out.println("token진또배기 = " + token);
+
+        try {
+            List<MissionHomeRes> resultList = missionService.getMissionHome(page);
+            return new BaseResponse<>(resultList);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
 //        System.out.println("jwtService = " + jwtService.createJwt(1));
 
-        return new BaseResponse<>(resultList);
     }
 
     /**
@@ -60,13 +67,17 @@ public class MissionController {
     @Operation(summary = "일반 미션 카테고리 별 리스트 조회하는 API")
     @Parameters({
             @Parameter(name = "categoryId", description = "카테고리 아이디"),
+            @Parameter(name = "page", description = "페이지 번호")
     })
     @GetMapping("category/{categoryId}")
-    public BaseResponse<List<MissionHomeRes>> getHomeByCategoryId(@PathVariable(name = "categoryId") Long categoryId){
+    public BaseResponse<List<MissionHomeRes>> getHomeByCategoryId(@PathVariable(name = "categoryId") Long categoryId, @RequestParam(defaultValue = "0", name = "page") int page){
+        try {
+            List<MissionHomeRes> resultList = missionService.getMissionByMissionCategoryId(categoryId,page);
+            return new BaseResponse<>(resultList);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
 
-        List<MissionHomeRes> resultList = missionService.getMissionByMissionCategoryId(categoryId);
-
-        return new BaseResponse<>(resultList);
     }
 
     /**

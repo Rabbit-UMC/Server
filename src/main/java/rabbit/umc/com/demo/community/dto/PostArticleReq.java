@@ -2,8 +2,6 @@ package rabbit.umc.com.demo.community.dto;
 
 import lombok.*;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor

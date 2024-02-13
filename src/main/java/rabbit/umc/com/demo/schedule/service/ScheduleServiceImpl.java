@@ -1,14 +1,11 @@
 package rabbit.umc.com.demo.schedule.service;
 
 import lombok.RequiredArgsConstructor;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponse;
-import rabbit.umc.com.config.BaseResponseStatus;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseResponseStatus;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUsers;
 import rabbit.umc.com.demo.mission.repository.MissionRepository;
@@ -22,16 +19,14 @@ import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.UserRepository;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Year;
-import java.time.YearMonth;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static rabbit.umc.com.config.BaseResponseStatus.*;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
+import static rabbit.umc.com.demo.base.Status.ACTIVE;
 
 
 @Service
@@ -66,7 +61,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         // 미션 유저 테이블의 미션 번호로 종료되지 않은 미션 찾기
         for (MissionUsers mu :missionUsersList) {
-            Mission mission = missionRepository.getMissionByIdAndEndAtIsAfterOrderByEndAt(mu.getMission().getId(), currentDateTime);
+            Mission mission = missionRepository.findByIdAndEndAtIsAfterAndStatusAndIsOpenOrderByEndAt(mu.getMission().getId(), currentDateTime, ACTIVE,0);
             if(mission != null)
                 missionList.add(mission);
         }
@@ -199,15 +194,9 @@ public class ScheduleServiceImpl implements ScheduleService {
                 schedule ->
                 {
                     missionScheduleRepository.deleteByScheduleId(schedule.getId());
-                    System.out.println("schedule.getId() = " + schedule.getId());
                     scheduleRepository.deleteById(schedule.getId());
                 }
         );
-
-
-
-
-
     }
 
 
@@ -249,12 +238,13 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public DayRes getScheduleWhenMonth(YearMonth yearMonth, long userId) throws BaseException {
         DayRes results = new DayRes();
-        Map<Integer,Integer> map = new HashMap<>();
-        List<Schedule> scheduleList = scheduleRepository.findSchedulesByMonth(yearMonth.getMonthValue(),userId,yearMonth.getYear());
+        List<Schedule> scheduleList = scheduleRepository.findSchedulesByMonthOrderByEndAt(yearMonth.getMonthValue(),userId,yearMonth.getYear());
 
         // 스케쥴 날짜 가져온거에서 각각 몇 개 잇는지
         scheduleList.forEach(s -> {
-            Integer cnt = scheduleRepository.countByEndAtIs(s.getEndAt());
+            LocalDate localDate = s.getEndAt().toLocalDate();
+            Date endDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            Integer cnt = scheduleRepository.countByEndAtAndUserId(endDate, userId);
             results.setSchedulesOfDay(s.getEndAt().getDayOfMonth(),cnt);
         });
 

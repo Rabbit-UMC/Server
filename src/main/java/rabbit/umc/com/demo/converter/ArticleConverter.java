@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.domain.Category;
-import rabbit.umc.com.demo.image.Image;
+import rabbit.umc.com.demo.image.domain.Image;
 import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
 import rabbit.umc.com.demo.community.dto.ArticleListRes;
 import rabbit.umc.com.demo.community.dto.ArticleListRes.ArticleDto;
@@ -89,7 +89,7 @@ public class ArticleConverter {
         return ArticleListRes.builder()
                 .categoryImage(category.getImage())
                 .mainMissionId(mainMission.getId())
-                .categoryHostId(category.getUserId())
+                .categoryHostId(category.getUser().getId())
                 .articleLists(ArticleConverter.toArticleDto(articlePage))
                 .build();
     }

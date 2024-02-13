@@ -2,9 +2,8 @@ package rabbit.umc.com.demo.schedule.domain;
 
 import lombok.Getter;
 import lombok.Setter;
-import rabbit.umc.com.config.BaseTimeEntity;
-import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.schedule.dto.PatchScheduleReq;
+import rabbit.umc.com.demo.base.BaseTimeEntity;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.schedule.dto.PostScheduleReq;
 import rabbit.umc.com.demo.user.Domain.User;
 

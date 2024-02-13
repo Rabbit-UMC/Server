@@ -10,17 +10,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponse;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseResponse;
+import rabbit.umc.com.demo.community.article.service.ArticleService;
 import rabbit.umc.com.demo.community.dto.*;
 import rabbit.umc.com.utils.JwtService;
-import rabbit.umc.com.utils.S3Uploader;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "article", description = "article API")
@@ -169,8 +167,9 @@ public class ArticleController {
     @Parameters({
             @Parameter(name = "categoryId", description = "게시글이 저장될 카테고리 id 입니다."),
     })
-    @PostMapping(value = "/article" )
-    public BaseResponse postArticle(@RequestPart(name = "postArticleReq") PostArticleReq postArticleReq,@RequestPart(required = false, name = "multipartFiles") List<MultipartFile> multipartFiles ,
+    @PostMapping(value = "/article" , consumes = {"multipart/form-data"})
+    public BaseResponse postArticle(@RequestPart(name = "postArticleReq") PostArticleReq postArticleReq,
+                                    @RequestPart(required = false, name = "multipartFiles") List<MultipartFile> multipartFiles ,
                                     @RequestParam("categoryId") Long categoryId) throws BaseException, IOException {
         System.out.println(jwtService.createJwt(1));
         Long userId = (long) jwtService.getUserIdx();

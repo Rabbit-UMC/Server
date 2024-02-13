@@ -1,12 +1,15 @@
 package rabbit.umc.com.demo.mission.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.demo.Status;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.domain.Category;
+import rabbit.umc.com.demo.mission.DDayComparator;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUserSuccess;
 import rabbit.umc.com.demo.mission.MissionUsers;
@@ -33,8 +36,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static rabbit.umc.com.config.BaseResponseStatus.*;
-import static rabbit.umc.com.demo.Status.ACTIVE;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
+import static rabbit.umc.com.demo.base.Status.ACTIVE;
 
 @Service
 @RequiredArgsConstructor
@@ -50,15 +53,21 @@ public class MissionServiceImpl implements MissionService{
     private final CategoryRepository categoryRepository;
     private final MissionUserSuccessRepository missionUserSuccessRepository;
 
+    private static final int PAGING_SIZE = 20;
+
     @Override
-    public List<MissionHomeRes> getMissionHome() {
+    public List<MissionHomeRes> getMissionHome(int page) throws BaseException {
         LocalDateTime now =  LocalDateTime.now();
-        List<Mission> missionList = missionRepository.getMissions(now,0, ACTIVE);
+        PageRequest pageRequest = PageRequest.of(page,PAGING_SIZE,Sort.by("startAt"));
+        List<Mission> missionList = missionRepository.findAllByStatusAndEndAtAfterAndIsOpenOrderByStartAt(ACTIVE,now,0,pageRequest);
 
-
+        if (missionList.isEmpty()) {
+            throw new BaseException(END_PAGE);
+        }
 
         List<MissionHomeRes> resultList = missionList.stream()
                 .map(MissionHomeRes::toMissionHomeRes)
+//                .sorted(Comparator.comparing(MissionHomeRes::getDDay, new DDayComparator()))
                 .collect(Collectors.toList());
 
         return resultList;
@@ -68,18 +77,25 @@ public class MissionServiceImpl implements MissionService{
      * 미션 카테고리별 확인
      */
     @Override
-    public List<MissionHomeRes> getMissionByMissionCategoryId(Long categoryId) {
+    public List<MissionHomeRes> getMissionByMissionCategoryId(Long categoryId, int page) throws BaseException {
+        LocalDateTime now =  LocalDateTime.now();
+        PageRequest pageRequest = PageRequest.of(page,PAGING_SIZE,Sort.by("startAt"));
+        List<Mission> missionList;
+        if(categoryId == 0){
+            missionList = missionRepository.findAllByStatusAndEndAtAfterAndIsOpenOrderByStartAt(ACTIVE,now,0,pageRequest);
+        }else{
+            missionList = missionRepository.getMissionByMissionCategoryIdOrderByStartAt(ACTIVE,now,0,categoryId,pageRequest);
+        }
 
-        List<Mission> missionList = missionRepository.getMissionByMissionCategoryIdOrderByEndAt(categoryId);
-
-        if(missionList == null){
-            List<MissionHomeRes> resultList = new ArrayList<>();
-            return resultList;
+        if(missionList.isEmpty()){
+                throw new BaseException(END_PAGE);
         }else{
 
             List<MissionHomeRes> resultList = missionList.stream()
                     .map(MissionHomeRes::toMissionHomeRes)
+//                    .sorted(Comparator.comparing(MissionHomeRes::getDDay, new DDayComparator()))
                     .collect(Collectors.toList());
+
             return resultList;
         }
 
@@ -97,10 +113,8 @@ public class MissionServiceImpl implements MissionService{
         List<Mission> missionList = new ArrayList<>();
         LocalDateTime currentDateTime = LocalDateTime.now();
 
-
-
         for (MissionUsers mu :missionUsersList) {
-            Mission mission = missionRepository.getMissionByIdAndEndAtIsAfterOrderByEndAt(mu.getMission().getId(), currentDateTime);
+            Mission mission = missionRepository.findByIdAndEndAtIsAfterAndStatusAndIsOpenOrderByEndAt(mu.getMission().getId(),currentDateTime,ACTIVE,0);
             if(mission != null)
                 missionList.add(mission);
         }
@@ -115,6 +129,7 @@ public class MissionServiceImpl implements MissionService{
             List<GetMyMissionRes> resultList = missionList.stream()
                     .map(GetMyMissionRes::toMyMissions)
                     .collect(Collectors.toList());
+
 
             return resultList;
         }

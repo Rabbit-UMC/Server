@@ -5,15 +5,14 @@ import io.jsonwebtoken.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import rabbit.umc.com.config.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.config.secret.Secret;
 
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
 import java.util.Date;
 
-import static rabbit.umc.com.config.BaseResponseStatus.*;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
 
 
 @Service

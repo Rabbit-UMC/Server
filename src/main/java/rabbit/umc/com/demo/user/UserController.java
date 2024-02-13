@@ -1,6 +1,5 @@
 package rabbit.umc.com.demo.user;
 
-import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -14,10 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import rabbit.umc.com.config.BaseException;
-import rabbit.umc.com.config.BaseResponse;
-import rabbit.umc.com.demo.Status;
-import rabbit.umc.com.demo.mission.dto.MissionHistoryRes;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseResponse;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.*;
 import rabbit.umc.com.utils.JwtService;
@@ -27,7 +25,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static rabbit.umc.com.config.BaseResponseStatus.*;
+import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
 
 
 @RestController
