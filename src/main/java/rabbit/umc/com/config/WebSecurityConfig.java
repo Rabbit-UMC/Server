@@ -58,6 +58,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .authorizeRequests()
                 // login 없이 허용
+                .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/app/users/kakao-login").permitAll()
                 .antMatchers("/app/users/sign-up").permitAll()
                 .antMatchers("/app/users/checkDuplication").permitAll()
