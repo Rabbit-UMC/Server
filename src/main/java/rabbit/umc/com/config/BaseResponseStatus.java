@@ -40,10 +40,10 @@ public enum BaseResponseStatus {
     USER_NOT_FOUND(false, "USER4010","존재하지 않는 회원입니다."),
     USER_ALREADY_EXIST(false, "USER4011", "이미 존재하는 회원입니다."),
 
-    //권한 부족
-    ADMIN_PERMISSION_REQUIRED(false, "UNAUTHORIZED4001", "관리자 권한이 필요합니다."),
-    HOST_PERMISSION_REQUIRED(false, "UNAUTHORIZED4002", "묘집사 권한이 필요합니다."),
-    UNAUTHORIZED_USER(false, "UNAUTHORIZED4003", "로그인 후 이용 가능합니다."),
+    //권한
+    UNAUTHORIZED_USER(false, "PERMISSION4001", "로그인 후 이용 가능합니다."),
+    ADMIN_PERMISSION_REQUIRED(false, "PERMISSION4002", "관리자 권한이 필요합니다."),
+    HOST_PERMISSION_REQUIRED(false, "PERMISSION4003", "묘집사 권한이 필요합니다."),
 
     // Token
     UNEXPIRED_JWT_ACCESS(false, "TOKEN4001", "유효기간이 남아있는 ACCESS TOKEN입니다."),
