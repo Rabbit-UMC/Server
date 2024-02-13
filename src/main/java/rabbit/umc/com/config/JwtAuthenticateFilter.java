@@ -38,8 +38,9 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
             // 현재 SecurityContextHolder 에 인증객체가 있는지 확인
             System.out.println("user id: "+userId);
             System.out.println("인증객체: "+SecurityContextHolder.getContext().getAuthentication());
-            if (userId != "0" && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (userId != "0" /*&& SecurityContextHolder.getContext().getAuthentication() == null*/) {
                 UserDetails userDetails = userService.loadUserByUsername(userId);
+
                 // 토큰 유효여부 확인
                 log.info("JWT Filter token = {}", token);
                 log.info("JWT Filter userDetails = {}", userDetails.getUsername());
@@ -57,4 +58,5 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
             log.info(String.valueOf(new BaseResponse<>(exception.getStatus())));
         }
     }
+
 }
