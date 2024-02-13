@@ -9,12 +9,14 @@ import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.user.Domain.User;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByKakaoId(Long kakaoId);
     boolean existsByKakaoId(Long kakaoId);
     boolean existsByUserName(String userName);
+    Optional<User> findByUserName(String userName);
 
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END " +
             "FROM User u WHERE u.userName = :nickname AND u.id <> :userId")
