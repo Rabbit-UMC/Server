@@ -2,6 +2,7 @@ package rabbit.umc.com.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import rabbit.umc.com.config.apiPayload.BaseResponse;
@@ -61,6 +63,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/app/users/kakao-login").permitAll()
                 .antMatchers("/app/users/sign-up").permitAll()
                 .antMatchers("/app/users/checkDuplication").permitAll()
+                .antMatchers("/swagger-ui/**").permitAll()
 
                 .antMatchers("/app/admin/**").hasRole("ADMIN")
                 .antMatchers("/app/host/**").hasRole("HOST")

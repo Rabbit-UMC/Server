@@ -89,7 +89,7 @@ public class JwtService {
         return claims.getBody().get("userIdx", Integer.class);
     }
 
-    public Integer getUserIdx(String accessToken) throws BaseException {
+    public Integer getUserIdx(String accessToken) {
         //1. JWT 추출
 //        String accessToken = getJwt();
         System.out.println("accessToken = " + accessToken);
