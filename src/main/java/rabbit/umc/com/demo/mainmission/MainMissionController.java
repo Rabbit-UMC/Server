@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.BaseException;
@@ -234,7 +233,6 @@ public class MainMissionController {
             @Parameter(name = "mainMissionId", description = "관리할 메인 미션 id"),
     })
     @GetMapping("/host/main-mission/{mainMissionId}")
-    @PreAuthorize("hasRole('HOST')")
     public BaseResponse<MainMissionViewRes> getMainMissionView(@PathVariable("mainMissionId") Long mainMissionId){
         try {
             Long userId = (long) jwtService.getUserIdx();
