@@ -234,7 +234,6 @@ public class MainMissionController {
             @Parameter(name = "mainMissionId", description = "관리할 메인 미션 id"),
     })
     @GetMapping("/host/main-mission/{mainMissionId}")
-    @PreAuthorize("hasRole('HOST')")
     public BaseResponse<MainMissionViewRes> getMainMissionView(@PathVariable("mainMissionId") Long mainMissionId){
         try {
             Long userId = (long) jwtService.getUserIdx();
