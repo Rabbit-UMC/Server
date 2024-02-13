@@ -55,6 +55,11 @@ public class JwtService {
         return request.getHeader("X-ACCESS-TOKEN");
     }
 
+    public String getJwt(HttpServletRequest request) {
+        System.out.println("access token: " + request.getHeader("X-ACCESS-TOKEN"));
+        return request.getHeader("X-ACCESS-TOKEN");
+    }
+
     /*
     JWT에서 userIdx 추출
     @return int
@@ -78,6 +83,30 @@ public class JwtService {
             throw new BaseException(EXPIRED_JWT_ACCESS);
         } catch (Exception ignored) {
             throw new BaseException(INVALID_JWT);
+        }
+
+        // 3. userIdx 추출
+        return claims.getBody().get("userIdx", Integer.class);
+    }
+
+    public Integer getUserIdx(String accessToken) throws BaseException {
+        //1. JWT 추출
+//        String accessToken = getJwt();
+        System.out.println("accessToken = " + accessToken);
+        if (accessToken == null || accessToken.length() == 0) {
+            return 0;
+        }
+
+        // 2. JWT parsing
+        Jws<Claims> claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey(Secret.JWT_SECRET_KEY)
+                    .parseClaimsJws(accessToken);
+        } catch (ExpiredJwtException e) {
+            return 0;
+        } catch (Exception ignored) {
+            return 0;
         }
 
         // 3. userIdx 추출

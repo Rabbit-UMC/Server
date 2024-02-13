@@ -232,8 +232,13 @@ public class MainMissionController {
     @Parameters({
             @Parameter(name = "categoryId", description = "관리할 카테고리 ID"),
     })
+<<<<<<< HEAD:src/main/java/rabbit/umc/com/demo/mainmission/controller/MainMissionController.java
     @GetMapping("/host/main-mission/{categoryId}")
     public BaseResponse<List<MainMissionViewRes>> getMainMissionView(@PathVariable Long categoryId){
+=======
+    @GetMapping("/host/main-mission/{mainMissionId}")
+    public BaseResponse<MainMissionViewRes> getMainMissionView(@PathVariable("mainMissionId") Long mainMissionId){
+>>>>>>> 209f690d47c93c8036a607122b103c4511f1f436:src/main/java/rabbit/umc/com/demo/mainmission/MainMissionController.java
         try {
             Long userId = (long) jwtService.getUserIdx();
             List<MainMissionViewRes> mainMissionViewRes = mainMissionService.getMainMissionView(categoryId, userId);
