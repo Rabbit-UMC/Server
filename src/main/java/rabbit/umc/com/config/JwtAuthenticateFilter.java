@@ -10,8 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import rabbit.umc.com.config.apiPayload.BaseException;
-import rabbit.umc.com.config.apiPayload.BaseResponse;
 import rabbit.umc.com.demo.user.UserService;
 import rabbit.umc.com.utils.JwtService;
 
@@ -32,19 +30,20 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String userId = "", token = "";
 
-        try {
-            token = jwtService.getJwt(request);
-            int userIdx = jwtService.getUserIdx(token);
-            userId = String.valueOf(userIdx);
+        String token = jwtService.getJwt(request);
+        log.info("token: {}", token);
+        int userIdx = jwtService.getUserIdx(token);
+        String userId = String.valueOf(userIdx);
 
-            // 현재 SecurityContextHolder 에 인증객체가 있는지 확인
+        if(token != null){
             Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
             UserDetails userDetails = userService.loadUserByUsername(userId);
             Collection<? extends GrantedAuthority> userDetailsAuthorities = userDetails.getAuthorities();
 
-            if (userId != "0" && existingAuth == null || !existingAuth.getAuthorities().equals(userDetailsAuthorities)) {
+            if (SecurityContextHolder.getContext().getAuthentication() == null || !existingAuth.getAuthorities().equals(userDetailsAuthorities)) {
+                log.info("인증 객체 생성");
+
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
                         = new UsernamePasswordAuthenticationToken(userDetails, null, userDetailsAuthorities);
 
@@ -53,11 +52,10 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
-            filterChain.doFilter(request, response);
-
-        } catch (BaseException exception) {
-            log.info(String.valueOf(new BaseResponse<>(exception.getStatus())));
         }
+
+        filterChain.doFilter(request, response);
+
     }
 
 }
