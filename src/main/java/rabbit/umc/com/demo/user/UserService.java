@@ -94,11 +94,18 @@ public class UserService implements UserDetailsService {
 
     //닉네임, 프로필 이미지 수정
     @Transactional
-    public void updateProfile(Long userId, String newNickname, /*String*/MultipartFile multipartFile) throws BaseException, IOException {
+    public void updateProfile(Long userId, String newNickname, MultipartFile multipartFile) throws BaseException, IOException {
         User user = findUser(userId);
-        String newProfileImage = imageService.createImage(multipartFile, "user");
-        user.setUserProfileImage(newProfileImage);
-        user.setUserName(newNickname);
+
+        if (!multipartFile.isEmpty()) {
+            String newProfileImage = imageService.createImage(multipartFile, "user");
+            user.setUserProfileImage(newProfileImage);
+        }
+
+        if (!newNickname.isEmpty()) {
+            user.setUserName(newNickname);
+        }
+
         userRepository.save(user);
     }
 
