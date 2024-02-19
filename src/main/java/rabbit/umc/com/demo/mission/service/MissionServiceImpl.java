@@ -9,7 +9,6 @@ import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.domain.Category;
-import rabbit.umc.com.demo.mission.DDayComparator;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUserSuccess;
 import rabbit.umc.com.demo.mission.MissionUsers;
@@ -59,7 +58,7 @@ public class MissionServiceImpl implements MissionService{
     public List<MissionHomeRes> getMissionHome(int page) throws BaseException {
         LocalDateTime now =  LocalDateTime.now();
         PageRequest pageRequest = PageRequest.of(page,PAGING_SIZE,Sort.by("startAt"));
-        List<Mission> missionList = missionRepository.findAllByStatusAndEndAtAfterAndIsOpenOrderByStartAt(ACTIVE,now,0,pageRequest);
+        List<Mission> missionList = missionRepository.findAllByStatusAndStartAtAfterAndIsOpenOrderByStartAt(ACTIVE,now,0,pageRequest);
 
         if (missionList.isEmpty()) {
             throw new BaseException(END_PAGE);
@@ -82,7 +81,7 @@ public class MissionServiceImpl implements MissionService{
         PageRequest pageRequest = PageRequest.of(page,PAGING_SIZE,Sort.by("startAt"));
         List<Mission> missionList;
         if(categoryId == 0){
-            missionList = missionRepository.findAllByStatusAndEndAtAfterAndIsOpenOrderByStartAt(ACTIVE,now,0,pageRequest);
+            missionList = missionRepository.findAllByStatusAndStartAtAfterAndIsOpenOrderByStartAt(ACTIVE,now,0,pageRequest);
         }else{
             missionList = missionRepository.getMissionByMissionCategoryIdOrderByStartAt(ACTIVE,now,0,categoryId,pageRequest);
         }
@@ -294,6 +293,7 @@ public class MissionServiceImpl implements MissionService{
         if (mission == null) {
             throw new BaseException(DONT_EXIST_MISSION);
         }
+
 
         // 미션 날짜에 맞는 일정들인지 체크
         if (missionUserRepository.getMissionUsersByMissionIdAndUserId(missionId, userId) != null) {
