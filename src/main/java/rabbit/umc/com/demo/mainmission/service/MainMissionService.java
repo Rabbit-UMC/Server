@@ -244,7 +244,7 @@ public class MainMissionService {
         if (!proof.isEmpty()) {
             throw new BaseException(FAILED_TO_UPLOAD);
         }
-        String filePath = imageService.createImage(multipartFile, "mission");
+        String filePath = imageService.createImageUrl(multipartFile, "mission");
         // 10점 점수 획득
         increaseUploadScore(user, mainMission);
         //인증 사진 저장

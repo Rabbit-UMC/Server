@@ -1,16 +1,17 @@
 package rabbit.umc.com.demo.image.service;
 
+import com.amazonaws.services.s3.AmazonS3;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.config.apiPayload.BaseResponseStatus;
 import rabbit.umc.com.demo.community.domain.Article;
-import rabbit.umc.com.demo.community.dto.PatchArticleReq.ChangeImageDto;
 import rabbit.umc.com.demo.converter.ImageConverter;
+import rabbit.umc.com.demo.image.GenerateImageResDto;
 import rabbit.umc.com.demo.image.domain.Image;
 import rabbit.umc.com.demo.image.repository.ImageRepository;
 import rabbit.umc.com.demo.image.uuid.Uuid;
@@ -22,10 +23,12 @@ import rabbit.umc.com.s3.AmazonS3Manager;
 @RequiredArgsConstructor
 public class ImageService {
     private static final String MISSION_PROOF_PATH = "main";
+    private static final String S3_KEY = "https://rabbit-umc-bucket.s3.ap-northeast-2.amazonaws.com/";
 
     private final ImageRepository imageRepository;
     private final AmazonS3Manager s3Manager;
     private final UuidRepository uuidRepository;
+    private final AmazonS3 amazonS3;
 
     @Transactional
     public Uuid makeUuid(){
@@ -42,46 +45,42 @@ public class ImageService {
             Uuid uuid = makeUuid();
             String imageUrl = s3Manager.uploadFile(s3Manager.generateKeyName(uuid, "article"), file);
 
-            Image image = ImageConverter.toImage(article, imageUrl, uuid.toString());
+            Image image = ImageConverter.toArticleImage(article, imageUrl, uuid.getUuid(), file.getOriginalFilename());
             imageRepository.save(image);
         }
     }
 
     @Transactional
-    public String createImage(MultipartFile file, String path){
+    public GenerateImageResDto createImage(MultipartFile file, String path){
+        Uuid uuid = makeUuid();
+        String imageUrl = s3Manager.uploadFile(s3Manager.generateKeyName(uuid, path), file);
+        Image image = ImageConverter.toImage(imageUrl, uuid.getUuid(), file.getOriginalFilename());
+        imageRepository.save(image);
+
+        return ImageConverter.toGenerateImageResDto(image);
+    }
+
+    public String createImageUrl(MultipartFile file, String path) {
         Uuid uuid = makeUuid();
         return s3Manager.uploadFile(s3Manager.generateKeyName(uuid, path), file);
     }
 
-
-    public List<Image> getArticleImages(Long articleId){
-        return imageRepository.findAllByArticleId(articleId);
-    }
-
     @Transactional
-    public void deleteImages(List<Image> images, Set<Long> updatedImageIds){
-        List<Image> imagesToDelete = images
-                .stream()
-                .filter(image -> !updatedImageIds.contains(image.getId()))
-                .collect(Collectors.toList());
+    public void deleteImages(List<Long> imageId){
+        List<Image> images = imageRepository.findAllById(imageId);
 
-        imageRepository.deleteAll(imagesToDelete);
-    }
-
-
-    @Transactional
-    public void updateArticleImage(List<ChangeImageDto> imageDtos, List<Image> findImages, Article targetArticle) {
-        for (ChangeImageDto imageDto : imageDtos) {
-            Image findImage = findImages
-                    .stream()
-                    .filter(image -> image.getId().equals(imageDto.getImageId()))
-                    .findFirst()
-                    .orElse(new Image()); // 새 이미지 생성
-
-            findImage.setArticle(targetArticle);
-            findImage.setFilePath(imageDto.getFilePath());
-
-            imageRepository.save(findImage);
+        for (Image image : images) {
+            amazonS3.deleteBucket(S3_KEY + image.getImageName());
         }
+
+        imageRepository.deleteAll(images);
     }
+
+    public Image findById(Long id) throws BaseException {
+        return imageRepository.findById(id)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.DONT_EXIST_IMAGE));
+    }
+
+
+
 }

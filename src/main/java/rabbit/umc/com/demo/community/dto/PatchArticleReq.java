@@ -12,13 +12,6 @@ import java.util.List;
 public class PatchArticleReq {
     private String articleTitle;
     private String articleContent;
-    private List<ChangeImageDto> imageList;
-
-    @Builder
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ChangeImageDto {
-        private String filePath;
-    }
+    private List<Long> newImageIdList;
+    private List<Long> deleteImageIdList;
 }

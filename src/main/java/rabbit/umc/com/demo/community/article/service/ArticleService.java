@@ -22,12 +22,12 @@ import rabbit.umc.com.demo.community.dto.ArticleRes.ArticleImageDto;
 import rabbit.umc.com.demo.community.dto.ArticleRes.CommentDto;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionDtoV2;
 import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.PopularArticleDtoV2;
-import rabbit.umc.com.demo.community.dto.PatchArticleReq.ChangeImageDto;
 import rabbit.umc.com.demo.converter.ArticleConverter;
 import rabbit.umc.com.demo.converter.CommentConverter;
 import rabbit.umc.com.demo.converter.MainMissionConverter;
 import rabbit.umc.com.demo.converter.ReportConverter;
 import rabbit.umc.com.demo.image.domain.Image;
+import rabbit.umc.com.demo.image.repository.ImageRepository;
 import rabbit.umc.com.demo.image.service.ImageService;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
@@ -61,6 +61,7 @@ public class ArticleService {
     private final LikeArticleRepository likeArticleRepository;
     private final CategoryRepository categoryRepository;
     private final ReportRepository reportRepository;
+    private final ImageRepository imageRepository;
     private final UserQueryService userQueryService;
     private final ImageService imageService;
     private final ArticleQueryService articleQueryService;
@@ -192,19 +193,18 @@ public class ArticleService {
             targetArticle.setTitle(patchArticleReq.getArticleTitle());
             targetArticle.setContent(patchArticleReq.getArticleContent());
 
-            List<Image> findImages = imageService.getArticleImages(articleId);
+            if (!patchArticleReq.getDeleteImageIdList().isEmpty()){
+                imageService.deleteImages(patchArticleReq.getDeleteImageIdList());
+            }
 
-            // 업데이트할 이미지 ID 목록을 생성
-            Set<Long> updatedImageIds = patchArticleReq.getImageList()
-                    .stream()
-                    .map(ChangeImageDto::getImageId)
-                    .collect(Collectors.toSet());
-
-            // 기존 이미지 중 업데이트할 이미지 ID 목록에 포함되지 않은 이미지를 삭제
-            imageService.deleteImages(findImages, updatedImageIds);
-
-            // 업데이트할 이미지를 기존 이미지와 매칭하여 업데이트 또는 추가
-            imageService.updateArticleImage(patchArticleReq.getImageList(), findImages, targetArticle);
+            if (!patchArticleReq.getNewImageIdList().isEmpty()){
+                for (Long id : patchArticleReq.getNewImageIdList()) {
+                    Image image = imageService.findById(id);
+                    image.setArticle(targetArticle);
+                    imageRepository.save(image);
+                }
+            }
+            articleRepository.save(targetArticle);
 
         }catch (NullPointerException e){
             throw new BaseException(DONT_EXIST_ARTICLE);
