@@ -1,7 +1,9 @@
 package rabbit.umc.com.demo.converter;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import rabbit.umc.com.demo.base.Status;
@@ -108,12 +110,18 @@ public class MainMissionConverter {
                 .build();
     }
 
-    public static MainMissionDtoV2 toMainMissionDtoV2(MainMission mainMission, String hostUserName){
+    public static MainMissionDtoV2 toMainMissionDtoV2(MainMission mainMission){
+        List<MainMissionUsers> mainMissionUsers = mainMission.getMainMissionUsers();
+        Optional<MainMissionUsers> topRankUserOptional = mainMissionUsers.stream()
+                .max(Comparator.comparingInt(MainMissionUsers::getScore));
+
+        User user = topRankUserOptional.map(MainMissionUsers::getUser).orElseThrow(null);
+
         return MainMissionDtoV2.builder()
                 .mainMissionId(mainMission.getId())
                 .mainMissionTitle(mainMission.getTitle())
                 .dDay(DateUtil.calculateDDay(mainMission.getEndAt()))
-                .hostUserName(hostUserName)
+                .topRankUser(user.getUserName())
                 .missionCategoryId(mainMission.getCategory().getId())
                 .build();
     }
