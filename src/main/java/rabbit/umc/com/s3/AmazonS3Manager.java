@@ -16,6 +16,9 @@ import rabbit.umc.com.demo.image.uuid.UuidRepository;
 @Component
 @RequiredArgsConstructor
 public class AmazonS3Manager {
+
+    private static final String S3_KEY = "https://rabbit-umc-bucket.s3.ap-northeast-2.amazonaws.com/";
+
     private final AmazonS3 amazonS3;
     private final AmazonConfig amazonConfig;
     private final UuidRepository uuidRepository;
@@ -36,5 +39,10 @@ public class AmazonS3Manager {
         return path + "/" + uuid.getUuid();
     }
 
+    public void delete(String s3Image) {
+        String deletePath = s3Image.substring(S3_KEY.length());
+        amazonS3.deleteObject(amazonConfig.getBucket(), deletePath);
+
+    }
 
 }
