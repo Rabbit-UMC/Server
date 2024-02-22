@@ -22,7 +22,7 @@ public class ArticleRes {
     private String articleContent;
     private Boolean likeArticle;
     private int likeCount;
-    private int commentCoount;
+    private int commentCount;
     private List<ArticleImageDto> articleImage;
     private List<CommentDto> commentList;
 
