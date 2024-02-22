@@ -115,7 +115,7 @@ public class ArticleConverter {
                 .articleImage(articleImages)
                 .commentList(commentLists)
                 .likeCount(article.getLikeArticles().size())
-                .commentCoount(article.getComments().size())
+                .commentCount(article.getComments().size())
                 .build();
     }
 
