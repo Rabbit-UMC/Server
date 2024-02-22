@@ -19,7 +19,6 @@ public class PatchArticleReq {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ChangeImageDto {
-        private Long imageId;
         private String filePath;
     }
 }
