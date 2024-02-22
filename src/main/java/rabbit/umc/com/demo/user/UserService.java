@@ -98,7 +98,7 @@ public class UserService implements UserDetailsService {
         User user = findUser(userId);
 
         if (!multipartFile.isEmpty()) {
-            String newProfileImage = imageService.createImage(multipartFile, "user");
+            String newProfileImage = imageService.createImageUrl(multipartFile, "user");
             user.setUserProfileImage(newProfileImage);
         }
 
