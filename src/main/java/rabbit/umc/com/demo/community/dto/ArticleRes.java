@@ -21,6 +21,8 @@ public class ArticleRes {
     private String articleTitle;
     private String articleContent;
     private Boolean likeArticle;
+    private int likeCount;
+    private int commentCoount;
     private List<ArticleImageDto> articleImage;
     private List<CommentDto> commentList;
 
