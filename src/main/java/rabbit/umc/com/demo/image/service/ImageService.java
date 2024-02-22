@@ -70,7 +70,7 @@ public class ImageService {
         List<Image> images = imageRepository.findAllById(imageId);
 
         for (Image image : images) {
-            amazonS3.deleteBucket(S3_KEY + image.getImageName());
+            s3Manager.delete(image.getFilePath());
         }
 
         imageRepository.deleteAll(images);
