@@ -45,7 +45,7 @@ public class DateUtil {
         long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, missionEndAt);
         String dDay;
         if (daysRemaining >= 0) {
-            return   daysRemaining + "일";
+            return  "D-" + daysRemaining ;
         }  else {
             return  "미션 종료";
         }

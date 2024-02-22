@@ -85,6 +85,9 @@ public enum BaseResponseStatus {
 
     DONT_EXIST_CATEGORY(false, "CATEGORY4001", "존재하지 않는 카테고리 입니다."),
 
+    // 이미지
+    DONT_EXIST_IMAGE(false, "IMAGE4001", "존재하지 않는 이미지 입니다"),
+
     //Database, Server 오류
     DATABASE_ERROR(false, "COMMON500", "데이터베이스 연결에 실패하였습니다."),
     SERVER_ERROR(false, "COMMON500", "서버와의 연결에 실패하였습니다.");
