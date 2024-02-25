@@ -110,18 +110,20 @@ public class MainMissionConverter {
                 .build();
     }
 
-    public static MainMissionDtoV2 toMainMissionDtoV2(MainMission mainMission){
+    public static MainMissionDtoV2 toMainMissionDtoV2(MainMission mainMission) {
         List<MainMissionUsers> mainMissionUsers = mainMission.getMainMissionUsers();
-        Optional<MainMissionUsers> topRankUserOptional = mainMissionUsers.stream()
+
+        Optional<MainMissionUsers> topRankUser = mainMissionUsers.stream()
                 .max(Comparator.comparingInt(MainMissionUsers::getScore));
 
-        User user = topRankUserOptional.map(MainMissionUsers::getUser).orElseThrow(null);
+        String name = topRankUser.map(user -> user.getUser().getUserName()).orElse("없음");
+
 
         return MainMissionDtoV2.builder()
                 .mainMissionId(mainMission.getId())
                 .mainMissionTitle(mainMission.getTitle())
                 .dDay(DateUtil.calculateDDay(mainMission.getEndAt()))
-                .topRankUser(user.getUserName())
+                .topRankUser(name)
                 .missionCategoryId(mainMission.getCategory().getId())
                 .build();
     }
