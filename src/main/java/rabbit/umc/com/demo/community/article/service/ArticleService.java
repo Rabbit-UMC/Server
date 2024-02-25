@@ -86,6 +86,15 @@ public class ArticleService {
                 .build();
     }
 
+    public List<MainMissionDtoV2> getAllMainMission(){
+        List<MainMission> missions = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
+
+        return missions.stream()
+                .map(MainMissionConverter::toMainMissionDtoV2)
+                .collect(Collectors.toList());
+    }
+
+
     public List<Long> findHostCategoryIds(Long userId){
         List<Category> category = categoryRepository.findAllByUserId(userId);
         return category.stream()
@@ -97,15 +106,6 @@ public class ArticleService {
         PageRequest pageRequest = PageRequest.of(0,POPULAR_ARTICLE_LIKE);
         List<Article> top4Articles = articleRepository.findPopularArticleLimitedToFour(ACTIVE, pageRequest);
         return ArticleConverter.toPopularArticleDtoV2(top4Articles);
-    }
-
-    public List<MainMissionDtoV2> getAllMainMission(){
-        List<MainMission> allMissions = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
-
-        return allMissions.stream()
-                .map(mainMission -> MainMissionConverter
-                        .toMainMissionDtoV2(mainMission))
-                .collect(Collectors.toList());
     }
 
     public String getHostUserName(MainMission mainMission){
