@@ -36,7 +36,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 //    List<Article> findAllByOrderByCreatedAtDesc(PageRequest pageRequest);
 
 
-    List<Article> findAllByCategoryIdAndStatusOrderByCreatedAtDesc(Long categoryId,Status status, PageRequest pageRequest);
+    List<Article> findAllByCategoryIdAndStatus(Long categoryId, Status status, PageRequest pageRequest);
 
 
 

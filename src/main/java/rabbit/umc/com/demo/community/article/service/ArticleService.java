@@ -39,7 +39,6 @@ import rabbit.umc.com.demo.user.UserQueryService;
 import javax.persistence.EntityNotFoundException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
@@ -86,6 +85,15 @@ public class ArticleService {
                 .build();
     }
 
+    public List<MainMissionDtoV2> getAllMainMission(){
+        List<MainMission> missions = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
+
+        return missions.stream()
+                .map(MainMissionConverter::toMainMissionDtoV2)
+                .collect(Collectors.toList());
+    }
+
+
     public List<Long> findHostCategoryIds(Long userId){
         List<Category> category = categoryRepository.findAllByUserId(userId);
         return category.stream()
@@ -99,30 +107,27 @@ public class ArticleService {
         return ArticleConverter.toPopularArticleDtoV2(top4Articles);
     }
 
-    public List<MainMissionDtoV2> getAllMainMission(){
-        List<MainMission> allMissions = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
-
-        return allMissions.stream()
-                .map(mainMission -> MainMissionConverter
-                        .toMainMissionDtoV2(mainMission))
-                .collect(Collectors.toList());
-    }
-
     public String getHostUserName(MainMission mainMission){
         User hostUser = mainMission.getCategory().getUser();
         return  hostUser.getUserName();
     }
 
-    public ArticleListRes getArticles(int page, Long categoryId){
+    public ArticleListRes getArticles(int page, Long categoryId) throws BaseException {
 
-        Category category = categoryRepository.getReferenceById(categoryId);
-        PageRequest pageRequest =PageRequest.of(page, PAGING_SIZE, Sort.by("createdAt").descending());
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new BaseException(DONT_EXIST_CATEGORY));
+
+        PageRequest pageRequest = PageRequest.of(page, PAGING_SIZE, Sort.by("createdAt").descending());
 
         // Status:ACTIVE, categoryId에 해당하는 게시물 페이징 해서 가져오기
-        List<Article> articlePage = articleRepository.findAllByCategoryIdAndStatusOrderByCreatedAtDesc(categoryId, Status.ACTIVE, pageRequest);
+        List<Article> articlePage = articleRepository.findAllByCategoryIdAndStatus(categoryId, Status.ACTIVE, pageRequest);
 
         //Status:ACTIVE, categoryId에 해당하는 메인미션 가져오기
         MainMission mainMission = mainMissionRepository.findMainMissionsByCategoryIdAndStatus(categoryId, ACTIVE);
+//        MainMission mainMission = category.getMainMissions().stream()
+//                .filter(mission -> mission.getStatus() == ACTIVE)
+//                .findFirst()
+//                .orElse(null);
 
         return ArticleConverter.toArticleListRes(category, mainMission, articlePage);
     }
