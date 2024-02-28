@@ -46,11 +46,9 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
 
         log.info("token: {}", token);
         int userIdx = jwtService.getUserIdx(token);
-        System.out.println("filter에서 가져온 user id: "+userIdx);
         String userId = String.valueOf(userIdx);
 
         if(token != null && token.length() != 0){
-            log.info("token 값 있음");
             Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
             UserDetails userDetails = userService.loadUserByUsername(userId);
             Collection<? extends GrantedAuthority> userDetailsAuthorities = userDetails.getAuthorities();
@@ -66,11 +64,8 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
-        }else{
-            //토큰 없는 경우
         }
-        log.info("api 실행");
-
+        log.info("실행");
         filterChain.doFilter(request, response);
 
     }
