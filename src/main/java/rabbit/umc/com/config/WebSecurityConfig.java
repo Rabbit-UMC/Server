@@ -2,20 +2,21 @@ package rabbit.umc.com.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import rabbit.umc.com.config.apiPayload.BaseResponse;
+import rabbit.umc.com.demo.user.UserService;
+import rabbit.umc.com.utils.JwtService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +30,8 @@ import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final ObjectMapper objectMapper;
-    private final JwtAuthenticateFilter jwtAuthenticateFilter;
+    private final UserService userService;
+    private final JwtService jwtService;
 
 //    public WebSecurityConfig(JwtAuthenticateFilter jwtAuthenticateFilter) {
 //        this.jwtAuthenticateFilter = jwtAuthenticateFilter;
@@ -47,10 +49,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //    }
 
     @Override
+    public void configure(WebSecurity web) throws Exception {
+        //login 없이 허용
+        web.ignoring()
+                .antMatchers("/v3/api-docs/**")
+                .antMatchers("/swagger-ui/**")
+                .antMatchers("/swagger-resources/**")
+                .antMatchers("/app/users/kakao-login")
+                .antMatchers("/app/users/sign-up")
+                .antMatchers("/app/users/checkDuplication");
+    }
+
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http
-
                 // Spring Boot에서 설정한 CORS (Cross-Origin Resource Sharing) 설정을 따른다 (config/WebConfig.java 설정 확인)
                 .cors()
                 .and()
@@ -59,20 +72,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
 
                 .authorizeRequests()
-                // login 없이 허용
-                .antMatchers("/app/users/kakao-login").permitAll()
-                .antMatchers("/app/users/sign-up").permitAll()
-                .antMatchers("/app/users/checkDuplication").permitAll()
-                .antMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-
                 .antMatchers("/app/admin/**").hasRole("ADMIN")
                 .antMatchers("/app/host/**").hasRole("HOST")
 
                 .anyRequest().authenticated()
                 .and()
 
-                .addFilterBefore(jwtAuthenticateFilter,
-                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticateFilter(userService, jwtService), UsernamePasswordAuthenticationFilter.class)
 
                 .exceptionHandling()
                 //인증되지 않은 경우

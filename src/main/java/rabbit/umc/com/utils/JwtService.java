@@ -8,7 +8,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.config.secret.Secret;
 
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
@@ -55,9 +54,14 @@ public class JwtService {
         return request.getHeader("X-ACCESS-TOKEN");
     }
 
+    //TODO: 다시 바꾸기 헤더!
     public String getJwt(HttpServletRequest request) {
-        System.out.println("access token: " + request.getHeader("X-ACCESS-TOKEN"));
-        return request.getHeader("X-ACCESS-TOKEN");
+        String authorizationHeader = request.getHeader("X-ACCESS-TOKEN");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7); // "Bearer " 이후의 문자열만 반환
+        }else{
+            return "";
+        }
     }
 
     /*
@@ -91,9 +95,9 @@ public class JwtService {
 
     public Integer getUserIdx(String accessToken) {
         //1. JWT 추출
-//        String accessToken = getJwt();
         System.out.println("accessToken = " + accessToken);
         if (accessToken == null || accessToken.length() == 0) {
+            System.out.println("엑세스 토큰이 null이거나 길이가 0이다.");
             return 0;
         }
 
@@ -105,7 +109,8 @@ public class JwtService {
                     .parseClaimsJws(accessToken);
         } catch (ExpiredJwtException e) {
             return 0;
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            System.out.println("JWT 예외: "+ex.getMessage());
             return 0;
         }
 
