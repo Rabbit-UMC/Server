@@ -2,6 +2,7 @@ package rabbit.umc.com.utils;
 
 
 import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -13,7 +14,7 @@ import java.util.Date;
 
 import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
 
-
+@Slf4j
 @Service
 public class JwtService {
 
@@ -54,11 +55,13 @@ public class JwtService {
         return request.getHeader("X-ACCESS-TOKEN");
     }
 
-    //TODO: 다시 바꾸기 헤더!
     public String getJwt(HttpServletRequest request) {
         String authorizationHeader = request.getHeader("X-ACCESS-TOKEN");
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            return authorizationHeader.substring(7); // "Bearer " 이후의 문자열만 반환
+//        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+//            return authorizationHeader.substring(7); // "Bearer " 이후의 문자열만 반환
+//        }
+        if (authorizationHeader != null) {
+            return authorizationHeader;
         }else{
             return "";
         }

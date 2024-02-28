@@ -34,6 +34,7 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String token = jwtService.getJwt(request);
+        log.info("엑세스 토큰 header: {}", request.getHeader("X-ACCESS-TOKEN"));
         System.out.println("Request Method: " + request.getMethod());
         System.out.println("Request URI: " + request.getRequestURI());
         System.out.println("Request URL: " + request.getRequestURL());
