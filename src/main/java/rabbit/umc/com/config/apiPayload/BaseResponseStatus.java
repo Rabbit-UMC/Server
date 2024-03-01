@@ -49,6 +49,7 @@ public enum BaseResponseStatus {
     UNEXPIRED_JWT_ACCESS(false, "TOKEN4001", "유효기간이 남아있는 ACCESS TOKEN입니다."),
     EMPTY_KAKAO_ACCESS(false, "TOKEN4002", "KAKAO ACCESS TOKEN 값이 존재하지 않습니다."),
     INVALID_JWT_REFRESH(false, "TOKEN4003", "REFRESH TOKEN이 유효하지 않습니다."),
+    INVALID_KAKAO(false, "TOKEN4004", "KAKAO ACCESS TOKEN이 유효하지 않습니다."),
 
     // article
     FAILED_TO_REPORT(false, "ARTICLE4001","이미 신고한 게시물입니다."),

@@ -55,9 +55,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/v3/api-docs/**")
                 .antMatchers("/swagger-ui/**")
                 .antMatchers("/swagger-resources/**")
-                .antMatchers("/app/users/kakao-login")
-                .antMatchers("/app/users/sign-up")
-                .antMatchers("/app/users/checkDuplication");
+                .antMatchers("/app/users/kakao-login", "/app/users/sign-up", "/app/users/checkDuplication");
+//                .antMatchers("/app/users/sign-up")
+//                .antMatchers("/app/users/checkDuplication");
     }
 
     @Override
