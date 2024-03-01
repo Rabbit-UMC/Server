@@ -3,6 +3,7 @@ package rabbit.umc.com.demo.user;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,8 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import rabbit.umc.com.config.apiPayload.BaseException;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.KakaoDto;
 
@@ -111,22 +114,28 @@ public class KakaoService {
 
     // 토큰으로 카카오 API 호출
     @Transactional
-    public KakaoDto findProfile(String accessToken) throws JsonProcessingException {
+    public KakaoDto findProfile(String accessToken) throws JsonProcessingException, BaseException {
         KakaoDto kakaoDto = new KakaoDto();
-        // HTTP Header 생성
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + accessToken);
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+        ResponseEntity<String> response;
 
-        // HTTP 요청 보내기
-        HttpEntity<MultiValueMap<String, String>> kakaoUserInfoRequest = new HttpEntity<>(headers);
-        RestTemplate rt = new RestTemplate();
-        ResponseEntity<String> response = rt.exchange(
-                "https://kapi.kakao.com/v2/user/me",
-                HttpMethod.POST,
-                kakaoUserInfoRequest,
-                String.class
-        );
+        try{
+            // HTTP Header 생성
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", "Bearer " + accessToken);
+            headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+            // HTTP 요청 보내기
+            HttpEntity<MultiValueMap<String, String>> kakaoUserInfoRequest = new HttpEntity<>(headers);
+            RestTemplate rt = new RestTemplate();
+            response = rt.exchange(
+                    "https://kapi.kakao.com/v2/user/me",
+                    HttpMethod.POST,
+                    kakaoUserInfoRequest,
+                    String.class
+            );
+        } catch (HttpClientErrorException.Unauthorized ex) {
+            throw new BaseException(INVALID_KAKAO);
+        }
 
         // responseBody에 있는 정보를 꺼냄
         String responseBody = response.getBody();
@@ -178,27 +187,45 @@ public class KakaoService {
         if(!existsUser(kakaoDto.getKakaoId())){
             throw new BaseException(USER_NOT_FOUND);
         }
-        //회원인 경우, 회원 조회
-        else{
+
+        user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
+
+        //탈퇴한 경우
+        if(user.getStatus() == Status.INACTIVE){
+            throw new BaseException(USER_NOT_FOUND);
+        }
+        else{ //회원이고 탈퇴하지 않은 경우
             log.info("로그인을 진행하겠습니다.");
             user.setStatus(ACTIVE);
             //userRepository.save(user);
 
-            user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
+//            user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
         }
         return user;
     }
 
+    @Transactional
     public User signUpUser(String userName, KakaoDto kakaoDto) throws BaseException {
 
         log.info("회원 가입을 진행하겠습니다.");
-        if(existsUser(kakaoDto.getKakaoId())){
-            throw new BaseException(USER_ALREADY_EXIST);
+        if(existsUser(kakaoDto.getKakaoId())) {
+            User user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
+
+            if(user.getStatus() == Status.INACTIVE){
+                user.setUserName(userName);
+                user.setUserProfileImage(kakaoDto.getUserProfileImage());
+                user.setAgeRange(kakaoDto.getAgeRange());
+                user.setStatus(ACTIVE);
+                userRepository.save(user);
+                return user;
+
+            } else{
+                throw new BaseException(USER_ALREADY_EXIST);
+            }
         }
 
-        User user = new User(kakaoDto.getKakaoId(), userName,kakaoDto.getUserProfileImage(), USER, kakaoDto.getAgeRange(),
-        kakaoDto.getGender(), kakaoDto.getBirthday(), ACTIVE);
-
+        User user = new User(kakaoDto.getKakaoId(), userName,kakaoDto.getUserProfileImage(), USER,
+                kakaoDto.getAgeRange(), kakaoDto.getGender(), kakaoDto.getBirthday(), ACTIVE);
         userRepository.save(user);
         return user;
     }
