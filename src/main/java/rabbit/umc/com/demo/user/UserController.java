@@ -158,12 +158,7 @@ public class UserController {
             int userId = jwtService.getUserIdx();
 
             //유저 아이디로 카카오 아이디 받아오기
-            User user = userService.findUser(Long.valueOf(userId));
-            userService.delRefreshToken(user);
-            Long kakaoId = user.getKakaoId();
-            Long logout_kakaoId = kakaoService.unlink(kakaoId);
-            user.setStatus(Status.INACTIVE);
-
+            Long logout_kakaoId = kakaoService.unlink((long) userId);
             log.info("회원 탈퇴가 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
         } catch (BaseException exception) {
