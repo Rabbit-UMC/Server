@@ -47,7 +47,7 @@ public class KakaoService {
 
     //카카오 엑세스 토큰 얻기
     public String getAccessToken(String code) throws IOException, BaseException {
-        String accessToken="";
+        String accessToken = "";
         if (code == null) {
             log.info("인증 코드가 존재하지 않습니다.");
             throw new BaseException(FAILED_TO_AUTHENTICATION);
@@ -78,20 +78,20 @@ public class KakaoService {
         int responseCode = response.getStatusCodeValue();
         log.info("getAccessToken response code: {}", responseCode);
 
-        if(responseCode == HttpURLConnection.HTTP_OK){
+        if (responseCode == HttpURLConnection.HTTP_OK) {
             // HTTP 응답 (JSON) -> 액세스 토큰 파싱
             String responseBody = response.getBody();
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(responseBody);
-            accessToken= jsonNode.get("access_token").asText();
-        }else{
+            accessToken = jsonNode.get("access_token").asText();
+        } else {
             log.info("요청에 실패하였습니다");
             String responseBody = response.getBody();
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(responseBody);
-            String error= jsonNode.get("error").asText();
-            String error_code= jsonNode.get("error_code").asText();
-            String error_description= jsonNode.get("error_description").asText();
+            String error = jsonNode.get("error").asText();
+            String error_code = jsonNode.get("error_code").asText();
+            String error_description = jsonNode.get("error_description").asText();
 
             log.error("error: {} ", error);
             log.error("error_code: {} ", error_code);
@@ -100,10 +100,10 @@ public class KakaoService {
             if (error_code.equals("KOE320")) {
                 log.info("인가 코드를 새로 발급한 후, 다시 엑세스 엑세스 토큰을 요청해주세요.");
                 throw new BaseException(FAILED_TO_AUTHENTICATION);
-            }else if(error_code.equals("KOE303")){
+            } else if (error_code.equals("KOE303")) {
                 log.info("인가 코드 요청시 사용한 redirect_uri와 액세스 토큰 요청 시 사용한 redirect_uri가 다릅니다.");
                 throw new RuntimeException("Redirect URI mismatch");
-            }else if(error_code.equals("KOE101")){
+            } else if (error_code.equals("KOE101")) {
                 log.info("잘못된 앱 키 타입을 사용하거나 앱 키에 오타가 있는 것 같습니다.");
                 throw new RuntimeException("Not exist client_id");
             }
@@ -118,7 +118,7 @@ public class KakaoService {
         KakaoDto kakaoDto = new KakaoDto();
         ResponseEntity<String> response;
 
-        try{
+        try {
             // HTTP Header 생성
             HttpHeaders headers = new HttpHeaders();
             headers.add("Authorization", "Bearer " + accessToken);
@@ -184,17 +184,16 @@ public class KakaoService {
 
         //회원이 아닌 경우
         //회원가입 진행(이메일, 닉네임 제외 모두)
-        if(!existsUser(kakaoDto.getKakaoId())){
+        if (!existsUser(kakaoDto.getKakaoId())) {
             throw new BaseException(USER_NOT_FOUND);
         }
 
         user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
 
         //탈퇴한 경우
-        if(user.getStatus() == Status.INACTIVE){
+        if (user.getStatus() == Status.INACTIVE) {
             throw new BaseException(USER_NOT_FOUND);
-        }
-        else{ //회원이고 탈퇴하지 않은 경우
+        } else { //회원이고 탈퇴하지 않은 경우
             log.info("로그인을 진행하겠습니다.");
             user.setStatus(ACTIVE);
             //userRepository.save(user);
@@ -208,10 +207,10 @@ public class KakaoService {
     public User signUpUser(String userName, KakaoDto kakaoDto) throws BaseException {
 
         log.info("회원 가입을 진행하겠습니다.");
-        if(existsUser(kakaoDto.getKakaoId())) {
+        if (existsUser(kakaoDto.getKakaoId())) {
             User user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
 
-            if(user.getStatus() == Status.INACTIVE){
+            if (user.getStatus() == Status.INACTIVE) {
                 user.setUserName(userName);
                 user.setUserProfileImage(kakaoDto.getUserProfileImage());
                 user.setAgeRange(kakaoDto.getAgeRange());
@@ -219,18 +218,18 @@ public class KakaoService {
                 userRepository.save(user);
                 return user;
 
-            } else{
+            } else {
                 throw new BaseException(USER_ALREADY_EXIST);
             }
         }
 
-        User user = new User(kakaoDto.getKakaoId(), userName,kakaoDto.getUserProfileImage(), USER,
+        User user = new User(kakaoDto.getKakaoId(), userName, kakaoDto.getUserProfileImage(), USER,
                 kakaoDto.getAgeRange(), kakaoDto.getGender(), kakaoDto.getBirthday(), ACTIVE);
         userRepository.save(user);
         return user;
     }
 
-    public boolean existsUser(Long kakaoId){
+    public boolean existsUser(Long kakaoId) {
         return userRepository.existsByKakaoId(kakaoId);
     }
 
@@ -242,7 +241,7 @@ public class KakaoService {
 
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "KakaoAK "+kakao_admin_key);
+        headers.add("Authorization", "KakaoAK " + kakao_admin_key);
 
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
@@ -263,14 +262,13 @@ public class KakaoService {
         int responseCode = response.getStatusCodeValue();
         log.info("getAccessToken response code: {}", responseCode);
 
-        if(responseCode == HttpURLConnection.HTTP_OK) {
+        if (responseCode == HttpURLConnection.HTTP_OK) {
             // HTTP 응답 (JSON) -> 액세스 토큰 파싱
             String responseBody = response.getBody();
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(responseBody);
             kakaoId = jsonNode.get("id").asLong();
-        }
-        else{
+        } else {
             log.info("서버 응답 오류");
             throw new BaseException(SERVER_ERROR);
         }
@@ -279,14 +277,17 @@ public class KakaoService {
     }
 
     //카카오 연결끊기
-    public Long unlink(Long kakaoId) throws IOException, BaseException {
-        //String adminKey= JwtAndKakaoProperties.Admin;
+    public Long unlink(Long userId) throws IOException, BaseException {
+        User user = userService.findUser(Long.valueOf(userId));
+        userService.delRefreshToken(user);
+        Long kakaoId = user.getKakaoId();
 
         String str_kakaoId = String.valueOf(kakaoId);
+        System.out.println("탈퇴할 유저의 kakao id: " + str_kakaoId);
 
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "KakaoAK "+kakao_admin_key);
+        headers.add("Authorization", "KakaoAK " + kakao_admin_key);
 
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
@@ -294,6 +295,7 @@ public class KakaoService {
         body.add("target_id", str_kakaoId); //로그아웃할 회원의 kakaoId
 
         // HTTP 요청 보내기
+
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
         RestTemplate rt = new RestTemplate();
         ResponseEntity<String> response = rt.exchange(
@@ -307,14 +309,14 @@ public class KakaoService {
         int responseCode = response.getStatusCodeValue();
         log.info("getAccessToken response code: {}", responseCode);
 
-        if(responseCode == HttpURLConnection.HTTP_OK) {
+        if (responseCode == HttpURLConnection.HTTP_OK) {
             // HTTP 응답 (JSON) -> 액세스 토큰 파싱
             String responseBody = response.getBody();
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(responseBody);
             kakaoId = jsonNode.get("id").asLong();
-        }
-        else{
+            user.setStatus(Status.INACTIVE);
+        } else {
             log.info("서버 응답 오류");
             throw new BaseException(SERVER_ERROR);
         }
