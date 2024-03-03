@@ -65,8 +65,9 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
+        }else{
+            log.info("인증이 필요없는 API입니다.");
         }
-        log.info("실행");
         filterChain.doFilter(request, response);
 
     }
