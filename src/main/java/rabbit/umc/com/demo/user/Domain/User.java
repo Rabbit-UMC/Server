@@ -30,7 +30,7 @@ public class User extends BaseTimeEntity {
     private String userEmail;
 
     @Schema(description = "유저 식별자", requiredMode = Schema.RequiredMode.REQUIRED, example = "1234")
-    @JoinColumn(nullable = false)
+    @JoinColumn(nullable = true)
     private String userName;
 
     @Schema(description = "유저 식별자", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1234")

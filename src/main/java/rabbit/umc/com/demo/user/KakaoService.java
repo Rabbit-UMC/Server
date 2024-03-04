@@ -178,7 +178,8 @@ public class KakaoService {
         return kakaoDto;
     }
 
-    //유저 회원가입 or 로그인
+    //유저 로그인
+    @Transactional
     public User saveUser(KakaoDto kakaoDto) throws BaseException {
         User user = new User();
 
@@ -196,9 +197,7 @@ public class KakaoService {
         } else { //회원이고 탈퇴하지 않은 경우
             log.info("로그인을 진행하겠습니다.");
             user.setStatus(ACTIVE);
-            //userRepository.save(user);
-
-//            user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
+            userRepository.save(user);
         }
         return user;
     }
@@ -277,6 +276,7 @@ public class KakaoService {
     }
 
     //카카오 연결끊기
+    @Transactional
     public Long unlink(Long userId) throws IOException, BaseException {
         User user = userService.findUser(Long.valueOf(userId));
         userService.delRefreshToken(user);
@@ -315,7 +315,9 @@ public class KakaoService {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(responseBody);
             kakaoId = jsonNode.get("id").asLong();
+            user.setUserName(null);
             user.setStatus(Status.INACTIVE);
+            userRepository.save(user);
         } else {
             log.info("서버 응답 오류");
             throw new BaseException(SERVER_ERROR);
