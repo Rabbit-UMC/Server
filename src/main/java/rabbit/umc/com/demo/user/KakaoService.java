@@ -53,26 +53,31 @@ public class KakaoService {
             throw new BaseException(FAILED_TO_AUTHENTICATION);
         }
 
-        // HTTP Header 생성
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+        ResponseEntity<String> response;
+        try {
+            // HTTP Header 생성
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
-        // HTTP Body 생성
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("grant_type", "authorization_code");
-        body.add("client_id", kakao_client_id);
-        body.add("client_secret", kakao_secret_key);
-        body.add("code", code);
+            // HTTP Body 생성
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("grant_type", "authorization_code");
+            body.add("client_id", kakao_client_id);
+            body.add("client_secret", kakao_secret_key);
+            body.add("code", code);
 
-        // HTTP 요청 보내기
-        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
-        RestTemplate rt = new RestTemplate();
-        ResponseEntity<String> response = rt.exchange(
-                "https://kauth.kakao.com/oauth/token",
-                HttpMethod.POST,
-                kakaoTokenRequest,
-                String.class
-        );
+            // HTTP 요청 보내기
+            HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
+            RestTemplate rt = new RestTemplate();
+            response = rt.exchange(
+                    "https://kauth.kakao.com/oauth/token",
+                    HttpMethod.POST,
+                    kakaoTokenRequest,
+                    String.class
+            );
+        } catch (HttpClientErrorException.Unauthorized ex) {
+            throw new BaseException(INVALID_KAKAO);
+        }
 
         // HTTP 응답 상태 코드 가져오기
         int responseCode = response.getStatusCodeValue();
@@ -237,25 +242,30 @@ public class KakaoService {
         //String adminKey= JwtAndKakaoProperties.Admin;
 
         String str_kakaoId = String.valueOf(kakaoId);
+        ResponseEntity<String> response;
 
-        // HTTP Header 생성
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "KakaoAK " + kakao_admin_key);
+        try {
+            // HTTP Header 생성
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", "KakaoAK " + kakao_admin_key);
 
-        // HTTP Body 생성
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("target_id_type", "user_id");
-        body.add("target_id", str_kakaoId); //로그아웃할 회원의 kakaoId
+            // HTTP Body 생성
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("target_id_type", "user_id");
+            body.add("target_id", str_kakaoId); //로그아웃할 회원의 kakaoId
 
-        // HTTP 요청 보내기
-        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
-        RestTemplate rt = new RestTemplate();
-        ResponseEntity<String> response = rt.exchange(
-                "https://kapi.kakao.com/v1/user/logout",
-                HttpMethod.POST,
-                kakaoTokenRequest,
-                String.class
-        );
+            // HTTP 요청 보내기
+            HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
+            RestTemplate rt = new RestTemplate();
+            response = rt.exchange(
+                    "https://kapi.kakao.com/v1/user/logout",
+                    HttpMethod.POST,
+                    kakaoTokenRequest,
+                    String.class
+            );
+        } catch (HttpClientErrorException.Unauthorized ex) {
+            throw new BaseException(INVALID_KAKAO);
+        }
 
         // HTTP 응답 상태 코드 가져오기
         int responseCode = response.getStatusCodeValue();
@@ -285,25 +295,30 @@ public class KakaoService {
         String str_kakaoId = String.valueOf(kakaoId);
         System.out.println("탈퇴할 유저의 kakao id: " + str_kakaoId);
 
-        // HTTP Header 생성
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "KakaoAK " + kakao_admin_key);
+        ResponseEntity<String> response;
+        try {
+            // HTTP Header 생성
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", "KakaoAK " + kakao_admin_key);
 
-        // HTTP Body 생성
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("target_id_type", "user_id");
-        body.add("target_id", str_kakaoId); //로그아웃할 회원의 kakaoId
+            // HTTP Body 생성
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("target_id_type", "user_id");
+            body.add("target_id", str_kakaoId); //로그아웃할 회원의 kakaoId
 
-        // HTTP 요청 보내기
+            // HTTP 요청 보내기
 
-        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
-        RestTemplate rt = new RestTemplate();
-        ResponseEntity<String> response = rt.exchange(
-                "https://kapi.kakao.com/v1/user/unlink",
-                HttpMethod.POST,
-                kakaoTokenRequest,
-                String.class
-        );
+            HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
+            RestTemplate rt = new RestTemplate();
+            response = rt.exchange(
+                    "https://kapi.kakao.com/v1/user/unlink",
+                    HttpMethod.POST,
+                    kakaoTokenRequest,
+                    String.class
+            );
+        } catch (HttpClientErrorException.Unauthorized ex) {
+            throw new BaseException(INVALID_KAKAO);
+        }
 
         // HTTP 응답 상태 코드 가져오기
         int responseCode = response.getStatusCodeValue();
