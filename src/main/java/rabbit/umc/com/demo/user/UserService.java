@@ -179,96 +179,93 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserMissionHistoryDto getSuccessMissions(Long userId) {
-//        Status status = ACTIVE;
-        LocalDateTime now = LocalDateTime.now();
-        int totalCnt = 0;
+        int totalCnt = 0; //총 미션 개수
 
-        // 내가 참가한 미션들 가져오기
+        //user id로 해당 유저가 수행한 미션 리스트를 가져온다.
         List<MissionUsers> missionUsersList = missionUserRepository.getMissionUsersByUserId(userId);
         User user = userRepository.getReferenceById(userId);
 
-        // 미션 인덱스들 담기 위한 리스트
-        List<Long> ids = new ArrayList<>();
+        // 성공한 미션을 담기 위한 리스트
+        List<Long> successMissionIds = new ArrayList<>();
 
         List<MissionSchedule> missionSchedules;
 
-        //user id로 해당 유저가 수행한 미션 리스트를 가져온다.
-//        그 미션 리스트중, 하나를 가져와서 해당 미션이 현재 종료 시각이 지났다면 mission에 넣는다.
-
-
         for (MissionUsers missionUser : missionUsersList) {
-            int successCnt = 0;
+            int successCnt = 0; //성공한 미션 개수
+
+            //missionUser의 미션 필드를 이용해서 missionSchedules 가져오기
             missionSchedules = missionScheduleRepository.getMissionScheduleByMissionId(missionUser.getMission().getId());
 
-            // 1명의 종료된 미션
-            Mission mission = missionRepository.getMissionByIdAndEndAtIsBeforeOrderByEndAt(missionUser.getMission().getId(), now);
+            // missionUser의 미션 필드에 있는 미션이 현재 시각 기준 종료되었다면 가져오기
+            Mission mission = missionRepository.getMissionByIdAndEndAtIsBeforeOrderByEndAt(missionUser.getMission().getId(), LocalDateTime.now());
+
+            if (mission != null) { //mission이 현재 시각 기준으로 종료된 경우
+                log.info("종료된 미션 번호: " + mission.getId());
+
+                LocalDate currentDate = mission.getStartAt().toLocalDate(); //미션 시작 시각
+                LocalDate targetDate = mission.getEndAt().toLocalDate(); //미션 종료 시각
+                if (currentDate.isBefore(targetDate)) {
+                    // 미션 시작~종료 사이 날짜를 일단위로 계산
+                    int targetCnt = (int) ChronoUnit.DAYS.between(currentDate, targetDate);
+
+                    totalCnt++; //총 미션 개수 1개 증가
+
+                    // 미션 시작부터 종료 날짜까지의 모든 날짜
+                    List<LocalDate> dateList = getDateBetweenTwoDates(mission.getStartAt(), mission.getEndAt());
+
+                    //해당 미션의 스케줄 리스트
+                    for (MissionSchedule missionSchedule : missionSchedules) {
+                        Schedule schedule = scheduleRepository.findScheduleById(missionSchedule.getSchedule().getId());
+
+                        //스케줄 종료 시간을 LocalDate 자료형으로
+                        String whenStr = schedule.getEndAt().toString().substring(0, 10);
+                        LocalDate when = LocalDate.parse(whenStr);
+
+//                    System.out.println("유저가 스케줄을한 endAt 날짜: " + when);
+//                    System.out.println("스케줄로 얻은 유저 번호: " + schedule.getUser().getId());
+//                    System.out.println("매개변수로 얻은 유저 번호: " + userId);
+
+                        Long userIdinSchedule = schedule.getUser().getId();
+                        //스케줄의 user id가 조회한 user의 id와 같고
+                        // 미션 시작부터 종료 날짜까지의 모든 날짜 리스트 안에 스케줄 종료 시간이 있다면
+                        if (userIdinSchedule.equals(userId) && dateList.contains(when)) {
+                            successCnt++;
+                            log.info("스케줄 하루 성공(성공 카운트 1개 올라감)");
+                        }
 
 
-            if (mission != null) {
-                System.out.println("종료된 미션 번호: " + mission.getId());
-                LocalDate targetDate = mission.getEndAt().toLocalDate();
-                LocalDate currentDate = mission.getStartAt().toLocalDate();
-//                int targetCnt; // 현재 날짜와 대상 날짜 사이의 일 수 계산
-                int targetCnt = (int) ChronoUnit.DAYS.between(currentDate, targetDate);
-                totalCnt++;
-                System.out.println("종료된 미션의 end_At: " + targetDate);
-                System.out.println("종료된 미션의 start_at: " + currentDate);
-
-                // 미션 시작부터 종료 날짜까지의 날짜들
-                List<LocalDate> dateList = getDateBetweenTwoDates(mission.getStartAt(), mission.getEndAt());
-                System.out.println("미션 시작~종료까지 날짜들: " + dateList);
-
-                //해당 미션의 스케줄 리스트
-                for (int i = 0; i < missionSchedules.size(); i++) {
-                    Schedule schedule = scheduleRepository.findScheduleById(missionSchedules.get(i).getSchedule().getId());
-                    String whenStr = schedule.getEndAt().toString().substring(0, 10);
-                    LocalDate when = LocalDate.parse(whenStr);
-                    System.out.println("유저가 스케줄을한 endAt 날짜: " + when);
-
-                    System.out.println("스케줄로 얻은 유저 번호: " + schedule.getUser().getId());
-                    System.out.println("매개변수로 얻은 유저 번호: " + userId);
-
-                    Long userIdinSchedule = schedule.getUser().getId();
-                    //if(userIdinSchedule == userId){
-                    System.out.println("스케줄로 얻은 유저 번호랑 매개변수로 얻은 유저 번호랑 같음");
-                    if (dateList.contains(when)) {
-                        System.out.println("스케줄 한 날이 미션 시작~종료 날짜 안에 포함된다.");
-                        successCnt++;
                     }
-                    //}
-                }
-                int successCondition = targetCnt + 1;
-                System.out.println("위 미션의 성공 조건: " + successCondition + "일 스케줄 성공");
-                System.out.println("유저가 스케줄을 성공한 일 수: " + successCnt);
+                    int successCondition = targetCnt + 1;
+//                System.out.println("위 미션의 성공 조건: " + successCondition + "일 스케줄 성공");
+//                System.out.println("유저가 스케줄을 성공한 일 수: " + successCnt);
 
-                if (successCnt == targetCnt + 1) {
-                    System.out.println("ids에 추가되는 미션 번호: " + missionUser.getMission().getId());
-                    ids.add(missionUser.getMission().getId());
+                    if (successCnt == successCondition) {
+                        log.info("성공한 미션 번호: {}", missionUser.getMission().getId());
+                        successMissionIds.add(missionUser.getMission().getId());
 
-                    MissionUserSuccess findMissionUserSuccess = missionUserSuccessRepository.getMissionUserSuccessByMissionIdAndUserId(mission.getId(), userId);
+                        MissionUserSuccess findMissionUserSuccess = missionUserSuccessRepository.getMissionUserSuccessByMissionIdAndUserId(mission.getId(), userId);
 
-                    if (findMissionUserSuccess == null) {
-                        System.out.println("성공한 미션인데 missionUserSuccess 테이블에 저장이 안되어 있어서 저장한다.");
-                        MissionUserSuccess missionUserSuccess = new MissionUserSuccess();
-                        missionUserSuccess.setUser(user);
-                        missionUserSuccess.setMission(mission);
-                        missionUserSuccessRepository.save(missionUserSuccess);
+                        if (findMissionUserSuccess == null) {
+                            log.info("DB에 저장되어 있지 않은 성공한 미션을 missionUserSuccess 테이블에 저장합니다.");
+                            MissionUserSuccess missionUserSuccess = new MissionUserSuccess();
+                            missionUserSuccess.setUser(user);
+                            missionUserSuccess.setMission(mission);
+                            missionUserSuccessRepository.save(missionUserSuccess);
+                        }
+
                     }
-
+                } else {
+                    log.warn("미션의 start 시간이 end 시간보다 이전입니다.");
+                    log.warn("mission start: {}, mission end: {}", currentDate, targetDate);
                 }
             }
         }
-
-//        List<Mission> missionList = missionRepository.getMissionsByIdIsIn(ids);
-        List<Mission> missionList = missionRepository.getMissionsByIdIsIn(ids);
+        List<Mission> missionList = missionRepository.getMissionsByIdIsIn(successMissionIds);
         List<UserMissionResDto> resultList = missionList.stream()
                 .map(UserMissionResDto::toUserMissionResDto)
                 .collect(Collectors.toList());
 
         UserMissionHistoryDto result = UserMissionHistoryDto.toSuccessMissionHistoryRes(totalCnt, resultList);
-
-        totalCnt = 0;
-
         return result;
     }
 
@@ -282,66 +279,70 @@ public class UserService implements UserDetailsService {
     public UserMissionHistoryDto getFailureMissions(Long userId) {
         int targetCnt = 0;
         int totalCnt = 0;
-//        Status status = ACTIVE;
 
+        //user id로 해당 유저가 수행한 미션 리스트를 가져온다.
         List<MissionUsers> missionUsersList = missionUserRepository.getMissionUsersByUserId(userId);
-
-        List<Long> ids = new ArrayList<>();
-
+        List<Long> failureMissionIds = new ArrayList<>();
 
         List<MissionSchedule> missionSchedules;
-        LocalDateTime now = LocalDateTime.now();
-
 
         for (MissionUsers missionUser : missionUsersList) {
             int successCnt = 0;
             missionSchedules = missionScheduleRepository.getMissionScheduleByMissionId(missionUser.getMission().getId());
 
-
-            Mission mission = missionRepository.getMissionByIdAndEndAtIsBefore(missionUser.getMission().getId(), now);
-
+            Mission mission = missionRepository.getMissionByIdAndEndAtIsBefore(missionUser.getMission().getId(), LocalDateTime.now());
             if (mission != null) {
-                mission.setMissionUserSuccessList(missionUserSuccessRepository.getMissionUserSuccessByMissionId(mission.getId()));
+                log.info("종료된 미션 번호: " + mission.getId());
 
-                LocalDate targetDate = mission.getEndAt().toLocalDate();
                 LocalDate currentDate = mission.getStartAt().toLocalDate();
-                targetCnt = (int) ChronoUnit.DAYS.between(currentDate, targetDate); // 현재 날짜와 대상 날짜 사이의 일 수 계산
-                totalCnt++;
+                LocalDate targetDate = mission.getEndAt().toLocalDate();
 
+                if (currentDate.isBefore(targetDate)) {
+                    mission.setMissionUserSuccessList(missionUserSuccessRepository.getMissionUserSuccessByMissionId(mission.getId()));
 
-                //해당 미션의 시작 날짜부터 종료 날짜까지의 모든 날짜를 가져옴
-                List<LocalDate> dateList = getDateBetweenTwoDates(mission.getStartAt(), mission.getEndAt());
+                    targetCnt = (int) ChronoUnit.DAYS.between(currentDate, targetDate); // 현재 날짜와 대상 날짜 사이의 일 수 계산
 
-                for (MissionSchedule ms : missionSchedules) {
-                    Schedule schedule = scheduleRepository.findScheduleById(ms.getSchedule().getId());
-                    String whenStr = schedule.getEndAt().toString().substring(0, 10);
-                    LocalDate when = LocalDate.parse(whenStr);
+                    totalCnt++;
 
-                    if (dateList.contains(when)) {
-                        successCnt++;
+                    //해당 미션의 시작 날짜부터 종료 날짜까지의 모든 날짜를 가져옴
+                    List<LocalDate> dateList = getDateBetweenTwoDates(mission.getStartAt(), mission.getEndAt());
+
+                    for (MissionSchedule missionSchedule : missionSchedules) {
+                        Schedule schedule = scheduleRepository.findScheduleById(missionSchedule.getSchedule().getId());
+                        String whenStr = schedule.getEndAt().toString().substring(0, 10);
+                        LocalDate when = LocalDate.parse(whenStr);
+
+                        //스케줄 종료 시간을 LocalDate 자료형으로
+                        System.out.println("유저가 스케줄을한 endAt 날짜: " + when);
+                        System.out.println("스케줄로 얻은 유저 번호: " + schedule.getUser().getId());
+                        System.out.println("매개변수로 얻은 유저 번호: " + userId);
+                        Long userIdinSchedule = schedule.getUser().getId();
+                        //스케줄의 user id가 조회한 user의 id와 같고
+                        // 미션 시작부터 종료 날짜까지의 모든 날짜 리스트 안에 스케줄 종료 시간이 있다면
+                        if (userIdinSchedule.equals(userId) && dateList.contains(when)) {
+                            successCnt++;
+                            log.info("스케줄 하루 성공(성공 카운트 1개 올라감)");
+                        }
                     }
-                }
 
-                if (successCnt < targetCnt + 1) {
-                    ids.add(missionUser.getMission().getId());
+                    if (successCnt < targetCnt + 1) {
+                        log.info("미션 실패!!!");
+                        failureMissionIds.add(missionUser.getMission().getId());
+                    } else {
+                        log.info("미션 성공~~~~~~~~");
+                    }
+                } else {
+                    log.warn("미션의 start 시간이 end 시간보다 이전입니다.");
+                    log.warn("mission start: {}, mission end: {}", currentDate, targetDate);
                 }
             }
         }
-
-//        List<Mission> missionList = missionRepository.getMissionsByIdIsIn(ids);
-//        List<MissionHomeRes> resultList = missionList.stream()
-//                .map(MissionHomeRes::toMissionHomeRes)
-//                .collect(Collectors.toList());
-
-        List<Mission> missionList = missionRepository.getMissionsByIdIsIn(ids);
+        List<Mission> missionList = missionRepository.getMissionsByIdIsIn(failureMissionIds);
         List<UserMissionResDto> resultList = missionList.stream()
                 .map(UserMissionResDto::toUserMissionResDto)
                 .collect(Collectors.toList());
 
         UserMissionHistoryDto result = UserMissionHistoryDto.toFailMissionHistoryRes(totalCnt, resultList);
-
-        totalCnt = 0;
-
         return result;
     }
 
@@ -372,7 +373,7 @@ public class UserService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        System.out.println("user id: "+userId);
+        System.out.println("user id: " + userId);
 
         User user = userRepository.getReferenceById(new Long(userId));
         if (user == null) {
