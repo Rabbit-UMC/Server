@@ -151,10 +151,11 @@ public class KakaoService {
         //kakao_id, 프로필 이미지 파싱
         Long kakao_id = jsonNode.get("id").asLong();
         String profile_image = jsonNode.get("kakao_account").get("profile").get("thumbnail_image_url").asText();
+
         //안들어올 수도 있는 정보
-        boolean hasAgeRange = jsonNode.get("kakao_account").get("has_age_range").asBoolean();
-        boolean hasBirthday = jsonNode.get("kakao_account").get("has_birthday").asBoolean();
-        boolean hasGender = jsonNode.get("kakao_account").get("has_gender").asBoolean();
+        boolean hasAgeRange = jsonNode.get("kakao_account").has("age_range");
+        boolean hasBirthday = jsonNode.get("kakao_account").has("birthday");
+        boolean hasGender = jsonNode.get("kakao_account").has("gender");
 
         kakaoDto.setKakaoId(kakao_id);
         kakaoDto.setUserProfileImage(profile_image);
