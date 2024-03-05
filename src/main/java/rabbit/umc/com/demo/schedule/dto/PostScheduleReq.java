@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import rabbit.umc.com.demo.base.BaseTimeEntity;
+import rabbit.umc.com.demo.schedule.domain.Schedule;
 
 @Getter
 @Setter
@@ -17,4 +18,5 @@ public class PostScheduleReq extends BaseTimeEntity {
     private String when;
     private String title;
     private Long missionId;
+
 }

@@ -53,14 +53,8 @@ public class ScheduleController {
     @GetMapping()
     public BaseResponse<ScheduleHomeRes> getHome(){
         try {
-            String token = jwtService.createJwt(1);
-            System.out.println("jwtService = " + token);
-            System.out.println("jwtService.createRefreshToken() = " + jwtService.createRefreshToken());
-            System.out.println("token = " + token);
-
             long userId = (long) jwtService.getUserIdx();
             ScheduleHomeRes scheduleHomeRes = scheduleService.getHome(userId);
-
             return new BaseResponse<>(scheduleHomeRes);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -112,12 +106,10 @@ public class ScheduleController {
     @GetMapping("/when/{when}")
     public BaseResponse<List<ScheduleListDto>> getScheduleByWhen(@PathVariable(name = "when") String when) {
         if(!isRegexDate(when)){
-            System.out.println("when = " + when);
             return new BaseResponse<>(BaseResponseStatus.REQUEST_ERROR);
         }else {
             try {
                 long userId = (long)jwtService.getUserIdx();
-                System.out.println("userId = " + userId);
                 List<ScheduleListDto> resultList = scheduleService.getScheduleByWhen(when,userId);
                 return new BaseResponse<>(resultList);
             } catch (BaseException e) {
@@ -144,7 +136,6 @@ public class ScheduleController {
     })
     @GetMapping("/month/{month}")
     public BaseResponse<DayRes> getScheduleWhenMonth(@PathVariable(name = "month") String month){
-
         if(!isRegexMonth(month)){
             return new BaseResponse<>(BaseResponseStatus.REQUEST_ERROR);
         }

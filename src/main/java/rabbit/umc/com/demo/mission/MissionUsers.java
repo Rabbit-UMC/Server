@@ -1,6 +1,8 @@
 package rabbit.umc.com.demo.mission;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import rabbit.umc.com.demo.base.BaseTimeEntity;
 import rabbit.umc.com.demo.base.Status;
@@ -11,7 +13,8 @@ import javax.persistence.*;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Getter@Setter
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "mission_users")
 public class MissionUsers extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = IDENTITY)
@@ -29,4 +32,10 @@ public class MissionUsers extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private Status status = Status.ACTIVE;
+
+    public MissionUsers(User user, Mission mission, Status status) {
+        this.user = user;
+        this.mission = mission;
+        this.status = status;
+    }
 }

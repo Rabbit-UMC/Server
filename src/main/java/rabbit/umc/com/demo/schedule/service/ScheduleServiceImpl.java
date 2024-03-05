@@ -1,6 +1,8 @@
 package rabbit.umc.com.demo.schedule.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.apiPayload.BaseException;
@@ -8,6 +10,7 @@ import rabbit.umc.com.config.apiPayload.BaseResponseStatus;
 import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUsers;
+import rabbit.umc.com.demo.mission.dto.MissionHomeRes;
 import rabbit.umc.com.demo.mission.repository.MissionRepository;
 import rabbit.umc.com.demo.mission.repository.MissionUsersRepository;
 import rabbit.umc.com.demo.schedule.domain.MissionSchedule;
@@ -46,41 +49,25 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public ScheduleHomeRes getHome(Long userId) {
         ScheduleHomeRes scheduleHomeRes = new ScheduleHomeRes();
-        // 일정 리스트
         List<Schedule> scheduleList = scheduleRepository.getSchedulesByUserIdOrderByEndAt(userId);
+        scheduleHomeRes.setScheduleList(scheduleList.stream().map(ScheduleListDto::toScheduleDto).collect(Collectors.toList()));
 
-        scheduleHomeRes.setScheduleList(
-                scheduleList.stream().map(ScheduleListDto::toScheduleDto).collect(Collectors.toList())
-        );
-
-        // 미션 유저 리스트
         List<MissionUsers> missionUsersList = missionUserRepository.getMissionUsersByUserId(userId);
         List<Mission> missionList = new ArrayList<>();
         LocalDateTime currentDateTime = LocalDateTime.now();
 
-
         // 미션 유저 테이블의 미션 번호로 종료되지 않은 미션 찾기
-        for (MissionUsers mu :missionUsersList) {
-            Mission mission = missionRepository.findByIdAndEndAtIsAfterAndStatusAndIsOpenOrderByEndAt(mu.getMission().getId(), currentDateTime, ACTIVE,0);
-            if(mission != null)
+        for (MissionUsers mu : missionUsersList) {
+            Mission mission = missionRepository.findByIdAndEndAtIsAfterAndStatusAndIsOpenOrderByEndAt(mu.getMission().getId(), currentDateTime, ACTIVE, 0);
+            if (mission != null)
                 missionList.add(mission);
         }
 
-        if(missionList.isEmpty()){
-            List<MissionListDto> missionListDto = new ArrayList<>();
-            scheduleHomeRes.setMissionList(missionListDto);
-        }else{
-            // dDay 순으로 정렬
-            Collections.sort(missionList,Comparator.comparing(mission ->
-                    ChronoUnit.DAYS.between(currentDateTime, mission.getEndAt())));
-
-            scheduleHomeRes.setMissionList(
-                    missionList.stream()
-                            .map(MissionListDto::toMissionListDto)
-                            .collect(Collectors.toList())
-            );
+        if (!missionList.isEmpty()) {
+            Collections.sort(missionList, Comparator.comparing(mission ->
+                    ChronoUnit.DAYS.between(currentDateTime, mission.getStartAt())));
+            scheduleHomeRes.setMissionList(missionList.stream().map(MissionListDto::toMissionListDto).collect(Collectors.toList()));
         }
-
 
         return scheduleHomeRes;
     }
@@ -91,26 +78,11 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public ScheduleDetailRes getScheduleDetail(Long scheduleId,Long userId) throws BaseException {
 
-        MissionSchedule missionSchedule = missionScheduleRepository.getMissionScheduleByScheduleId(scheduleId);
         Schedule schedule = scheduleRepository.findScheduleById(scheduleId);
-
-        // 해당 일정이 없을 때
-        if(schedule == null || schedule.getUser().getId() != userId){
+        MissionSchedule missionSchedule = missionScheduleRepository.getMissionScheduleByScheduleId(scheduleId);
+        // 일정이 없거나 내가 등록한 일정이 아닌 경우
+        if (schedule == null || !schedule.getUser().getId().equals(userId) || missionSchedule == null) {
             throw new BaseException(BaseResponseStatus.FAILED_TO_SCHEDULE);
-        } else{
-            if(missionSchedule != null){
-                missionSchedule.setSchedule(schedule);
-            }else {
-                throw new BaseException(BaseResponseStatus.FAILED_TO_SCHEDULE);
-            }
-        }
-
-        // 일정에 미션이 없을 때
-        if(missionSchedule.getMission() == null){
-            missionSchedule.setMission(null);
-        }else{
-            Mission mission = missionRepository.getMissionById(missionSchedule.getMission().getId());
-            missionSchedule.setMission(mission);
         }
 
         return ScheduleDetailRes.setMissionSchedule(missionSchedule);
@@ -123,16 +95,13 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Transactional
     public Long postSchedule(PostScheduleReq postScheduleReq, Long userId) throws BaseException {
 
-        Schedule schedule = new Schedule();
         User user = userRepository.getReferenceById(userId);
-        schedule.setSchedule(postScheduleReq);
-        schedule.setUser(user);
-
-
-        MissionSchedule missionSchedule = new MissionSchedule();
+        Schedule schedule = Schedule.toSchedule(user,postScheduleReq);
+        MissionSchedule missionSchedule = new MissionSchedule(schedule,null, ACTIVE);
 
         // 미션 아이디가 있을 때
         if(postScheduleReq.getMissionId() != null){
+
             Mission findMission = missionRepository.getMissionById(postScheduleReq.getMissionId());
             if(findMission == null){
                 throw new BaseException(FAILED_TO_MISSION);
@@ -144,7 +113,6 @@ public class ScheduleServiceImpl implements ScheduleService {
                 Schedule findSchedule = scheduleRepository.getScheduleByIdAndUserId(ms.getSchedule().getId(),userId);
 
                 if(findSchedule != null){
-
                     if (postScheduleReq.getWhen().equals(findSchedule.getStartAt().toString().substring(0,10))){
                         throw new BaseException(BaseResponseStatus.FAILED_TO_POST_SCHEDULE);
                     }
@@ -155,25 +123,25 @@ public class ScheduleServiceImpl implements ScheduleService {
                     if(!localDate.isAfter(startDate) || !localDate.isBefore(endDate))
                         throw new BaseException(FAILED_TO_SCHEDULE_DATE);
                 }
-                
             }
 
-//            mission.setId(postScheduleReq.getMissionId());
             Mission mission = missionRepository.getMissionById(postScheduleReq.getMissionId());
-            missionSchedule.setMission(mission);
+            scheduleRepository.save(schedule);
+            missionSchedule = new MissionSchedule(schedule,mission, ACTIVE);
+            missionScheduleRepository.save(missionSchedule);
+        }else{
+            // schedule에 내용들 저장
+            scheduleRepository.save(schedule);
+
+            // missionSchedule 테이블에 일정 아이디랑 미션 아이디 저장
+            missionScheduleRepository.save(missionSchedule);
         }
 
-
-        // schedule에 내용들 저장
-        scheduleRepository.save(schedule);
-
-        missionSchedule.setSchedule(schedule);
-
-        // missionSchedule 테이블에 일정 아이디랑 미션 아이디 저장
-        missionScheduleRepository.save(missionSchedule);
-
         return schedule.getId();
+
     }
+
+
 
     @Override
     @Transactional
@@ -188,7 +156,6 @@ public class ScheduleServiceImpl implements ScheduleService {
                 throw new BaseException(BaseResponseStatus.INVALID_USER_JWT);
             }
         }
-
 
         findSchedules.forEach(
                 schedule ->
@@ -220,16 +187,21 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Transactional
     public void updateSchedule(PostScheduleReq patchScheduleReq, Long userId, Long scheduleId) throws BaseException {
         Schedule schedule = scheduleRepository.findScheduleByIdAndUserId(scheduleId, userId);
+        Optional<User> user = userRepository.findById(userId);
+
         if(schedule == null){
             throw new BaseException(BaseResponseStatus.FAILED_TO_SCHEDULE);
         }
-        schedule.setSchedule(patchScheduleReq);
+
+        Schedule.toSchedule(user.get(),patchScheduleReq);
+
+
         MissionSchedule missionSchedule = missionScheduleRepository.findMissionScheduleByScheduleId(scheduleId);
         if(patchScheduleReq.getMissionId() != null){
-            Mission mission = missionRepository.getReferenceById(patchScheduleReq.getMissionId());
-            missionSchedule.setMission(mission);
+            Mission mission = missionRepository.findById(patchScheduleReq.getMissionId()).orElseThrow(() -> new BaseException(FAILED_TO_MISSION));
+            missionSchedule.updateMission(mission);
         }else {
-            missionSchedule.setMission(null);
+            missionSchedule.deleteMissionSchedule(missionSchedule.getMission(),schedule);
         }
         missionScheduleRepository.save(missionSchedule);
         scheduleRepository.save(schedule);
