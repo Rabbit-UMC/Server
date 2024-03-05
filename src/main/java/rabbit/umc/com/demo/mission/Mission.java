@@ -46,7 +46,7 @@ public class Mission extends BaseTimeEntity {
     @Column(nullable = false)
     private LocalDateTime endAt;
 
-    public void setMission(PostMissionReq postMissionReq, Category category){
+    public void toMission(PostMissionReq postMissionReq, Category category){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDateTime startAt = LocalDate.parse(postMissionReq.getStartAt(),formatter).atStartOfDay();
         LocalDateTime endAt = LocalDate.parse(postMissionReq.getEndAt(),formatter).atStartOfDay();
@@ -58,6 +58,7 @@ public class Mission extends BaseTimeEntity {
         this.isOpen = postMissionReq.getIsOpen();
         this.category = category;
     }
+
 
 
 }

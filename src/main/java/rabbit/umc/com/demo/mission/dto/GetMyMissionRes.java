@@ -30,7 +30,7 @@ public class GetMyMissionRes {
     private Long during; // 도전한 기간
 
     public static GetMyMissionRes toMyMissions(Mission mission) {
-        LocalDate targetDateTime = mission.getEndAt().toLocalDate();
+        LocalDate targetDateTime = mission.getStartAt().toLocalDate();
         LocalDate currentDateTime = LocalDateTime.now().toLocalDate();
         long daysUntilTarget = ChronoUnit.DAYS.between(currentDateTime, targetDateTime); // 현재 날짜와 대상 날짜 사이의 일 수 계산
         String dDay;

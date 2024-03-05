@@ -1,7 +1,6 @@
 package rabbit.umc.com.demo.schedule.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import rabbit.umc.com.demo.base.BaseTimeEntity;
 import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.schedule.dto.PostScheduleReq;
@@ -14,8 +13,8 @@ import java.time.format.DateTimeFormatter;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Setter
 @Table(name = "schedule")
 public class Schedule extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = IDENTITY)
@@ -38,16 +37,29 @@ public class Schedule extends BaseTimeEntity {
     @Column(name = "status")
     private Status status = Status.ACTIVE;
 
-    public void setSchedule(PostScheduleReq postScheduleReq){
+    public Schedule(User user, String title, String content, LocalDateTime startAt, LocalDateTime endAt, Status status) {
+        this.user = user;
+        this.title = title;
+        this.content = content;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.status = status;
+    }
+
+    public static Schedule toSchedule(User user,PostScheduleReq postScheduleReq){
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime startAt = LocalDateTime.parse(postScheduleReq.getWhen()+ " " +postScheduleReq.getStartAt(),formatter);
         LocalDateTime endAt = LocalDateTime.parse(postScheduleReq.getWhen()+ " " +postScheduleReq.getEndAt(),formatter);
 
-        this.content = postScheduleReq.getContent();
-        this.title = postScheduleReq.getTitle();
-        this.endAt = endAt;
-        this.startAt = startAt;
+        return new Schedule(
+                user,
+                postScheduleReq.getTitle(),
+                postScheduleReq.getContent(),
+                endAt,
+                startAt,
+                Status.ACTIVE
+        );
     }
 
 
