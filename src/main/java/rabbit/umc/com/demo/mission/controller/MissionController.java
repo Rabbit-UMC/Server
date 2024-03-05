@@ -47,17 +47,12 @@ public class MissionController {
     })
     @GetMapping()
     public BaseResponse<List<MissionHomeRes>> getHome(@RequestParam(defaultValue = "0", name = "page") int page){
-//        String token = jwtService.createJwt(1);
-//        System.out.println("token진또배기 = " + token);
-
         try {
             List<MissionHomeRes> resultList = missionService.getMissionHome(page);
             return new BaseResponse<>(resultList);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
-//        System.out.println("jwtService = " + jwtService.createJwt(1));
-
     }
 
     /**
@@ -77,7 +72,6 @@ public class MissionController {
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
-
     }
 
     /**
@@ -101,15 +95,12 @@ public class MissionController {
             if(checkStartedDateAndEndedDate(postMissionReq.getStartAt(),postMissionReq.getEndAt()))
                 return new BaseResponse(FAILED_TO_MISSION_DATE);
         try {
-//            System.out.println("jwtService.createJwt(1) = " + jwtService.createJwt(1));
             Long userId = (long) jwtService.getUserIdx();
             missionService.postMission(postMissionReq,userId);
             return new BaseResponse<>("미션 생성 완료");
         } catch (BaseException e) {
             return new BaseResponse(e.getStatus());
         }
-
-
     }
 
     /**
@@ -172,12 +163,10 @@ public class MissionController {
         try {
             long userId = (long) jwtService.getUserIdx();
             List<GetMyMissionRes> resultList = missionService.getMyMissions(userId);
-
             return new BaseResponse<>(resultList);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
-
     }
 
     /**
@@ -199,8 +188,6 @@ public class MissionController {
     public BaseResponse<GetMissionDetailDto> getMissionDetail(@PathVariable(name = "missionId") Long missionId){
         try {
             long userId = (long) jwtService.getUserIdx();
-            String jwt = jwtService.createJwt(1);
-            System.out.println("jwt = " + jwt);
             GetMissionDetailDto getMissionDetailRes = missionService.getMissionDetail(missionId,userId);
             return new BaseResponse<>(getMissionDetailRes);
         } catch (BaseException e) {
@@ -219,6 +206,7 @@ public class MissionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4003", description = "권한 없는 접근",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4010", description = "존재하지 않는 미션입니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MISSION4016", description = "도전중인 미션이 아닙니다.",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     @Parameters({
             @Parameter(name = "missionId", description = "미션 아이디"),
