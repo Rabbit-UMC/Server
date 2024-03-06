@@ -313,9 +313,9 @@ public class UserService implements UserDetailsService {
                         LocalDate when = LocalDate.parse(whenStr);
 
                         //스케줄 종료 시간을 LocalDate 자료형으로
-                        System.out.println("유저가 스케줄을한 endAt 날짜: " + when);
-                        System.out.println("스케줄로 얻은 유저 번호: " + schedule.getUser().getId());
-                        System.out.println("매개변수로 얻은 유저 번호: " + userId);
+//                        System.out.println("유저가 스케줄을한 endAt 날짜: " + when);
+//                        System.out.println("스케줄로 얻은 유저 번호: " + schedule.getUser().getId());
+//                        System.out.println("매개변수로 얻은 유저 번호: " + userId);
                         Long userIdinSchedule = schedule.getUser().getId();
                         //스케줄의 user id가 조회한 user의 id와 같고
                         // 미션 시작부터 종료 날짜까지의 모든 날짜 리스트 안에 스케줄 종료 시간이 있다면

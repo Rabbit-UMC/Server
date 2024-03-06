@@ -52,10 +52,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
         //login 없이 허용
         web.ignoring()
-                .antMatchers("/v3/api-docs/**")
-                .antMatchers("/swagger-ui/**")
-                .antMatchers("/swagger-resources/**")
-                .antMatchers("/app/users/kakao-login", "/app/users/sign-up", "/app/users/checkDuplication");
+                .antMatchers(
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-resources/**",
+                        "/app/users/kakao-login",
+                        "/app/users/kakao-login-web",
+                        "/app/users/sign-up",
+                        "/app/users/checkDuplication",
+                        "/app/users/kakao-disconnect");
     }
 
     @Override
