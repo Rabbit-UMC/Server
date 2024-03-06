@@ -342,4 +342,16 @@ public class KakaoService {
         return kakaoId;
     }
 
+    @Transactional
+    public Long disconnect(Long kakaoId) throws IOException, BaseException {
+        User user = userRepository.findByKakaoId(kakaoId);
+        userService.delRefreshToken(user);
+        log.info("탈퇴할 유저의 kakao id: {}", kakaoId);
+
+        user.setUserName(null);
+        user.setStatus(Status.INACTIVE);
+        userRepository.save(user);
+        return kakaoId;
+    }
+
 }

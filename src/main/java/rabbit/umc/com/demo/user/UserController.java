@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.user;
 
+import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -49,22 +50,47 @@ public class UserController {
      */
 
 
-//    @GetMapping("/kakao-login")
-//    @Operation(summary = "카카오 로그인 API")
-//    @ApiResponses({
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER4010", description = "DB에 존재하지 않는 회원", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-//    })
-//    @Parameters({
-//            @Parameter(name = "Authorization", description = "카카오에서 받아오는 엑세스 토큰을 넣어주세요.", in = ParameterIn.HEADER)
-//    })
-//    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken) throws IOException, BaseException {
+    @GetMapping("/kakao-login")
+    @Operation(summary = "카카오 로그인 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER4010", description = "DB에 존재하지 않는 회원", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "Authorization", description = "카카오에서 받아오는 엑세스 토큰을 넣어주세요.", in = ParameterIn.HEADER)
+    })
+    public BaseResponse<UserLoginResDto> kakaoLogin(@RequestHeader("Authorization") String accessToken) throws IOException, BaseException {
+        try {
+            if (accessToken == null) {
+                throw new BaseException(EMPTY_KAKAO_ACCESS);
+            }
+
+            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
+            User user = kakaoService.saveUser(kakaoDto);
+
+            //jwt 토큰 생성(로그인 처리)
+            String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
+            String jwtRefreshToken = jwtService.createRefreshToken();
+            System.out.println(jwtAccessToken);
+            System.out.println(jwtRefreshToken);
+            userService.saveRefreshToken(user.getId(), jwtRefreshToken);
+            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
+
+            return new BaseResponse<>(userLoginResDto);
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+//    @GetMapping("/kakao-login-web")
+//    @ApiOperation(value = "카카오 로그인 웹 API", hidden = true)
+//    public BaseResponse<UserLoginResDto> kakaoLoginWeb(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
 //        try {
-//            if (accessToken == null) {
-//                throw new BaseException(EMPTY_KAKAO_ACCESS);
-//            }
+//            String accessToken = kakaoService.getAccessToken(code);
+//
+//            System.out.println("------------------------- kakao access token: " + accessToken+" -------------------------");
 //
 //            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
 //            User user = kakaoService.saveUser(kakaoDto);
@@ -83,33 +109,9 @@ public class UserController {
 //        }
 //    }
 
-    @GetMapping("/kakao-login")
-    public BaseResponse<UserLoginResDto> kakaoLoginWeb(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
-        try {
-            String accessToken = kakaoService.getAccessToken(code);
-
-            System.out.println("kakao access token: "+accessToken);
-
-            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
-            User user = kakaoService.saveUser(kakaoDto);
-
-            //jwt 토큰 생성(로그인 처리)
-            String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
-            String jwtRefreshToken = jwtService.createRefreshToken();
-            System.out.println(jwtAccessToken);
-            System.out.println(jwtRefreshToken);
-            userService.saveRefreshToken(user.getId(), jwtRefreshToken);
-            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
-
-            return new BaseResponse<>(userLoginResDto);
-        }
-        catch (BaseException exception) {
-            return new BaseResponse<>(exception.getStatus());
-        }
-    }
-
     /**
      * 카카오 로그아웃
+     *
      * @return 로그아웃 유저 id
      * @throws BaseException
      * @throws IOException
@@ -159,6 +161,36 @@ public class UserController {
 
             //유저 아이디로 카카오 아이디 받아오기
             Long logout_kakaoId = kakaoService.unlink((long) userId);
+            log.info("회원 탈퇴가 완료되었습니다.");
+            return new BaseResponse<>(logout_kakaoId);
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 회원 탈퇴(앱이 아닌 경로로 연결 끊기)
+     * @param authorizationHeader
+     * @param kakaoId 연결 끊는 유저의 kakao id
+     * @param referrerType
+     * @throws BaseException
+     * @throws IOException
+     */
+    @GetMapping("/kakao-disconnect")
+    @Operation(summary = "회원 탈퇴 API - 사용자가 앱이 아닌 카카오 계정 관리 페이지나 고객센터에서 연결 끊기를 진행하는 경우")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+    })
+    public BaseResponse<Long> kakaoDisconnect(@RequestHeader("Authorization") String authorizationHeader,
+                                              @RequestParam("user_id") String kakaoId,
+                                              @RequestParam("referrer_type") String referrerType,
+                                              HttpServletResponse response) throws BaseException, IOException {
+        try {
+            System.out.println("카카오 헤더: " + authorizationHeader);
+            System.out.println("카카오 유저 아이디: " + kakaoId);
+            System.out.println("referrer type: " + referrerType);
+
+            Long logout_kakaoId = kakaoService.disconnect(Long.parseLong(kakaoId));
             log.info("회원 탈퇴가 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
         } catch (BaseException exception) {
