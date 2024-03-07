@@ -34,7 +34,7 @@ import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.report.Report;
 import rabbit.umc.com.demo.report.ReportRepository;
 import rabbit.umc.com.demo.user.Domain.User;
-import rabbit.umc.com.demo.user.UserQueryService;
+import rabbit.umc.com.demo.user.service.UserQueryService;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Comparator;

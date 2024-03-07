@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.user;
+package rabbit.umc.com.demo.user.repository;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;

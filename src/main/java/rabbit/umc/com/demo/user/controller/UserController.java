@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.user;
+package rabbit.umc.com.demo.user.controller;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,9 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.config.apiPayload.BaseResponse;
-import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.*;
+import rabbit.umc.com.demo.user.service.KakaoService;
+import rabbit.umc.com.demo.user.service.UserService;
 import rabbit.umc.com.utils.JwtService;
 
 import javax.servlet.http.HttpServletResponse;
@@ -49,7 +50,6 @@ public class UserController {
      * @throws BaseException
      */
 
-
     @GetMapping("/kakao-login")
     @Operation(summary = "카카오 로그인 API")
     @ApiResponses({
@@ -67,16 +67,7 @@ public class UserController {
                 throw new BaseException(EMPTY_KAKAO_ACCESS);
             }
 
-            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
-            User user = kakaoService.saveUser(kakaoDto);
-
-            //jwt 토큰 생성(로그인 처리)
-            String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
-            String jwtRefreshToken = jwtService.createRefreshToken();
-            System.out.println(jwtAccessToken);
-            System.out.println(jwtRefreshToken);
-            userService.saveRefreshToken(user.getId(), jwtRefreshToken);
-            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
+            UserLoginResDto userLoginResDto = kakaoService.kakaoLogin(accessToken);
 
             return new BaseResponse<>(userLoginResDto);
         } catch (BaseException exception) {
@@ -89,19 +80,8 @@ public class UserController {
 //    public BaseResponse<UserLoginResDto> kakaoLoginWeb(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
 //        try {
 //            String accessToken = kakaoService.getAccessToken(code);
-//
-//            System.out.println("------------------------- kakao access token: " + accessToken+" -------------------------");
-//
-//            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
-//            User user = kakaoService.saveUser(kakaoDto);
-//
-//            //jwt 토큰 생성(로그인 처리)
-//            String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
-//            String jwtRefreshToken = jwtService.createRefreshToken();
-//            System.out.println(jwtAccessToken);
-//            System.out.println(jwtRefreshToken);
-//            userService.saveRefreshToken(user.getId(), jwtRefreshToken);
-//            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
+//            System.out.println("------------------------- kakao access token: " + accessToken + " -------------------------");
+//            UserLoginResDto userLoginResDto = kakaoService.kakaoLogin(accessToken);
 //
 //            return new BaseResponse<>(userLoginResDto);
 //        } catch (BaseException exception) {
@@ -126,11 +106,7 @@ public class UserController {
     public BaseResponse<Long> kakaoLogout(HttpServletResponse response) throws BaseException, IOException {
         try {
             int userId = jwtService.getUserIdx();
-
-            User user = userService.findUser(Long.valueOf(userId));
-            userService.delRefreshToken(user);
-            Long kakaoId = user.getKakaoId();
-            Long logout_kakaoId = kakaoService.logout(kakaoId);
+            Long logout_kakaoId = kakaoService.logout(Long.valueOf(userId));
 
             log.info("로그아웃이 완료되었습니다.");
             return new BaseResponse<>(logout_kakaoId);
@@ -170,8 +146,9 @@ public class UserController {
 
     /**
      * 회원 탈퇴(앱이 아닌 경로로 연결 끊기)
+     *
      * @param authorizationHeader
-     * @param kakaoId 연결 끊는 유저의 kakao id
+     * @param kakaoId             연결 끊는 유저의 kakao id
      * @param referrerType
      * @throws BaseException
      * @throws IOException
@@ -181,14 +158,17 @@ public class UserController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
-    public BaseResponse<Long> kakaoDisconnect(@RequestHeader("Authorization") String authorizationHeader,
-                                              @RequestParam("user_id") String kakaoId,
-                                              @RequestParam("referrer_type") String referrerType,
-                                              HttpServletResponse response) throws BaseException, IOException {
+    public BaseResponse<Long> kakaoDisconnect(
+            @RequestParam("user_id") String kakaoId,
+            @RequestParam("referrer_type") String referrerType,
+            @RequestHeader("Authorization") String authorizationHeader,
+            HttpServletResponse response) throws BaseException, IOException {
+
         try {
-            System.out.println("카카오 헤더: " + authorizationHeader);
-            System.out.println("카카오 유저 아이디: " + kakaoId);
-            System.out.println("referrer type: " + referrerType);
+//            System.out.println("카카오 헤더: " + authorizationHeader);
+//            System.out.println("카카오 유저 아이디: " + kakaoId);
+//            System.out.println("referrer type: " + referrerType);
+            log.info("탈퇴하는 user id: {}", kakaoId);
 
             Long logout_kakaoId = kakaoService.disconnect(Long.parseLong(kakaoId));
             log.info("회원 탈퇴가 완료되었습니다.");
@@ -215,23 +195,13 @@ public class UserController {
     @Parameters({
             @Parameter(name = "Authorization", description = "카카오에서 받아오는 엑세스 토큰을 넣어주세요.", in = ParameterIn.HEADER)
     })
-    public BaseResponse<UserLoginResDto> getNickname(@RequestHeader("Authorization") String accessToken,
-                                                     @RequestBody UserNicknameReqDto userNicknameReqDto) throws IOException, BaseException {
+    public BaseResponse<UserLoginResDto> signUpUser(@RequestHeader("Authorization") String accessToken,
+                                                    @RequestBody UserNicknameReqDto userNicknameReqDto) throws IOException, BaseException {
         try {
             if (accessToken == null) {
                 throw new BaseException(EMPTY_KAKAO_ACCESS);
             }
-
-            KakaoDto kakaoDto = kakaoService.findProfile(accessToken);
-            User user = kakaoService.signUpUser(userNicknameReqDto.getUserName(), kakaoDto);
-
-            //jwt 토큰 생성(로그인 처리)
-            String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
-            String jwtRefreshToken = jwtService.createRefreshToken();
-            System.out.println(jwtAccessToken);
-            System.out.println(jwtRefreshToken);
-            userService.saveRefreshToken(user.getId(), jwtRefreshToken);
-            UserLoginResDto userLoginResDto = new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
+            UserLoginResDto userLoginResDto = kakaoService.signUpUser(userNicknameReqDto.getUserName(), accessToken);
 
             return new BaseResponse<>(userLoginResDto);
         } catch (BaseException exception) {
@@ -261,10 +231,7 @@ public class UserController {
     public BaseResponse<Long> updateProfile(@RequestPart MultipartFile userProfileImage, @RequestParam String userName) throws IOException {
         try {
             Long userId = (long) jwtService.getUserIdx();
-            User user = userService.findUser(userId);
-            System.out.println("닉네임을 " + user.getUserName() + "에서 " + userName + "으로 변경합니다. 회원번호: " + userId);
-            System.out.println("프로필 이미지를 " + user.getUserProfileImage() + "에서 " + userProfileImage + "으로 변경합니다. 회원번호: " + userId);
-
+//            User user = userService.findUser(userId);
             userService.updateProfile(userId, userName, userProfileImage);
             return new BaseResponse<>(userId);
         } catch (BaseException exception) {
@@ -416,8 +383,7 @@ public class UserController {
                     reissueTokenDto = new ReissueTokenDto(userId, jwtToken, refreshToken);
                     System.out.println(jwtToken);
                 } else {
-                    User user = userService.findUser(Long.valueOf(userId));
-                    userService.delRefreshToken(user);
+                    userService.cannotReissue(Long.valueOf(userId));
                     throw new BaseException(INVALID_JWT_REFRESH);
                 }
             } else {

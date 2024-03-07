@@ -11,7 +11,7 @@ import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.domain.Comment;
 import rabbit.umc.com.demo.community.dto.PostCommentReq;
 import rabbit.umc.com.demo.user.Domain.User;
-import rabbit.umc.com.demo.user.UserRepository;
+import rabbit.umc.com.demo.user.repository.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
 
