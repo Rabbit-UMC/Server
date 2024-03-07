@@ -5,10 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.apiPayload.BaseException;
-import rabbit.umc.com.config.apiPayload.BaseResponseStatus;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.user.Domain.User;
-import rabbit.umc.com.demo.user.UserRepository;
+import rabbit.umc.com.demo.user.repository.UserRepository;
 
 import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
 import static rabbit.umc.com.demo.user.Domain.UserPermission.*;

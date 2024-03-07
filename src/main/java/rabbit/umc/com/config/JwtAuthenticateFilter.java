@@ -10,8 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import rabbit.umc.com.config.apiPayload.BaseException;
-import rabbit.umc.com.demo.user.UserService;
+import rabbit.umc.com.demo.user.service.UserService;
 import rabbit.umc.com.utils.JwtService;
 
 import javax.servlet.FilterChain;
@@ -49,27 +48,34 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
         int userIdx = jwtService.getUserIdx(token);
         String userId = String.valueOf(userIdx);
 
-        if(token != null && token.length() != 0){
-            Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
-            UserDetails userDetails = userService.loadUserByUsername(userId);
-            Collection<? extends GrantedAuthority> userDetailsAuthorities = userDetails.getAuthorities();
+        if (token != null && token.length() != 0) {
+            //로그아웃 또는 회원 탈퇴한 유저인지 확인
+            if (userService.isUserValid((long) userIdx)) { //유저의 status가 ACTIVE, PENDING인 경우
+                log.info("유저의 status가 ACTIVE, PENDING입니다.");
+                Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
+                UserDetails userDetails = userService.loadUserByUsername(userId);
+                Collection<? extends GrantedAuthority> userDetailsAuthorities = userDetails.getAuthorities();
 
-            if (SecurityContextHolder.getContext().getAuthentication() == null || !existingAuth.getAuthorities().equals(userDetailsAuthorities)) {
-                log.info("인증 객체 생성");
+                if (SecurityContextHolder.getContext().getAuthentication() == null || !existingAuth.getAuthorities().equals(userDetailsAuthorities)) {
+                    log.info("인증 객체 생성");
 
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
-                        = new UsernamePasswordAuthenticationToken(userDetails, null, userDetailsAuthorities);
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
+                            = new UsernamePasswordAuthenticationToken(userDetails, null, userDetailsAuthorities);
 
-                usernamePasswordAuthenticationToken
-                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    usernamePasswordAuthenticationToken
+                            .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                }
+            } else { //유저의 status가 INACTIVE, LOGGED_OUT인 경우
+                log.info("유저가 로그아웃이나 탈퇴 상태입니다.");
+                SecurityContextHolder.getContext().setAuthentication(null);
             }
-        }else{
+        } else {
             log.info("인증이 필요없는 API입니다.");
         }
         filterChain.doFilter(request, response);
 
-    }
 
+    }
 }

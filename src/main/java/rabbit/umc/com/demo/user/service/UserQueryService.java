@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.user;
+package rabbit.umc.com.demo.user.service;
 
 import static rabbit.umc.com.demo.user.Domain.UserPermission.HOST;
 
@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.demo.user.Domain.User;
+import rabbit.umc.com.demo.user.repository.UserRepository;
 
 @Service
 @Transactional(readOnly = true)

@@ -1,16 +1,12 @@
 package rabbit.umc.com.demo.schedule.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.config.apiPayload.BaseResponseStatus;
-import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.mission.Mission;
 import rabbit.umc.com.demo.mission.MissionUsers;
-import rabbit.umc.com.demo.mission.dto.MissionHomeRes;
 import rabbit.umc.com.demo.mission.repository.MissionRepository;
 import rabbit.umc.com.demo.mission.repository.MissionUsersRepository;
 import rabbit.umc.com.demo.schedule.domain.MissionSchedule;
@@ -19,7 +15,7 @@ import rabbit.umc.com.demo.schedule.dto.*;
 import rabbit.umc.com.demo.schedule.repository.MissionScheduleRepository;
 import rabbit.umc.com.demo.schedule.repository.ScheduleRepository;
 import rabbit.umc.com.demo.user.Domain.User;
-import rabbit.umc.com.demo.user.UserRepository;
+import rabbit.umc.com.demo.user.repository.UserRepository;
 
 import java.sql.Timestamp;
 import java.time.*;

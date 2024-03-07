@@ -15,7 +15,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import rabbit.umc.com.config.apiPayload.BaseResponse;
-import rabbit.umc.com.demo.user.UserService;
+import rabbit.umc.com.demo.user.service.UserService;
 import rabbit.umc.com.utils.JwtService;
 
 import javax.servlet.ServletException;

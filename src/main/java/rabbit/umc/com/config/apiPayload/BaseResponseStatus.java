@@ -39,6 +39,7 @@ public enum BaseResponseStatus {
     FAILED_TO_AUTHENTICATION(false, "USER4009","올바른 인증이 아닙니다."),
     USER_NOT_FOUND(false, "USER4010","존재하지 않는 회원입니다."),
     USER_ALREADY_EXIST(false, "USER4011", "이미 존재하는 회원입니다."),
+    USER_STATUS_PENDING(false, "USER4012", "유저가 현재 PENDING 상태입니다."),
 
     //권한
     UNAUTHORIZED_USER(false, "PERMISSION4001", "로그인 후 이용 가능합니다."),
