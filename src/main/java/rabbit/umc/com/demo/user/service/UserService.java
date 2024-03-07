@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.user;
+package rabbit.umc.com.demo.user.service;
 
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +30,7 @@ import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Domain.UserDetailsImpl;
 import rabbit.umc.com.demo.user.Domain.UserPermission;
 import rabbit.umc.com.demo.user.Dto.*;
+import rabbit.umc.com.demo.user.repository.UserRepository;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -55,23 +56,8 @@ public class UserService implements UserDetailsService {
     private final ScheduleRepository scheduleRepository;
     private final ImageService imageService;
 
-    //유저 아이디로 User 객체 찾기
-    public User findUser(Long id) throws BaseException {
-        User user = userRepository.getReferenceById(id);
-        if (user == null) {
-            log.info("데이터 베이스에서 찾을 수 없는 user id입니다.");
-            throw new BaseException(BaseResponseStatus.USERS_EMPTY_USER_ID);
-        } else if (user.getStatus() == Status.INACTIVE) {
-            log.info("탈퇴한 회원입니다.");
-            throw new BaseException(BaseResponseStatus.INVALID_USER_ID);
-        }
-        return user;
-    }
-
-
     public boolean isExistSameNickname(String nickname, Long jwtUserId) throws BaseException {
         //본인을 제외하고, 같은 닉네임이 있는지 확인
-
         boolean existSameName = userRepository.existsByNicknameAndNotUserId(nickname, jwtUserId);
         if (existSameName) {
             log.info("중복된 닉네임입니다.");
@@ -95,7 +81,7 @@ public class UserService implements UserDetailsService {
     //닉네임, 프로필 이미지 수정
     @Transactional
     public void updateProfile(Long userId, String newNickname, MultipartFile multipartFile) throws BaseException, IOException {
-        User user = findUser(userId);
+        User user = userRepository.getReferenceById(userId);
 
         if (!multipartFile.isEmpty()) {
             String newProfileImage = imageService.createImageUrl(multipartFile, "user");
@@ -111,7 +97,7 @@ public class UserService implements UserDetailsService {
 
     //유저 프로필 조회
     public UserGetProfileResDto getProfile(Long id) throws BaseException {
-        User user = findUser(id);
+        User user = userRepository.getReferenceById(id);
         UserGetProfileResDto userGetProfileResDto = new UserGetProfileResDto(user.getUserName(), user.getUserProfileImage(), user.getCreatedAt());
         return userGetProfileResDto;
     }
@@ -167,7 +153,8 @@ public class UserService implements UserDetailsService {
 
     //refresh token db에 저장
     public void saveRefreshToken(Long userId, String token) throws BaseException {
-        User user = findUser(userId);
+//        User user = findUser(userId);
+        User user = userRepository.getReferenceById(userId);
         user.setJwtRefreshToken(token);
         userRepository.save(user);
     }
@@ -175,6 +162,12 @@ public class UserService implements UserDetailsService {
     public void delRefreshToken(User user) {
         user.setJwtRefreshToken(null);
         userRepository.save(user);
+    }
+
+    public void cannotReissue(Long userId){
+//        User user = userService.findUser(Long.valueOf(userId));
+        User user = userRepository.getReferenceById(userId);
+        delRefreshToken(user);
     }
 
     @Transactional
@@ -383,4 +376,16 @@ public class UserService implements UserDetailsService {
 
         return new UserDetailsImpl(user);
     }
+
+    @Transactional
+    public boolean isUserValid (Long userId) {
+        User user = userRepository.getReferenceById(userId);
+
+        if(user.getStatus() == Status.INACTIVE || user.getStatus() == Status.LOGGED_OUT){
+            return false;
+        } else{
+            return true;
+        }
+    }
+
 }

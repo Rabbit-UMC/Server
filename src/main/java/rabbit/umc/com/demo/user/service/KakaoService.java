@@ -1,9 +1,8 @@
-package rabbit.umc.com.demo.user;
+package rabbit.umc.com.demo.user.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.Serializers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +19,9 @@ import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.Dto.KakaoDto;
+import rabbit.umc.com.demo.user.Dto.UserLoginResDto;
+import rabbit.umc.com.demo.user.repository.UserRepository;
+import rabbit.umc.com.utils.JwtService;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -44,6 +46,7 @@ public class KakaoService {
 
     private final UserRepository userRepository;
     private final UserService userService;
+    private final JwtService jwtService;
 
     //카카오 엑세스 토큰 얻기
     public String getAccessToken(String code) throws IOException, BaseException {
@@ -117,6 +120,21 @@ public class KakaoService {
         return accessToken;
     }
 
+    public UserLoginResDto kakaoLogin(String accessToken) throws BaseException, JsonProcessingException {
+
+        KakaoDto kakaoDto = findProfile(accessToken);
+        User user = saveUser(kakaoDto);
+        return performLogin(user);
+    }
+
+    private UserLoginResDto performLogin(User user) throws BaseException {
+        //jwt 토큰 생성(로그인 처리)
+        String jwtAccessToken = jwtService.createJwt(Math.toIntExact(user.getId()));
+        String jwtRefreshToken = jwtService.createRefreshToken();
+        userService.saveRefreshToken(user.getId(), jwtRefreshToken);
+        return new UserLoginResDto(user.getId(), jwtAccessToken, jwtRefreshToken);
+    }
+
     // 토큰으로 카카오 API 호출
     @Transactional
     public KakaoDto findProfile(String accessToken) throws JsonProcessingException, BaseException {
@@ -187,18 +205,19 @@ public class KakaoService {
     //유저 로그인
     @Transactional
     public User saveUser(KakaoDto kakaoDto) throws BaseException {
-        User user = new User();
-
+        log.info("로그인 하는 유저의 카카오 아이디: {}", kakaoDto.getKakaoId());
         //회원이 아닌 경우
         //회원가입 진행(이메일, 닉네임 제외 모두)
         if (!existsUser(kakaoDto.getKakaoId())) {
+            log.info("회원이 아닙니다.");
             throw new BaseException(USER_NOT_FOUND);
         }
 
-        user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
+        User user = userRepository.findByKakaoId(kakaoDto.getKakaoId());
 
         //탈퇴한 경우
         if (user.getStatus() == Status.INACTIVE) {
+            log.info("유저가 탈퇴한 상태입니다.");
             throw new BaseException(USER_NOT_FOUND);
         } else { //회원이고 탈퇴하지 않은 경우
             log.info("로그인을 진행하겠습니다.");
@@ -209,7 +228,8 @@ public class KakaoService {
     }
 
     @Transactional
-    public User signUpUser(String userName, KakaoDto kakaoDto) throws BaseException {
+    public UserLoginResDto signUpUser(String userName, String accessToken) throws BaseException, JsonProcessingException {
+        KakaoDto kakaoDto = findProfile(accessToken);
 
         log.info("회원 가입을 진행하겠습니다.");
         if (existsUser(kakaoDto.getKakaoId())) {
@@ -221,8 +241,8 @@ public class KakaoService {
                 user.setAgeRange(kakaoDto.getAgeRange());
                 user.setStatus(ACTIVE);
                 userRepository.save(user);
-                return user;
 
+                return performLogin(user);
             } else {
                 throw new BaseException(USER_ALREADY_EXIST);
             }
@@ -231,7 +251,7 @@ public class KakaoService {
         User user = new User(kakaoDto.getKakaoId(), userName, kakaoDto.getUserProfileImage(), USER,
                 kakaoDto.getAgeRange(), kakaoDto.getGender(), kakaoDto.getBirthday(), ACTIVE);
         userRepository.save(user);
-        return user;
+        return performLogin(user);
     }
 
     public boolean existsUser(Long kakaoId) {
@@ -239,8 +259,14 @@ public class KakaoService {
     }
 
     //카카오 로그아웃
-    public Long logout(Long kakaoId) throws IOException, BaseException {
+    @Transactional
+    public Long logout(Long userId) throws IOException, BaseException {
         //String adminKey= JwtAndKakaoProperties.Admin;
+//        User user = userService.findUser(Long.valueOf(userId));
+        User user = userRepository.getReferenceById(userId);
+        userService.delRefreshToken(user);
+        Long kakaoId = user.getKakaoId();
+//            Long logout_kakaoId = kakaoService.logout(kakaoId);
 
         String str_kakaoId = String.valueOf(kakaoId);
         ResponseEntity<String> response;
@@ -278,6 +304,8 @@ public class KakaoService {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(responseBody);
             kakaoId = jsonNode.get("id").asLong();
+            user.setStatus(Status.LOGGED_OUT);
+            userRepository.save(user);
         } else {
             log.info("서버 응답 오류");
             throw new BaseException(SERVER_ERROR);
@@ -289,7 +317,8 @@ public class KakaoService {
     //카카오 연결끊기
     @Transactional
     public Long unlink(Long userId) throws IOException, BaseException {
-        User user = userService.findUser(Long.valueOf(userId));
+//        User user = userService.findUser(Long.valueOf(userId));
+        User user = userRepository.getReferenceById(userId);
         userService.delRefreshToken(user);
         Long kakaoId = user.getKakaoId();
 

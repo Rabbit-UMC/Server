@@ -13,7 +13,6 @@ import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.demo.community.category.CategoryRepository;
 import rabbit.umc.com.demo.community.category.CategoryService;
 import rabbit.umc.com.demo.community.domain.Category;
-import rabbit.umc.com.demo.converter.MainMissionConverter;
 import rabbit.umc.com.demo.converter.RankConverter;
 import rabbit.umc.com.demo.converter.ReportConverter;
 import rabbit.umc.com.demo.image.service.ImageService;
@@ -32,7 +31,7 @@ import rabbit.umc.com.demo.mainmission.repository.MainMissionRepository;
 import rabbit.umc.com.demo.mainmission.repository.MainMissionUsersRepository;
 import rabbit.umc.com.demo.report.ReportService;
 import rabbit.umc.com.demo.user.Domain.User;
-import rabbit.umc.com.demo.user.UserQueryService;
+import rabbit.umc.com.demo.user.service.UserQueryService;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
@@ -40,7 +39,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import rabbit.umc.com.demo.user.UserService;
+import rabbit.umc.com.demo.user.service.UserService;
 
 import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
 import static rabbit.umc.com.demo.base.Status.*;
