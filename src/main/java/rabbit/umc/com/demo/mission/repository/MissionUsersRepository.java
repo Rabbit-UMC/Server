@@ -27,4 +27,5 @@ public interface MissionUsersRepository extends JpaRepository<MissionUsers,Long>
     void deleteByMissionIdAndUserId(Long missionId, long userId);
 
     List<MissionUsers> getMissionUsersByUserIdAndMissionEndAtIsAfterAndMissionStatusAndMissionIsOpen(long userId, LocalDateTime currentDateTime, Status active, int isOpen);
+
 }
