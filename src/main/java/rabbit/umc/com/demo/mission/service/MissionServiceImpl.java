@@ -102,8 +102,9 @@ public class MissionServiceImpl implements MissionService{
     public List<GetMyMissionRes> getMyMissions(long userId) {
 
         LocalDateTime currentDateTime = LocalDateTime.now();
+        LocalDateTime oneDayLaterDateTime = currentDateTime.minusDays(1);
 
-        List<Mission> missionList = missionUserRepository.getMissionUsersByUserIdAndMissionEndAtIsAfterAndMissionStatusAndMissionIsOpen(userId,currentDateTime,ACTIVE,0)
+        List<Mission> missionList = missionUserRepository.getMissionUsersByUserIdAndMissionEndAtIsAfterAndMissionStatusAndMissionIsOpen(userId,oneDayLaterDateTime,ACTIVE,0)
                 .stream()
                 .map(MissionUsers::getMission)
                 .collect(Collectors.toList());
@@ -302,7 +303,8 @@ public class MissionServiceImpl implements MissionService{
     @Transactional
     public MissionHistoryRes getSuccessMissions(Long userId) {
         LocalDateTime now = LocalDateTime.now();
-        CheckMissionSuccessOrFail successMissionIds = getMissionIdsByStatus(userId, now, true);
+        LocalDateTime oneDayLaterDateTime = now.minusDays(1);
+        CheckMissionSuccessOrFail successMissionIds = getMissionIdsByStatus(userId, oneDayLaterDateTime, true);
 
         List<Mission> successMissions = missionRepository.getMissionsByIdIsIn(successMissionIds.getIds());
         List<MissionHomeRes> resultList = successMissions.stream()
@@ -321,7 +323,8 @@ public class MissionServiceImpl implements MissionService{
     @Override
     public MissionHistoryRes getFailureMissions(Long userId) {
         LocalDateTime now = LocalDateTime.now();
-        CheckMissionSuccessOrFail failureMissionIds = getMissionIdsByStatus(userId, now, false);
+        LocalDateTime oneDayLaterDateTime = now.minusDays(1);
+        CheckMissionSuccessOrFail failureMissionIds = getMissionIdsByStatus(userId, oneDayLaterDateTime, false);
 
         List<Mission> failureMissions = missionRepository.getMissionsByIdIsIn(failureMissionIds.getIds());
         List<MissionHomeRes> resultList = failureMissions.stream()
