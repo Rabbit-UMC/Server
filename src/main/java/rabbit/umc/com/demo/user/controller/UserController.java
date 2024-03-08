@@ -360,6 +360,7 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("/reissue")
+
     @Operation(summary = "access token 재발급 API")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
