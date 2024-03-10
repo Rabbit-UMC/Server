@@ -164,7 +164,7 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    public void cannotReissue(Long userId){
+    public void cannotReissue(Long userId) {
 //        User user = userService.findUser(Long.valueOf(userId));
         User user = userRepository.getReferenceById(userId);
         delRefreshToken(user);
@@ -378,13 +378,21 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public boolean isUserValid (Long userId) {
+    public boolean isUserValid(Long userId) {
         User user = userRepository.getReferenceById(userId);
 
-        if(user.getStatus() == Status.INACTIVE || user.getStatus() == Status.LOGGED_OUT){
+        if (user.getStatus() == Status.INACTIVE || user.getStatus() == Status.LOGGED_OUT) {
             return false;
-        } else{
+        } else {
             return true;
+        }
+    }
+
+    public boolean isValidException(Long userId) throws BaseException {
+        if (isUserValid(userId)) {
+            return true;
+        } else {
+            throw new BaseException(UNAUTHORIZED_USER);
         }
     }
 
