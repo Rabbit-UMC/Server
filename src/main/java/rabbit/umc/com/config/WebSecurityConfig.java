@@ -2,6 +2,7 @@ package rabbit.umc.com.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.*;
 
 @Configuration
+@Slf4j
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -88,6 +90,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(new AuthenticationEntryPoint() {
                     @Override
                     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+                        log.warn("로그인되지 않은 회원입니다.");
                         BaseResponse<?> baseResponse = new BaseResponse<>(UNAUTHORIZED_USER);
 
                         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -104,10 +107,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                         if (request.getRequestURI().startsWith("/app/admin/")) {
                             // ADMIN이 아닌 경우
+                            log.warn("ADMIN 회원만 접근할 수 있습니다.");
                             BaseResponse<Object> baseResponse = new BaseResponse<>(ADMIN_PERMISSION_REQUIRED);
                             responseBody = objectMapper.writeValueAsString(baseResponse);
                         } else if (request.getRequestURI().startsWith("/app/host/")) {
                             // HOST가 아닌 경우
+                            log.warn("HOST 회원만 접근할 수 있습니다.");
                             BaseResponse<Object> baseResponse = new BaseResponse<>(HOST_PERMISSION_REQUIRED);
                             responseBody = objectMapper.writeValueAsString(baseResponse);
                         }
