@@ -75,19 +75,19 @@ public class UserController {
         }
     }
 
-//    @GetMapping("/kakao-login-web")
-//    @ApiOperation(value = "카카오 로그인 웹 API", hidden = true)
-//    public BaseResponse<UserLoginResDto> kakaoLoginWeb(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
-//        try {
-//            String accessToken = kakaoService.getAccessToken(code);
-//            System.out.println("------------------------- kakao access token: " + accessToken + " -------------------------");
-//            UserLoginResDto userLoginResDto = kakaoService.kakaoLogin(accessToken);
-//
-//            return new BaseResponse<>(userLoginResDto);
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>(exception.getStatus());
-//        }
-//    }
+    @GetMapping("/kakao-login-web")
+    @ApiOperation(value = "카카오 로그인 웹 API", hidden = true)
+    public BaseResponse<UserLoginResDto> kakaoLoginWeb(@RequestParam String code, HttpServletResponse response) throws IOException, BaseException {
+        try {
+            String accessToken = kakaoService.getAccessToken(code);
+            System.out.println("------------------------- kakao access token: " + accessToken + " -------------------------");
+            UserLoginResDto userLoginResDto = kakaoService.kakaoLogin(accessToken);
+
+            return new BaseResponse<>(userLoginResDto);
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 
     /**
      * 카카오 로그아웃
@@ -434,6 +434,25 @@ public class UserController {
             UserMissionHistoryDto result = userService.getFailureMissions(userId);
             return new BaseResponse<>(result);
         } catch (BaseException e) {
+            return new BaseResponse(e.getMessage());
+        }
+    }
+
+    @GetMapping("/isValid")
+    @Operation(summary = "access token과 user가 유효한지 확인")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "X-ACCESS-TOKEN", description = "JWT에서 받아오는 엑세스 토큰입니다.", in = ParameterIn.HEADER)
+    })
+    public BaseResponse<Boolean> isValid(@RequestHeader("X-ACCESS-TOKEN") String accessToken){
+        try{
+            Long userId = (long) jwtService.getUserIdx();
+            return new BaseResponse<>(userService.isValidException(userId));
+        } catch (BaseException e){
             return new BaseResponse(e.getMessage());
         }
     }
