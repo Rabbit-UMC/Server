@@ -175,8 +175,8 @@ public class UserService implements UserDetailsService {
         int totalCnt = 0; //총 미션 개수
 
         //user id로 해당 유저가 수행한 미션 리스트를 가져온다.
-        List<MissionUsers> missionUsersList = missionUserRepository.getMissionUsersByUserId(userId);
-        User user = userRepository.getReferenceById(userId);
+        List<MissionUsers> missionUsersList = missionUserRepository.getMissionUsersByUserId(userId); //미션 유저
+        User user = userRepository.getReferenceById(userId); //유저
 
         // 성공한 미션을 담기 위한 리스트
         List<Long> successMissionIds = new ArrayList<>();
@@ -222,8 +222,8 @@ public class UserService implements UserDetailsService {
                         //스케줄의 user id가 조회한 user의 id와 같고
                         // 미션 시작부터 종료 날짜까지의 모든 날짜 리스트 안에 스케줄 종료 시간이 있다면
                         if (userIdinSchedule.equals(userId) && dateList.contains(when)) {
-                            successCnt++;
-                            log.info("스케줄 하루 성공(성공 카운트 1개 올라감)");
+                            successCnt++; //성공 카운트 1개 올라감
+                            log.info("스케줄 하루 성공");
                         }
 
 
