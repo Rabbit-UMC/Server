@@ -69,6 +69,9 @@ public class Article extends BaseTimeEntity {
     @ColumnDefault("0")
     private int likeCount;
 
+    @ColumnDefault("0")
+    private int commentCount;
+
     public void setInactive(){
         this.status = Status.INACTIVE;
     }
