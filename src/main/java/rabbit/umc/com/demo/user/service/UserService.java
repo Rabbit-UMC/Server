@@ -31,6 +31,7 @@ import rabbit.umc.com.demo.user.Domain.UserDetailsImpl;
 import rabbit.umc.com.demo.user.Domain.UserPermission;
 import rabbit.umc.com.demo.user.Dto.*;
 import rabbit.umc.com.demo.user.repository.UserRepository;
+import rabbit.umc.com.utils.JwtService;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -55,6 +56,7 @@ public class UserService implements UserDetailsService {
     private final MissionUserSuccessRepository missionUserSuccessRepository;
     private final ScheduleRepository scheduleRepository;
     private final ImageService imageService;
+    private final JwtService jwtService;
 
     public boolean isExistSameNickname(String nickname, Long jwtUserId) throws BaseException {
         //본인을 제외하고, 같은 닉네임이 있는지 확인
@@ -131,8 +133,26 @@ public class UserService implements UserDetailsService {
         return userArticleListResDtos;
     }
 
+    @Transactional
+    public ReissueTokenDto reissueTokenIfPossible(String accessToken, String refreshToken) throws BaseException {
+        ReissueTokenDto reissueTokenDto = null;
+        Long userId = jwtService.getUserIdFromToken(accessToken);
+        boolean canReissue = isReissueAllowed(userId, refreshToken);
+
+        if (canReissue) {
+            User user = userRepository.getReferenceById(userId);
+            String newAccessToken = jwtService.createJwt(Math.toIntExact(userId));
+            String newRefreshToken = jwtService.createRefreshToken();
+            user.setJwtRefreshToken(newRefreshToken);
+            return new ReissueTokenDto(userId, newAccessToken, newRefreshToken);
+        } else {
+            cannotReissue(Long.valueOf(userId));
+            throw new BaseException(INVALID_JWT_REFRESH);
+        }
+    }
+
     //access token 재발급
-    public boolean isReissueAllowed(Long userId, String refreshToken) throws BaseException {
+    private boolean isReissueAllowed(Long userId, String refreshToken) throws BaseException {
         //인자로 받은 refresh token과 해당 user id의db에 있는 refresh token이 일치한지 검사
         boolean tokenMatch = userRepository.checkJwtRefreshTokenMatch(userId, refreshToken);
         if (tokenMatch) {
@@ -164,7 +184,7 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    public void cannotReissue(Long userId) {
+    private void cannotReissue(Long userId) {
 //        User user = userService.findUser(Long.valueOf(userId));
         User user = userRepository.getReferenceById(userId);
         delRefreshToken(user);
@@ -175,8 +195,8 @@ public class UserService implements UserDetailsService {
         int totalCnt = 0; //총 미션 개수
 
         //user id로 해당 유저가 수행한 미션 리스트를 가져온다.
-        List<MissionUsers> missionUsersList = missionUserRepository.getMissionUsersByUserId(userId);
-        User user = userRepository.getReferenceById(userId);
+        List<MissionUsers> missionUsersList = missionUserRepository.getMissionUsersByUserId(userId); //미션 유저
+        User user = userRepository.getReferenceById(userId); //유저
 
         // 성공한 미션을 담기 위한 리스트
         List<Long> successMissionIds = new ArrayList<>();
@@ -222,8 +242,8 @@ public class UserService implements UserDetailsService {
                         //스케줄의 user id가 조회한 user의 id와 같고
                         // 미션 시작부터 종료 날짜까지의 모든 날짜 리스트 안에 스케줄 종료 시간이 있다면
                         if (userIdinSchedule.equals(userId) && dateList.contains(when)) {
-                            successCnt++;
-                            log.info("스케줄 하루 성공(성공 카운트 1개 올라감)");
+                            successCnt++; //성공 카운트 1개 올라감
+                            log.info("스케줄 하루 성공");
                         }
 
 
