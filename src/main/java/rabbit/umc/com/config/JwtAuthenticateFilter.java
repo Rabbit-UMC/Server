@@ -23,7 +23,7 @@ import java.util.Collections;
 
 @Slf4j
 @RequiredArgsConstructor
-@Component
+//@Component
 public class JwtAuthenticateFilter extends OncePerRequestFilter {
 
     private final UserService userService;
@@ -33,19 +33,9 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String token = jwtService.getJwt(request);
-        log.info("엑세스 토큰 header: {}", request.getHeader("X-ACCESS-TOKEN"));
-        System.out.println("Request Method: " + request.getMethod());
-        System.out.println("Request URI: " + request.getRequestURI());
-        System.out.println("Request URL: " + request.getRequestURL());
-        System.out.println("Request Protocol: " + request.getProtocol());
-        System.out.println("Request Parameters: " + request.getParameterMap());
-        System.out.println("Request Headers: " + Collections.list(request.getHeaderNames()));
-        System.out.println("Request Remote Address: " + request.getRemoteAddr());
-        System.out.println("Request Remote Host: " + request.getRemoteHost());
-        System.out.println("Request Remote Port: " + request.getRemotePort());
 
         log.info("token: {}", token);
-        int userIdx = jwtService.getUserIdx(token);
+        int userIdx = jwtService.getUserIdx(token); //쿼리1
         String userId = String.valueOf(userIdx);
 
         if (token != null && token.length() != 0) {
@@ -53,7 +43,7 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
             if (userService.isUserValid((long) userIdx)) { //유저의 status가 ACTIVE, PENDING인 경우
                 log.info("유저의 status가 ACTIVE, PENDING입니다.");
                 Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
-                UserDetails userDetails = userService.loadUserByUsername(userId);
+                UserDetails userDetails = userService.loadUserByUsername(userId); //쿼리 2
                 Collection<? extends GrantedAuthority> userDetailsAuthorities = userDetails.getAuthorities();
 
                 if (SecurityContextHolder.getContext().getAuthentication() == null || !existingAuth.getAuthorities().equals(userDetailsAuthorities)) {

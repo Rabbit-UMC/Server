@@ -373,20 +373,11 @@ public class UserController {
     })
     public BaseResponse<ReissueTokenDto> reissueToken(@RequestHeader("X-ACCESS-TOKEN") String accessToken, @RequestHeader("X-REFRESH-TOKEN") String refreshToken) throws BaseException {
         try {
-            ReissueTokenDto reissueTokenDto = null;
+
+            ReissueTokenDto reissueTokenDto;
             if (jwtService.getExpirationDate(accessToken).before(new Date())) {
                 //만료된 accessToken 이용해서 user id 알아내기
-                Long userId = jwtService.getUserIdFromToken(accessToken);
-                boolean canReissue = userService.isReissueAllowed(userId, refreshToken);
-
-                if (canReissue) {
-                    String jwtToken = jwtService.createJwt(Math.toIntExact(userId));
-                    reissueTokenDto = new ReissueTokenDto(userId, jwtToken, refreshToken);
-                    System.out.println(jwtToken);
-                } else {
-                    userService.cannotReissue(Long.valueOf(userId));
-                    throw new BaseException(INVALID_JWT_REFRESH);
-                }
+                reissueTokenDto = userService.reissueTokenIfPossible(accessToken, refreshToken);
             } else {
                 log.info("access token의 유효기간이 남아있어 재발급이 불가합니다.");
                 throw new BaseException(UNEXPIRED_JWT_ACCESS);
@@ -448,11 +439,11 @@ public class UserController {
     @Parameters({
             @Parameter(name = "X-ACCESS-TOKEN", description = "JWT에서 받아오는 엑세스 토큰입니다.", in = ParameterIn.HEADER)
     })
-    public BaseResponse<Boolean> isValid(@RequestHeader("X-ACCESS-TOKEN") String accessToken){
-        try{
+    public BaseResponse<Boolean> isValid(@RequestHeader("X-ACCESS-TOKEN") String accessToken) {
+        try {
             Long userId = (long) jwtService.getUserIdx();
             return new BaseResponse<>(userService.isValidException(userId));
-        } catch (BaseException e){
+        } catch (BaseException e) {
             return new BaseResponse(e.getMessage());
         }
     }

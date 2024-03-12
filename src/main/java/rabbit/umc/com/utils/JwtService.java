@@ -50,8 +50,8 @@ public class JwtService {
      */
     public String getJwt() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        System.out.println("request: " + request);
-        System.out.println("access token: " + request.getHeader("X-ACCESS-TOKEN"));
+//        System.out.println("request: " + request);
+//        System.out.println("access token: " + request.getHeader("X-ACCESS-TOKEN"));
         return request.getHeader("X-ACCESS-TOKEN");
     }
 
@@ -75,7 +75,7 @@ public class JwtService {
     public int getUserIdx() throws BaseException {
         //1. JWT 추출
         String accessToken = getJwt();
-        System.out.println("accessToken = " + accessToken);
+//        System.out.println("accessToken = " + accessToken);
         if (accessToken == null || accessToken.length() == 0) {
             throw new BaseException(EMPTY_JWT);
         }
@@ -98,9 +98,9 @@ public class JwtService {
 
     public Integer getUserIdx(String accessToken) {
         //1. JWT 추출
-        System.out.println("accessToken = " + accessToken);
+//        System.out.println("accessToken = " + accessToken);
         if (accessToken == null || accessToken.length() == 0) {
-            System.out.println("엑세스 토큰이 null이거나 길이가 0이다.");
+            log.warn("엑세스 토큰이 null 또는 토큰의 길이가 0입니다.");
             return 0;
         }
 
