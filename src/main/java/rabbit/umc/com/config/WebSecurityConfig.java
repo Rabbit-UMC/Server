@@ -63,7 +63,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/app/users/sign-up",
                         "/app/users/checkDuplication",
                         "/app/users/kakao-disconnect",
-                        "/app/users/isValid");
+                        "/app/users/isValid",
+                        "/app/users/reissue");
     }
 
     @Override

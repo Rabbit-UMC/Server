@@ -33,16 +33,6 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String token = jwtService.getJwt(request);
-//        log.info("엑세스 토큰 header: {}", request.getHeader("X-ACCESS-TOKEN"));
-//        System.out.println("Request Method: " + request.getMethod());
-//        System.out.println("Request URI: " + request.getRequestURI());
-//        System.out.println("Request URL: " + request.getRequestURL());
-//        System.out.println("Request Protocol: " + request.getProtocol());
-//        System.out.println("Request Parameters: " + request.getParameterMap());
-//        System.out.println("Request Headers: " + Collections.list(request.getHeaderNames()));
-//        System.out.println("Request Remote Address: " + request.getRemoteAddr());
-//        System.out.println("Request Remote Host: " + request.getRemoteHost());
-//        System.out.println("Request Remote Port: " + request.getRemotePort());
 
         log.info("token: {}", token);
         int userIdx = jwtService.getUserIdx(token); //쿼리1
