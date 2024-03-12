@@ -32,7 +32,7 @@ public class ArticleConverter {
                         .articleId(article.getId())
                         .articleTitle(article.getTitle())
                         .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
-                        .likeCount(article.getLikeArticles().size())
+                        .likeCount(article.getLikeCount())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -53,7 +53,7 @@ public class ArticleConverter {
                         .articleId(article.getId())
                         .articleTitle(article.getTitle())
                         .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
-                        .likeCount(article.getLikeArticles().size())
+                        .likeCount(article.getLikeCount())
                         .build())
                 .collect(Collectors.toList());
 
@@ -66,8 +66,8 @@ public class ArticleConverter {
                         .articleId(article.getId())
                         .articleTitle(article.getTitle())
                         .uploadTime(DateUtil.makeArticleUploadTime(article.getCreatedAt()))
-                        .likeCount(article.getLikeArticles().size())
-                        .commentCount(article.getComments().size())
+                        .likeCount(article.getLikeCount())
+                        .commentCount(article.getCommentCount())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -79,8 +79,8 @@ public class ArticleConverter {
                         .articleId(article.getId())
                         .articleTitle(article.getTitle())
                         .uploadTime(article.getCreatedAt().format(DATE_TIME_FORMATTER))
-                        .likeCount(article.getLikeArticles().size())
-                        .commentCount(article.getComments().size())
+                        .likeCount(article.getLikeCount())
+                        .commentCount(article.getCommentCount())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -114,8 +114,8 @@ public class ArticleConverter {
                 .likeArticle(isLike)
                 .articleImage(articleImages)
                 .commentList(commentLists)
-                .likeCount(article.getLikeArticles().size())
-                .commentCount(article.getComments().size())
+                .likeCount(article.getLikeCount())
+                .commentCount(article.getLikeCount())
                 .build();
     }
 
