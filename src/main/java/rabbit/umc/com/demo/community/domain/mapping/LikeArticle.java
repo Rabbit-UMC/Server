@@ -35,6 +35,11 @@ public class LikeArticle extends BaseTimeEntity {
     private Status status;
 
 
+    @PostPersist
+    public void updateLikeCount(){
+        article.setLikeCount(article.getLikeCount() + 1);
+    }
+
     //Setter
     public void setLikeArticle(User user, Article article){
         this.user = user;
