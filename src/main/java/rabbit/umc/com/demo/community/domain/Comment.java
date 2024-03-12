@@ -43,6 +43,17 @@ public class Comment extends BaseTimeEntity {
     private Status status;
 
     //비즈니스 로직
+
+    @PostPersist
+    public void updateCommentCountUp(){
+        this.article.setCommentCount(article.getCommentCount()+1);
+    }
+
+    @PreRemove
+    public void updateCommentCountDown(){
+        this.article.setCommentCount(article.getCommentCount()-1);
+    }
+
     public void lockComment(){
         this.status = Status.INACTIVE;
     }

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import rabbit.umc.com.demo.base.BaseTimeEntity;
 import rabbit.umc.com.demo.base.Status;
 
@@ -64,6 +65,12 @@ public class Article extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
     private Status status;
+
+    @ColumnDefault("0")
+    private int likeCount;
+
+    @ColumnDefault("0")
+    private int commentCount;
 
     public void setInactive(){
         this.status = Status.INACTIVE;
