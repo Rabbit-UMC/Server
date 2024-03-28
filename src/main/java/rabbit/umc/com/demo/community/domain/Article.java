@@ -1,12 +1,14 @@
 package rabbit.umc.com.demo.community.domain;
 
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 import rabbit.umc.com.demo.base.BaseTimeEntity;
 import rabbit.umc.com.demo.base.Status;
 
@@ -30,6 +32,7 @@ import static javax.persistence.GenerationType.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@DynamicInsert
 @Table(name = "article")
 public class Article extends BaseTimeEntity {
     @Id@GeneratedValue(strategy = IDENTITY)
@@ -63,8 +66,8 @@ public class Article extends BaseTimeEntity {
     private List<Image> images;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
-    private Status status;
+    @ColumnDefault("ACTIVE")
+    private Status status = Status.ACTIVE;
 
     @ColumnDefault("0")
     private int likeCount;

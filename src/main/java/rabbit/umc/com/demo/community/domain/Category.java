@@ -38,7 +38,7 @@ public class Category extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
-    private Status status;
+    private Status status = Status.ACTIVE;
 
     @OneToMany(mappedBy = "category")
     private List<MainMission> mainMissions;
