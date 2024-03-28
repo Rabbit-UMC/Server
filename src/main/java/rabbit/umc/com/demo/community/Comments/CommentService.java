@@ -10,6 +10,7 @@ import rabbit.umc.com.demo.community.article.ArticleRepository;
 import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.domain.Comment;
 import rabbit.umc.com.demo.community.dto.PostCommentReq;
+import rabbit.umc.com.demo.converter.CommentConverter;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.repository.UserRepository;
 
@@ -39,11 +40,7 @@ public class CommentService {
             if(article.getId() == null){
                 throw new EntityNotFoundException("Unable to find Article with id: " + articleId);
             }
-            Comment comment = Comment.builder()
-                    .article(article)
-                    .user(user)
-                    .content(postCommentReq.getContent())
-                    .build();
+            Comment comment = CommentConverter.toComment(article, postCommentReq.getContent(), user);
 
             return commentRepository.save(comment).getId();
 
