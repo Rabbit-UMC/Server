@@ -65,8 +65,8 @@ public class Article extends BaseTimeEntity {
     private List<Image> images;
 
     @Enumerated(EnumType.STRING)
-    @ColumnDefault("'ACTIVE'")
-    private Status status;
+    @Builder.Default
+    private Status status = Status.ACTIVE;
 
     @ColumnDefault("0")
     private int likeCount;

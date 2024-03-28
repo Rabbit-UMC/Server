@@ -126,7 +126,6 @@ public class ArticleConverter {
                 .content(postArticleReq.getArticleContent())
                 .user(user)
                 .category(category)
-                .status(Status.ACTIVE)
                 .build();
     }
 
