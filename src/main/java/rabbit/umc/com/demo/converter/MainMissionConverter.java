@@ -88,6 +88,7 @@ public class MainMissionConverter {
         return MainMissionUsers.builder()
                 .user(user)
                 .mainMission(mainMission)
+                .status(Status.ACTIVE)
                 .build();
     }
 
@@ -96,6 +97,7 @@ public class MainMissionConverter {
                 .proofImage(filePath)
                 .user(user)
                 .mainMission(mainMission)
+                .status(Status.ACTIVE)
                 .build();
     }
 

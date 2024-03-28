@@ -32,7 +32,6 @@ import static javax.persistence.GenerationType.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@DynamicInsert
 @Table(name = "article")
 public class Article extends BaseTimeEntity {
     @Id@GeneratedValue(strategy = IDENTITY)
@@ -66,8 +65,8 @@ public class Article extends BaseTimeEntity {
     private List<Image> images;
 
     @Enumerated(EnumType.STRING)
-    @ColumnDefault("ACTIVE")
-    private Status status = Status.ACTIVE;
+    @ColumnDefault("'ACTIVE'")
+    private Status status;
 
     @ColumnDefault("0")
     private int likeCount;
