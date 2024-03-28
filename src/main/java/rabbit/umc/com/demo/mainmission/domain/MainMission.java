@@ -48,6 +48,7 @@ public class MainMission extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
+    @Builder.Default
     private Status status = Status.ACTIVE;
 
     @OneToMany(mappedBy = "mainMission")
