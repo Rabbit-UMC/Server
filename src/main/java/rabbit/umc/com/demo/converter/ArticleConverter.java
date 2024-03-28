@@ -3,6 +3,7 @@ package rabbit.umc.com.demo.converter;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.image.domain.Image;
@@ -132,6 +133,7 @@ public class ArticleConverter {
         return LikeArticle.builder()
                 .user(user)
                 .article(article)
+                .status(Status.ACTIVE)
                 .build();
     }
 }

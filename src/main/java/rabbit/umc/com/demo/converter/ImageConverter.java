@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.converter;
 
+import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.image.GenerateImageResDto;
 import rabbit.umc.com.demo.image.domain.Image;
@@ -12,6 +13,7 @@ public class ImageConverter {
                 .filePath(filepath)
                 .s3ImageName(uuid)
                 .imageName(originFileName)
+                .status(Status.ACTIVE)
                 .build();
     }
 
@@ -20,6 +22,7 @@ public class ImageConverter {
                 .imageName(originalFilename)
                 .s3ImageName(uuid)
                 .filePath(imageUrl)
+                .status(Status.ACTIVE)
                 .build();
     }
 
