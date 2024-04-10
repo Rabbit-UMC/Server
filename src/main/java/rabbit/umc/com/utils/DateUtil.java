@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import lombok.extern.java.Log;
 
 public class DateUtil {
 
@@ -43,9 +44,8 @@ public class DateUtil {
     public static String getMissionDday(LocalDate missionEndAt){
         LocalDate currentDateTime = LocalDate.now();
         long daysRemaining = ChronoUnit.DAYS.between(currentDateTime, missionEndAt);
-        String dDay;
         if (daysRemaining >= 0) {
-            return  "D-" + daysRemaining ;
+            return Long.toString(daysRemaining) ;
         }  else {
             return  "미션 종료";
         }
