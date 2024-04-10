@@ -75,7 +75,7 @@ public enum BaseResponseStatus {
     FAILED_TO_TOGETHER_MISSION(false,"MISSION4004", "이미 같이하고 있는 미션입니다."),
     EXIST_MISSION_TITLE(false,"MISSION4005","이미 존재하는 미션명입니다."),
     FAILED_TO_POST_SCHEDULE(false,"MISSION4006", "해당 미션에 대한 일정이 같은 날짜에 있습니다."),
-    NOT_DONE_MISSION(false,"MISSION4007", "아직끝나지 않은 미션입니다."),
+    NOT_DONE_MISSION(false,"MISSION4007", "이미 진행중인 미션이 있습니다."),
     FAILED_TO_LIKE_MISSION(false,"MISSION4008","이미 좋아요한 사진입니다."),
     FAILED_TO_UNLIKE_MISSION(false, "MISSION4009","좋아요하지 않은 사진입니다."),
     FAILED_TO_MISSION(false,"MISSION4010", "존재하지 않는 미션입니다."),
