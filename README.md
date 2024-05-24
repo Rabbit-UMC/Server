@@ -23,6 +23,6 @@ Myo-Zip-Sa Server (Spring Boot)
 <br>
 
 ## 🔨 개발 환경
-- **JAVA 17**
+- **JAVA 11**
 - **Framework:** SpringBoot 2.X
 - **DataBase:** MySQL
