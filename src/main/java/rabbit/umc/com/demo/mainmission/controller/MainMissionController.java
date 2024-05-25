@@ -52,7 +52,7 @@ public class MainMissionController {
     })
     @GetMapping("/main-mission/{mainMissionId}")
     public BaseResponse<GetMainMissionRes> getMainMission(@PathVariable("mainMissionId") Long mainMissionId,
-                                                          @RequestParam("day") int day) throws BaseException{
+                                                          @RequestParam("day") int day){
         try {
             Long userId = (long) jwtService.getUserIdx();
             GetMainMissionRes getMainMissionRes = mainMissionService.getMainMission(mainMissionId, day, userId);
@@ -83,11 +83,11 @@ public class MainMissionController {
             @Parameter(name = "mainMissionProofId", description = "좋아요 처리 할 메인미션의 인증사진 id 입니다"),
     })
     @PostMapping("/main-mission/proof/{mainMissionProofId}/like")
-    public BaseResponse likeMissionProof(@PathVariable("mainMissionProofId")Long mainMissionProofId) throws BaseException{
+    public BaseResponse likeMissionProof(@PathVariable("mainMissionProofId")Long mainMissionProofId){
         try {
-            System.out.println(jwtService.createJwt(1));
             Long userId = (long) jwtService.getUserIdx();
             mainMissionService.likeMissionProof(userId, mainMissionProofId);
+
             return new BaseResponse<>(mainMissionProofId + "번 사진 좋아요");
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
@@ -113,11 +113,11 @@ public class MainMissionController {
             @Parameter(name = "mainMissionProofId", description = "좋아요 취소 처리 할 메인미션의 인증사진 id 입니다"),
     })
     @DeleteMapping("/main-mission/proof/{mainMissionProofId}/unlike")
-    public BaseResponse unLikeMissionProof(@PathVariable("mainMissionProofId")Long mainMissionProofId) throws BaseException{
+    public BaseResponse unLikeMissionProof(@PathVariable("mainMissionProofId")Long mainMissionProofId){
         try {
-            System.out.println(jwtService.createJwt(1));
             Long userId = (long) jwtService.getUserIdx();
             mainMissionService.unLikeMissionProof(userId, mainMissionProofId);
+
             return new BaseResponse<>(mainMissionProofId+ "번 좋아요 취소");
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
@@ -144,11 +144,11 @@ public class MainMissionController {
             @Parameter(name = "mainMissionProofId", description = "신고 처리 할 메인미션의 인증사진 id 입니다"),
     })
     @PostMapping("/main-mission/proof/{mainMissionProofId}/report")
-    public BaseResponse reportMissionProof(@PathVariable("mainMissionProofId") Long mainMissionProofId) throws BaseException{
+    public BaseResponse reportMissionProof(@PathVariable("mainMissionProofId") Long mainMissionProofId){
         try {
-            System.out.println(jwtService.createJwt(1));
             Long userId = (long) jwtService.getUserIdx();
             mainMissionService.reportMissionProof(userId, mainMissionProofId);
+
             return new BaseResponse<>(mainMissionProofId + "번 신고 완료되었습니다.");
 
         }catch (BaseException exception){
@@ -176,11 +176,11 @@ public class MainMissionController {
             @Parameter(name = "categoryId", description = "미션생성할 카테고리 id 입니다 해당 카테고리의 이전 미션은 비활성화 처리됩니다."),
     })
     @PostMapping("/host/main-mission/{categoryId}")
-    public BaseResponse createMainMission(@PathVariable("categoryId") Long categoryId, @RequestBody PostMainMissionReq postMainMissionReq) throws BaseException {
-        System.out.println("jwt" + jwtService.createJwt(1));
+    public BaseResponse createMainMission(@PathVariable("categoryId") Long categoryId, @RequestBody PostMainMissionReq postMainMissionReq){
         try {
             Long userId = (long) jwtService.getUserIdx();
             mainMissionService.createMainMission(userId, categoryId, postMainMissionReq);
+
             return new BaseResponse<>(categoryId + "번 카테고리 메인미션 생성완료되었습니다");
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
@@ -205,7 +205,7 @@ public class MainMissionController {
             @Parameter(name = "categoryId", description = "인증 사진을 업로드할 메인 미션의 카테고리 id"),
     })
     @PostMapping("/main-mission/upload/{categoryId}")
-    public BaseResponse uploadProofImage(@RequestPart(value = "multipartFile") MultipartFile multipartFile, @PathVariable("categoryId") Long categoryId)throws BaseException{
+    public BaseResponse uploadProofImage(@RequestPart(value = "multipartFile") MultipartFile multipartFile, @PathVariable("categoryId") Long categoryId){
         try{
             Long userId = (long) jwtService.getUserIdx();
             mainMissionService.uploadProofImage(multipartFile, categoryId, userId);

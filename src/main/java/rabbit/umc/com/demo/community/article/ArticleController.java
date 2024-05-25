@@ -71,12 +71,9 @@ public class ArticleController {
             @Parameter(name = "articleId", description = "조회할 게시물 id 입니다.")
     })
     @GetMapping("/article/{articleId}")
-    public BaseResponse<ArticleRes> getArticle(@PathVariable(name = "articleId") Long articleId) throws BaseException{
+    public BaseResponse<ArticleRes> getArticle(@PathVariable(name = "articleId") Long articleId){
         try {
-            String id = jwtService.createJwt(1);
-            System.out.println("토큰" + id);
             Long userId = (long) jwtService.getUserIdx();
-
             ArticleRes articleRes = articleService.getArticle(articleId, userId);
             return new BaseResponse<>(articleRes);
         }catch (BaseException exception){
@@ -103,9 +100,8 @@ public class ArticleController {
             @Parameter(name = "articleId", description = "조회할 게시물 id 입니다."),
     })
     @DeleteMapping("/article/{articleId}")
-    public BaseResponse deleteArticle(@PathVariable("articleId") Long articleId) throws BaseException {
+    public BaseResponse deleteArticle(@PathVariable("articleId") Long articleId){
         try{
-            System.out.println(jwtService.createJwt(13));
             Long userId = (long) jwtService.getUserIdx();
             articleService.deleteArticle(articleId, userId);
             return new BaseResponse<>(articleId + "번 게시물이 삭제되었습니다");
@@ -135,7 +131,6 @@ public class ArticleController {
     public BaseResponse postArticle(@RequestPart(name = "postArticleReq") PostArticleReq postArticleReq,
                                     @RequestPart(required = false, name = "multipartFiles") List<MultipartFile> multipartFiles ,
                                     @RequestParam("categoryId") Long categoryId) throws BaseException, IOException {
-        System.out.println(jwtService.createJwt(1));
         Long userId = (long) jwtService.getUserIdx();
         Long articleId = articleService.postArticle(multipartFiles, postArticleReq, userId, categoryId);
         return new BaseResponse<>(articleId + "번 게시물 생성 완료되었습니다.");
@@ -162,11 +157,9 @@ public class ArticleController {
             @Parameter(name = "articleId", description = "수정될 게시글 id 입니다."),
     })
     @PatchMapping("/article/{articleId}")
-    public BaseResponse patchArticle(@RequestBody PatchArticleReq patchArticleReq, @PathVariable("articleId") Long articleId) throws BaseException {
+    public BaseResponse patchArticle(@RequestBody PatchArticleReq patchArticleReq, @PathVariable("articleId") Long articleId){
         try {
-            System.out.println(jwtService.createJwt(1));
             Long userId = (long) jwtService.getUserIdx();
-
             articleService.updateArticle(userId, patchArticleReq, articleId);
             return new BaseResponse<>(articleId + "번 수정완료되었습니다.");
         }catch (BaseException exception) {
@@ -193,11 +186,9 @@ public class ArticleController {
             @Parameter(name = "articleId", description = "신고할 게시글 id 입니다"),
     })
     @PostMapping("/article/{articleId}/report")
-    public BaseResponse reportArticle (@PathVariable("articleId") Long articleId) throws BaseException {
+    public BaseResponse reportArticle (@PathVariable("articleId") Long articleId){
         try{
-            System.out.println(jwtService.createJwt(1));
             Long userId = (long) jwtService.getUserIdx();
-            System.out.println("userId = "+ userId);
             articleService.reportArticle(userId, articleId);
             return new BaseResponse<>(articleId + "번 게시물 신고 완료되었습니다");
 
@@ -225,9 +216,8 @@ public class ArticleController {
             @Parameter(name = "articleId", description = "좋아요할 게시글 id 입니다"),
     })
     @PostMapping("/article/{articleId}/like")
-    public BaseResponse likeArticle(@PathVariable("articleId") Long articleId) throws BaseException{
+    public BaseResponse likeArticle(@PathVariable("articleId") Long articleId){
         try{
-
             Long userId = (long) jwtService.getUserIdx();
             articleService.likeArticle(userId, articleId);
             return new BaseResponse<>("좋아요 완료되었습니다.");
@@ -255,7 +245,7 @@ public class ArticleController {
             @Parameter(name = "articleId", description = "좋아요 취소 게시글 id 입니다"),
     })
     @DeleteMapping("/article/{articleId}/unlike")
-    public BaseResponse unLikeArticle(@PathVariable("articleId")Long articleId) throws BaseException{
+    public BaseResponse unLikeArticle(@PathVariable("articleId")Long articleId){
         try {
             Long userId = (long) jwtService.getUserIdx();
             articleService.unLikeArticle(userId, articleId);
@@ -280,7 +270,7 @@ public class ArticleController {
             @Parameter(name = "page", description = "페이징 번호 입니다"),
     })
     @GetMapping("/popular-posts")
-    public BaseResponse<List<GetPopularArticleRes>> getPopularArticles(@RequestParam(defaultValue = "0", name = "page") int page) throws BaseException {
+    public BaseResponse<List<GetPopularArticleRes>> getPopularArticles(@RequestParam(defaultValue = "0", name = "page") int page){
 
         try {
             List<GetPopularArticleRes> popularArticles = articleService.popularArticle(page);

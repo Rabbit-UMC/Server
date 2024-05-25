@@ -49,12 +49,11 @@ public class CategoryController {
     })
     @PatchMapping("/host/main-image/{categoryId}")
     public BaseResponse editCategoryImage(@PathVariable("categoryId") Long categoryId,
-                                          @RequestBody PatchCategoryImageReq patchCategoryImageReq) throws BaseException {
+                                          @RequestBody PatchCategoryImageReq patchCategoryImageReq){
         try {
-            System.out.println(jwtService.createJwt(1));
             Long userId = (long) jwtService.getUserIdx();
-
             categoryService.editCategoryImage(userId, categoryId, patchCategoryImageReq);
+
             return new BaseResponse<>("카테고리 " + categoryId + "번 사진 수정완료되었습니다.");
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());

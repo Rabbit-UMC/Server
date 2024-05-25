@@ -46,11 +46,11 @@ public class CommentController {
             @Parameter(name = "articleId", description = "댓글이 달리는 게시글 id"),
     })
     @PostMapping("/{articleId}")
-    public BaseResponse postComment(@RequestBody PostCommentReq postCommentReq, @PathVariable("articleId") Long articleId) throws BaseException{
+    public BaseResponse postComment(@RequestBody PostCommentReq postCommentReq, @PathVariable("articleId") Long articleId){
         try {
-            System.out.println(jwtService.createJwt(1));
             Long userId = (long) jwtService.getUserIdx();
             Long commentId = commentService.postComment(postCommentReq, userId, articleId);
+
             return new BaseResponse<>("commentId=" + commentId + " 댓글 작성이 완료되었습니다");
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
@@ -76,9 +76,8 @@ public class CommentController {
             @Parameter(name = "commentsId", description = "삭제할 댓글 id"),
     })
     @DeleteMapping("/{commentsId}")
-    public BaseResponse deleteComment(@PathVariable("commentsId") Long commentsId)throws BaseException{
+    public BaseResponse deleteComment(@PathVariable("commentsId") Long commentsId){
         try {
-            System.out.println(jwtService.createJwt(1));
             Long userId = (long) jwtService.getUserIdx();
             Long deleteId = commentService.deleteComment(commentsId, userId);
 
@@ -109,19 +108,12 @@ public class CommentController {
     @PatchMapping("/{commentsId}/lock")
     public BaseResponse lockComment(@PathVariable("commentsId") Long commentsId) {
         try {
-            System.out.println(jwtService.createJwt(1));
             Long userId = (long) jwtService.getUserIdx();
             commentService.lockComment(userId, commentsId);
+
             return new BaseResponse(commentsId + "번 댓글이 잠겼습니다.");
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
     }
-
-
-
-
-
-
-
 }
