@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.config.apiPayload.BaseResponse;
-import rabbit.umc.com.demo.community.dto.CommunityHomeRes;
-import rabbit.umc.com.demo.community.dto.CommunityHomeResV2;
+import rabbit.umc.com.demo.home.dto.CommunityHomeRes;
+import rabbit.umc.com.demo.home.dto.CommunityHomeResV2;
 import rabbit.umc.com.demo.home.facade.HomeFacade;
 import rabbit.umc.com.utils.JwtService;
 
