@@ -112,22 +112,23 @@ public class MainMissionConverter {
                 .build();
     }
 
-    public static MainMissionDtoV2 toMainMissionDtoV2(MainMission mainMission) {
-        List<MainMissionUsers> mainMissionUsers = mainMission.getMainMissionUsers();
+    public static List<MainMissionDtoV2> toMainMissionDtoV2(List<MainMission> mainMissionList) {
+        return mainMissionList.stream().map(mainMission -> {
+            List<MainMissionUsers> mainMissionUsers = mainMission.getMainMissionUsers();
 
-        Optional<MainMissionUsers> topRankUser = mainMissionUsers.stream()
-                .max(Comparator.comparingInt(MainMissionUsers::getScore));
+            Optional<MainMissionUsers> topRankUser = mainMissionUsers.stream()
+                    .max(Comparator.comparingInt(MainMissionUsers::getScore));
 
-        String name = topRankUser.map(user -> user.getUser().getUserName()).orElse("없음");
+            String name = topRankUser.map(user -> user.getUser().getUserName()).orElse("없음");
 
-
-        return MainMissionDtoV2.builder()
-                .mainMissionId(mainMission.getId())
-                .mainMissionTitle(mainMission.getTitle())
-                .dDay(DateUtil.calculateDDay(mainMission.getEndAt()))
-                .topRankUser(name)
-                .missionCategoryId(mainMission.getCategory().getId())
-                .build();
+            return MainMissionDtoV2.builder()
+                    .mainMissionId(mainMission.getId())
+                    .mainMissionTitle(mainMission.getTitle())
+                    .dDay(DateUtil.calculateDDay(mainMission.getEndAt()))
+                    .topRankUser(name)
+                    .missionCategoryId(mainMission.getCategory().getId())
+                    .build();
+        }).collect(Collectors.toList());
     }
 
 }

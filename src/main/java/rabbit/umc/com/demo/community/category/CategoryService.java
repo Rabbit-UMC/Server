@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.community.category;
 
+import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,5 +45,9 @@ public class CategoryService {
         }catch (EntityNotFoundException e){
             throw new BaseException(DONT_EXIST_CATEGORY);
         }
+    }
+
+    public List<Category> findMyHostCategories(Long userId){
+        return categoryRepository.findAllByUserId(userId);
     }
 }

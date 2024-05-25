@@ -20,11 +20,8 @@ import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
 import rabbit.umc.com.demo.community.dto.*;
 import rabbit.umc.com.demo.community.dto.ArticleRes.ArticleImageDto;
 import rabbit.umc.com.demo.community.dto.ArticleRes.CommentDto;
-import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionDtoV2;
-import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.PopularArticleDtoV2;
 import rabbit.umc.com.demo.converter.ArticleConverter;
 import rabbit.umc.com.demo.converter.CommentConverter;
-import rabbit.umc.com.demo.converter.MainMissionConverter;
 import rabbit.umc.com.demo.converter.ReportConverter;
 import rabbit.umc.com.demo.image.domain.Image;
 import rabbit.umc.com.demo.image.repository.ImageRepository;
@@ -65,51 +62,9 @@ public class ArticleService {
     private final ImageService imageService;
     private final ArticleQueryService articleQueryService;
 
-
-    public CommunityHomeRes getHomeV1() {
-        //상위 4개만 페이징
-        PageRequest pageable = PageRequest.of(0, POPULAR_ARTICLE_LIKE);
-        //STATUS:ACTIVE 인기 게시물 4개만 가져오기
-        List<Article> articleList = articleRepository.findPopularArticleLimitedToFour(ACTIVE, pageable);
-        // STATUS:ACTIVE 미션만 가져오기
-        List<MainMission> missionList = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
-
-        return ArticleConverter.toCommunityHomeRes(missionList, articleList);
-    }
-
-    public CommunityHomeResV2 getHomeV2(Long userId) {
-        return CommunityHomeResV2.builder()
-                .mainMission(getAllMainMission())
-                .popularArticle(getTop4Articles())
-                .userHostCategory(findHostCategoryIds(userId))
-                .build();
-    }
-
-    public List<MainMissionDtoV2> getAllMainMission(){
-        List<MainMission> missions = mainMissionRepository.findProgressMissionByStatus(ACTIVE);
-
-        return missions.stream()
-                .map(MainMissionConverter::toMainMissionDtoV2)
-                .collect(Collectors.toList());
-    }
-
-
-    public List<Long> findHostCategoryIds(Long userId){
-        List<Category> category = categoryRepository.findAllByUserId(userId);
-        return category.stream()
-                .map(Category::getId)
-                .collect(Collectors.toList());
-    }
-
-    public List<PopularArticleDtoV2> getTop4Articles(){
-        PageRequest pageRequest = PageRequest.of(0,POPULAR_ARTICLE_LIKE);
-        List<Article> top4Articles = articleRepository.findPopularArticleLimitedToFour(ACTIVE, pageRequest);
-        return ArticleConverter.toPopularArticleDtoV2(top4Articles);
-    }
-
-    public String getHostUserName(MainMission mainMission){
-        User hostUser = mainMission.getCategory().getUser();
-        return  hostUser.getUserName();
+    public List<Article> getTopLikeArticle(){
+        PageRequest pageRequest = PageRequest.of(0, POPULAR_ARTICLE_LIKE);
+        return articleRepository.findPopularArticleLimitedToFour(ACTIVE, pageRequest);
     }
 
     public ArticleListRes getArticles(int page, Long categoryId) throws BaseException {
@@ -265,8 +220,6 @@ public class ArticleService {
     @Transactional
     public void unLikeArticle(Long userId, Long articleId) throws BaseException {
         try {
-            Article article = articleQueryService.findById(articleId);
-
             LikeArticle existlikeArticle = likeArticleRepository.findLikeArticleByArticleIdAndUserId(articleId, userId);
             //좋아요 했던 게시물인지 체크
             if (existlikeArticle == null) {

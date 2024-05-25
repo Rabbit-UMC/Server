@@ -1,7 +1,6 @@
 package rabbit.umc.com.demo.mainmission.service;
 
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -50,7 +49,6 @@ import static rabbit.umc.com.demo.converter.MainMissionConverter.toMainMissionVi
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MainMissionService {
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private final MainMissionRepository mainMissionRepository;
     private final MainMissionProofRepository mainMissionProofRepository;
@@ -62,6 +60,10 @@ public class MainMissionService {
     private final ReportService reportService;
     private final ImageService imageService;
     private final CategoryService categoryService;
+
+    public List<MainMission> getActiveMainMissionList(){
+        return mainMissionRepository.findProgressMissionByStatus(ACTIVE);
+    }
 
     private List<MainMissionProof> findMainMissionProofByDay(MainMission mainMission, int day, Long mainMissionId){
         LocalDateTime startDate = mainMission.getStartAt().atStartOfDay();

@@ -28,39 +28,6 @@ import java.util.List;
 public class ArticleController {
     private final ArticleService articleService;
     private final JwtService jwtService;
-    /**
-     * 커뮤니티 홈화면 API
-     * @return
-     * @throws BaseException
-     */
-    @Tag(name = "communityHomeV1")
-    @Operation(summary = "커뮤니티 홈 화면 조회 API V[1.0]")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
-    })
-    @GetMapping("/home")
-    public BaseResponse<CommunityHomeRes> communityHome () throws BaseException {
-        CommunityHomeRes communityHomeRes = articleService.getHomeV1();
-        return new BaseResponse<>(communityHomeRes);
-    }
-
-    @Tag(name = "communityHomeV2")
-    @Operation(summary = "커뮤니티 홈 화면 조회 API V[2.0]")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4001", description = "JWT 토큰을 주세요!",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "JWT4002", description = "JWT 토큰 만료",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-    })
-    @GetMapping("/home/v2")
-    public BaseResponse<CommunityHomeResV2> communityHomeV2 () throws BaseException {
-        try {
-            Long userId = (long) jwtService.getUserIdx();
-            CommunityHomeResV2 communityHomeRes = articleService.getHomeV2(userId);
-            return new BaseResponse<>(communityHomeRes);
-        }catch (BaseException exception){
-            return new BaseResponse<>(exception.getStatus());
-        }
-    }
 
     /**
      * 게시판 별 게시물 조회 API
