@@ -15,10 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.config.apiPayload.BaseResponse;
 import rabbit.umc.com.demo.community.dto.*;
-import rabbit.umc.com.demo.community.facade.ArticleFacade;
+import rabbit.umc.com.demo.community.article.facade.ArticleFacade;
 import rabbit.umc.com.utils.JwtService;
 
-import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "article", description = "article API")
@@ -49,10 +48,14 @@ public class ArticleController {
             @Parameter(name = "categoryId", description = "조회할 게시물들의 카테고리 ID 입니다")
     })
     @GetMapping("/article")
-    public BaseResponse<ArticleListRes> getArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam(name = "categoryId") Long categoryId) throws BaseException{
-        ArticleListRes articleListRes = articleFacade.getArticles(page, categoryId);
+    public BaseResponse<ArticleListRes> getArticles(@RequestParam(defaultValue = "0", name = "page") int page, @RequestParam(name = "categoryId") Long categoryId){
+        try {
+            ArticleListRes articleListRes = articleFacade.getArticles(page, categoryId);
 
-        return new BaseResponse<>(articleListRes);
+            return new BaseResponse<>(articleListRes);
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
     /**
@@ -131,10 +134,15 @@ public class ArticleController {
     @PostMapping(value = "/article" , consumes = {"multipart/form-data"})
     public BaseResponse postArticle(@RequestPart(name = "postArticleReq") PostArticleReq postArticleReq,
                                     @RequestPart(required = false, name = "multipartFiles") List<MultipartFile> multipartFiles ,
-                                    @RequestParam("categoryId") Long categoryId) throws BaseException, IOException {
-        Long userId = (long) jwtService.getUserIdx();
-        Long articleId = articleFacade.postArticle(multipartFiles, postArticleReq, userId, categoryId);
-        return new BaseResponse<>(articleId + "번 게시물 생성 완료되었습니다.");
+                                    @RequestParam("categoryId") Long categoryId){
+        try {
+            Long userId = (long) jwtService.getUserIdx();
+            Long articleId = articleFacade.postArticle(multipartFiles, postArticleReq, userId, categoryId);
+
+            return new BaseResponse<>(articleId + "번 게시물 생성 완료되었습니다.");
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
     /**
@@ -162,6 +170,7 @@ public class ArticleController {
         try {
             Long userId = (long) jwtService.getUserIdx();
             articleFacade.updateArticle(userId, patchArticleReq, articleId);
+
             return new BaseResponse<>(articleId + "번 수정완료되었습니다.");
         }catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -191,8 +200,8 @@ public class ArticleController {
         try{
             Long userId = (long) jwtService.getUserIdx();
             articleFacade.reportArticle(userId, articleId);
-            return new BaseResponse<>(articleId + "번 게시물 신고 완료되었습니다");
 
+            return new BaseResponse<>(articleId + "번 게시물 신고 완료되었습니다");
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
@@ -221,6 +230,7 @@ public class ArticleController {
         try{
             Long userId = (long) jwtService.getUserIdx();
             articleFacade.likeArticle(userId, articleId);
+
             return new BaseResponse<>("좋아요 완료되었습니다.");
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
@@ -250,6 +260,7 @@ public class ArticleController {
         try {
             Long userId = (long) jwtService.getUserIdx();
             articleFacade.unLikeArticle(userId, articleId);
+
             return new BaseResponse<>(articleId + "번 게시물 좋아요 취소되었습니다");
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
@@ -272,9 +283,9 @@ public class ArticleController {
     })
     @GetMapping("/popular-posts")
     public BaseResponse<List<GetPopularArticleRes>> getPopularArticles(@RequestParam(defaultValue = "0", name = "page") int page){
-
         try {
             List<GetPopularArticleRes> popularArticles = articleFacade.popularArticle(page);
+
             return new BaseResponse<>(popularArticles);
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
