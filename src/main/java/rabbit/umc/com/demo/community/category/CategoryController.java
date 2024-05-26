@@ -8,13 +8,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Data;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.config.apiPayload.BaseResponse;
+import rabbit.umc.com.demo.community.dto.PatchCategoryImageReq;
 import rabbit.umc.com.utils.JwtService;
 
 @Api(tags = {"카테고리 관련 Controller"})
@@ -58,11 +56,6 @@ public class CategoryController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
-    @Getter
-    @Setter
-    @Data
-    static class PatchCategoryImageReq{
-        private String filePath;
-    }
+
 }
 
