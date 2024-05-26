@@ -3,6 +3,9 @@ package rabbit.umc.com.demo.home.facade;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.demo.community.article.service.ArticleService;
@@ -25,7 +28,10 @@ public class HomeFacade {
     private final CategoryService categoryService;
 
     public CommunityHomeRes getHomeV1() {
-        List<Article> articleList = articleService.getTopLikeArticle();
+//        List<Article> articleList = articleService.getTopLikeArticle();
+        Pageable pageable = PageRequest.of(0,4, Sort.by("likeCount").descending());
+        List<Article> articleList = articleService.getTopLikeArticle(pageable);
+
         List<MainMission> missionList = mainMissionService.getActiveMainMissionList();
         return HomeConverter.toCommunityHomeRes(missionList, articleList);
     }
@@ -34,7 +40,9 @@ public class HomeFacade {
 
         List<MainMission> missionList = mainMissionService.getActiveMainMissionList();
         List<Category> myHostCategories = categoryService.findMyHostCategories(userId);
-        List<Article> articleList = articleService.getTopLikeArticle();
+
+        Pageable pageable = PageRequest.of(0,4, Sort.by("likeCount").descending());
+        List<Article> articleList = articleService.getTopLikeArticle(pageable);
 
         return HomeConverter.toCommunityHomeResV2(missionList, articleList, myHostCategories);
     }

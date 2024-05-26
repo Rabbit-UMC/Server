@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.mainmission.repository;
 
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.data.jpa.repository.Query;
@@ -32,6 +33,6 @@ public interface MainMissionRepository extends JpaRepository<MainMission, Long> 
     MainMission findMainMissionByCategoryIdAndStatus(Long categoryId, Status status);
     List<MainMission> findMainMissionsByEndAtBeforeAndLastMissionTrue(LocalDate now);
 
-    MainMission findMainMissionsByCategoryIdAndStatus(Long categoryId, Status status );
+    Optional<MainMission> findMainMissionsByCategoryAndStatus(Category category, Status status );
 
 }

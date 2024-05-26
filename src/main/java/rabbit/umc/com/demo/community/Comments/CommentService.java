@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.apiPayload.BaseException;
-import rabbit.umc.com.demo.community.article.ArticleRepository;
+import rabbit.umc.com.demo.community.article.repository.ArticleRepository;
 import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.domain.Comment;
 import rabbit.umc.com.demo.community.dto.PostCommentReq;
@@ -78,7 +78,7 @@ public class CommentService {
             Comment comment = commentRepository.getReferenceById(commentsId);
 
             //JWT 가 게시물 작성 유저인지 체크
-            if(userId != comment.getArticle().getUser().getId()){
+            if(comment.getArticle().getUser().getId().equals(userId)){
                 throw new BaseException(INVALID_USER_JWT);
             }
             //이미 잠긴 댓글인지 체크

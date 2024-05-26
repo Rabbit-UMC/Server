@@ -1,11 +1,13 @@
 package rabbit.umc.com.demo.converter;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.domain.Category;
+import rabbit.umc.com.demo.community.domain.Comment;
 import rabbit.umc.com.demo.image.domain.Image;
 import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
 import rabbit.umc.com.demo.community.dto.ArticleListRes;
@@ -90,7 +92,19 @@ public class ArticleConverter {
                 .build();
     }
 
-    public static ArticleRes toArticleRes(Article article, Boolean isLike,List<ArticleImageDto> articleImages, List<CommentDto> commentLists ){
+    public static ArticleRes toArticleRes(Article article, Boolean isLike){
+
+        List<ArticleImageDto> articleImages = article.getImages()
+                .stream()
+                .map(ArticleConverter::toArticleImageDto)
+                .collect(Collectors.toList());
+
+        List<CommentDto> commentLists = article.getComments()
+                .stream()
+                .sorted(Comparator.comparing(Comment::getCreatedAt))
+                .map(CommentConverter::toCommentDto)
+                .collect(Collectors.toList());
+
         return ArticleRes.builder()
                 .categoryName(article.getCategory().getName())
                 .articleId(article.getId())

@@ -65,6 +65,11 @@ public class MainMissionService {
         return mainMissionRepository.findProgressMissionByStatus(ACTIVE);
     }
 
+    public MainMission getActiveMainMissionByCategory(Category category) throws BaseException {
+        return mainMissionRepository.findMainMissionsByCategoryAndStatus(category, ACTIVE)
+                .orElseThrow(() -> new BaseException(DONT_EXIST_MISSION));
+    }
+
     private List<MainMissionProof> findMainMissionProofByDay(MainMission mainMission, int day, Long mainMissionId){
         LocalDateTime startDate = mainMission.getStartAt().atStartOfDay();
         LocalDateTime targetDate = startDate.plusDays(day - 1);
@@ -196,7 +201,8 @@ public class MainMissionService {
     }
 
     public boolean isCategoryUser(Long userId, Category category){
-        return category.getUser().getId() == userId;
+        return category.getUser().getId()
+                .equals(userId);
     }
 
     @Transactional
