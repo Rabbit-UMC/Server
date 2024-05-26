@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.community.facade;
+package rabbit.umc.com.demo.community.article.facade;
 
 import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.END_PAGE;
 import static rabbit.umc.com.config.apiPayload.BaseResponseStatus.FAILED_TO_LIKE;

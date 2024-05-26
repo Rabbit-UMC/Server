@@ -24,13 +24,6 @@ public class CategoryController {
     private final CategoryService categoryService;
     private final JwtService jwtService;
 
-    /**
-     * 카테고리 이미지 변경 - HOST (묘집사)유저만 수정가능
-     * @param categoryId
-     * @param patchCategoryImageReq
-     * @return
-     * @throws BaseException
-     */
     @Tag(name = "changeCategoryImage")
     @Operation(summary = "카테고리 대표 이미지 변경 API")
     @ApiResponses({

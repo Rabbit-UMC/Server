@@ -32,12 +32,6 @@ public class MainMissionController {
     private final MainMissionService mainMissionService;
     private final JwtService jwtService;
 
-    /**
-     * 메인 미션 상세 조회
-     * @param mainMissionId
-     * @return
-     * @throws BaseException
-     */
     @Tag(name = "mainMissionView")
     @Operation(summary = "메인 미션 상세 조회 API")
     @ApiResponses({
@@ -63,12 +57,6 @@ public class MainMissionController {
         }
     }
 
-    /**
-     * 메인 미션 인증 사진 좋아요
-     * @param mainMissionProofId
-     * @return
-     * @throws BaseException
-     */
     @Tag(name = "mainMissionImageLike")
     @Operation(summary = "메인 미션 인증 사진 좋아요 API")
     @ApiResponses({
@@ -94,12 +82,6 @@ public class MainMissionController {
         }
     }
 
-    /**
-     * 메인 미션 인증 사진 좋아요 취소
-     * @param mainMissionProofId
-     * @return
-     * @throws BaseException
-     */
     @Tag(name = "mainMissionImageUnLike")
     @Operation(summary = "메인 미션 인증 사진 좋아요 취소 API")
     @ApiResponses({
@@ -125,12 +107,6 @@ public class MainMissionController {
 
     }
 
-    /**
-     * 메인 미션 인증 사진 신고
-     * @param mainMissionProofId
-     * @return
-     * @throws BaseException
-     */
     @Tag(name = "mainMissionImageUnLike")
     @Operation(summary = "메인 미션 인증 사진 신고 API")
     @ApiResponses({
@@ -156,13 +132,6 @@ public class MainMissionController {
         }
     }
 
-    /**
-     * 메인 미션 생성 API
-     * @param categoryId
-     * @param postMainMissionReq
-     * @return
-     * @throws BaseException
-     */
     @Tag(name = "mainMissionImageUnLike")
     @Operation(summary = "메인 미션 생성 API")
     @ApiResponses({
@@ -187,12 +156,6 @@ public class MainMissionController {
         }
     }
 
-    /**
-     * 메인 미션 인증 사진 업로드
-     * @param categoryId
-     * @return
-     * @throws BaseException
-     */
     @Tag(name = "mainMissionImageUnLike")
     @Operation(summary = "메인 미션 인증사진 업로드 API")
     @ApiResponses({
@@ -209,18 +172,13 @@ public class MainMissionController {
         try{
             Long userId = (long) jwtService.getUserIdx();
             mainMissionService.uploadProofImage(multipartFile, categoryId, userId);
-            return new BaseResponse<>("인증 사진 업로드 완료");
 
+            return new BaseResponse<>("인증 사진 업로드 완료");
         } catch (BaseException | IOException exception){
             return new BaseResponse<>(FAILED_TO_UPLOAD_PROOF_IMAGE);
         }
     }
 
-    /**
-     * 메인 미션 관리 화면 조회
-     * @param categoryId
-     * @return
-     */
     @Tag(name = "mainMissionImageUnLike")
     @Operation(summary = "메인 미션 관리 화면 조회 API")
     @ApiResponses({
@@ -232,12 +190,12 @@ public class MainMissionController {
     @Parameters({
             @Parameter(name = "categoryId", description = "관리할 카테고리 ID"),
     })
-
     @GetMapping("/host/main-mission/{categoryId}")
     public BaseResponse<List<MainMissionViewRes>> getMainMissionView(@PathVariable Long categoryId){
         try {
             Long userId = (long) jwtService.getUserIdx();
             List<MainMissionViewRes> mainMissionViewRes = mainMissionService.getMainMissionView(categoryId, userId);
+
             return new BaseResponse<>(mainMissionViewRes);
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());

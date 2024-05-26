@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.config.apiPayload.BaseResponse;
+import rabbit.umc.com.demo.community.domain.Comment;
 import rabbit.umc.com.demo.community.dto.PostCommentReq;
 import rabbit.umc.com.utils.JwtService;
 
@@ -25,13 +26,6 @@ public class CommentController {
     private final CommentService commentService;
     private final JwtService jwtService;
 
-    /**
-     * 댓글 작성 API
-     * @param postCommentReq
-     * @param articleId
-     * @return
-     * @throws BaseException
-     */
     @Tag(name = "make comment")
     @Operation(summary = "댓글 작성 API")
     @ApiResponses({
@@ -57,12 +51,6 @@ public class CommentController {
         }
     }
 
-    /**
-     * 댓글 삭제 API
-     * @param commentsId
-     * @return
-     * @throws BaseException
-     */
     @Tag(name = "delete comment")
     @Operation(summary = "댓글 삭제 API")
     @ApiResponses({
@@ -79,19 +67,15 @@ public class CommentController {
     public BaseResponse deleteComment(@PathVariable("commentsId") Long commentsId){
         try {
             Long userId = (long) jwtService.getUserIdx();
-            Long deleteId = commentService.deleteComment(commentsId, userId);
+            Comment targetComment = commentService.getComment(commentsId);
+            commentService.deleteComment(targetComment, userId);
 
-            return new BaseResponse<>(deleteId + "번 댓글이 삭제되었습니다.");
+            return new BaseResponse<>("댓글이 삭제되었습니다.");
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
     }
 
-    /**
-     * 댓글 잠금 API
-     * @param commentsId
-     * @return
-     */
     @Tag(name = "Lock comment")
     @Operation(summary = "댓글 잠금 API")
     @ApiResponses({
@@ -111,7 +95,7 @@ public class CommentController {
             Long userId = (long) jwtService.getUserIdx();
             commentService.lockComment(userId, commentsId);
 
-            return new BaseResponse(commentsId + "번 댓글이 잠겼습니다.");
+            return new BaseResponse<>(commentsId + "번 댓글이 잠겼습니다.");
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }

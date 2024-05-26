@@ -25,11 +25,6 @@ public class HomeController {
     private final HomeFacade homeFacade;
     private final JwtService jwtService;
 
-    /**
-     * 커뮤니티 홈화면 API
-     * @return
-     * @throws BaseException
-     */
     @Tag(name = "communityHomeV1")
     @Operation(summary = "커뮤니티 홈 화면 조회 API V[1.0]")
     @ApiResponses({
