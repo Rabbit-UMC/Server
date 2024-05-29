@@ -16,8 +16,6 @@ import java.util.List;
 @Repository
 public interface MainMissionRepository extends JpaRepository<MainMission, Long> {
 
-
-
 //    @Query(value = "select m  " +
 //            "from MainMission m  " +
 //            "WHERE m.status = 'ACTIVE' " )
@@ -28,9 +26,8 @@ public interface MainMissionRepository extends JpaRepository<MainMission, Long> 
             "WHERE m.status = :status")
     List<MainMission> findProgressMissionByStatus(@Param("status") Status status);
 
-    MainMission findMainMissionByCategoryAndStatus(Category category, Status status);
+    Optional<MainMission> findMainMissionByCategoryAndStatus(Category category, Status status);
 
-    MainMission findMainMissionByCategoryIdAndStatus(Long categoryId, Status status);
     List<MainMission> findMainMissionsByEndAtBeforeAndLastMissionTrue(LocalDate now);
 
     Optional<MainMission> findMainMissionsByCategoryAndStatus(Category category, Status status );

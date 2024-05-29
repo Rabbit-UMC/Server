@@ -72,7 +72,7 @@ public class MainMissionConverter {
                 .build();
     }
 
-    public static MainMission toMainMission(PostMainMissionReq postMainMissionReq, Category category){
+    public static MainMission toMainMission(PostMainMissionReq postMainMissionReq, Category category, User hostuser){
         return MainMission.builder()
                 .category(category)
                 .startAt(postMainMissionReq.getMissionStartTime())
@@ -80,6 +80,7 @@ public class MainMissionConverter {
                 .title(postMainMissionReq.getMainMissionTitle())
                 .content(postMainMissionReq.getMainMissionContent())
                 .lastMission(postMainMissionReq.getLastMission())
+                .hostUserName(hostuser.getUserName())
                 .status(Status.ACTIVE)
                 .build();
     }
@@ -101,9 +102,9 @@ public class MainMissionConverter {
                 .build();
     }
 
-    public static MainMissionViewRes toMainMissionViewRes(User user, MainMission mainMission){
+    public static MainMissionViewRes toMainMissionViewRes(MainMission mainMission){
         return MainMissionViewRes.builder()
-                .nowHostUserName(user.getUserName())
+                .nowHostUserName(mainMission.getHostUserName())
                 .missionImageUrl(mainMission.getCategory().getImage())
                 .missionTitle(mainMission.getTitle())
                 .missionStartDay(DateUtil.getMonthDay(mainMission.getStartAt()))

@@ -32,8 +32,8 @@ public class ReportService {
     }
 
     @Transactional
-    public boolean checkInactivation(Long mainMissionProofId, MainMissionProof mainMissionProof){
-        List<Report> countReport = reportRepository.findAllByMainMissionProofId(mainMissionProofId);
+    public boolean checkInactivation(MainMissionProof mainMissionProof){
+        List<Report> countReport = reportRepository.findAllByMainMissionProof(mainMissionProof);
         return countReport.size() >= REPORT_REMIT;
     }
 

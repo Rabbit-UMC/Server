@@ -57,10 +57,10 @@ public class ArticleFacade {
 
     public ArticleRes getArticle(Long articleId, Long userId) throws BaseException {
 
-            Article article = articleService.findArticleById(articleId);
-            Boolean isLike = likeArticleService.existsByArticleAndUserId(article, userId);
+        Article article = articleService.findArticleById(articleId);
+        Boolean isLike = likeArticleService.existsByArticleAndUserId(article, userId);
 
-            return ArticleConverter.toArticleRes(article,isLike);
+        return ArticleConverter.toArticleRes(article,isLike);
     }
 
     public List<GetPopularArticleRes> popularArticle(int page) throws BaseException{
@@ -126,14 +126,12 @@ public class ArticleFacade {
             throw new BaseException(FAILED_TO_LIKE);
 
         likeArticleService.saveLikeArticle(ArticleConverter.toLikeArticle(user, article));
-
     }
 
     public void unLikeArticle(Long userId, Long articleId) throws BaseException {
 
         LikeArticle existlikeArticle = likeArticleService.findLikeArticleByArticleIdAndUserId(articleId, userId);
         likeArticleService.deleteLikeArticle(existlikeArticle);
-
     }
 
 

@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.demo.community.domain.Category;
 import rabbit.umc.com.demo.community.dto.PatchCategoryImageReq;
+import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.user.Domain.User;
 import rabbit.umc.com.demo.user.service.UserQueryService;
 
@@ -44,5 +45,11 @@ public class CategoryService {
 
     public List<Category> findMyHostCategories(Long userId){
         return categoryRepository.findAllByUserId(userId);
+    }
+
+    public void changeCategoryHost(MainMission mainMission, User newHost){
+        Category category = mainMission.getCategory();
+        category.changeHostUser(newHost);
+        categoryRepository.save(category);
     }
 }

@@ -5,21 +5,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import rabbit.umc.com.demo.base.BaseTimeEntity;
 import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.domain.Category;
-
 import javax.persistence.*;
 import java.time.LocalDate;
-import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionUsers;
 
-import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Getter@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -41,6 +37,8 @@ public class MainMission extends BaseTimeEntity {
     @Column(nullable = false)
     private String content;
 
+    private String hostUserName;
+
     @Column(nullable = false)
     private LocalDate startAt;
     @Column(nullable = false)
@@ -59,5 +57,7 @@ public class MainMission extends BaseTimeEntity {
         this.status = Status.INACTIVE;
     }
 
-
+    public void changeLastMission(boolean lastMission){
+        this.lastMission = lastMission;
+    }
 }

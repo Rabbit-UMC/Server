@@ -39,6 +39,7 @@ public class LikeArticle extends BaseTimeEntity {
     public void updateLikeCountUp(){
         article.updateLikeCountUp();
     }
+
     @PreRemove
     public void updateLikeCountDown(){
         article.updateLikeCountDown();

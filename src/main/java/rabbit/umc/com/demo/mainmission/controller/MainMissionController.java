@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rabbit.umc.com.config.apiPayload.BaseException;
 import rabbit.umc.com.config.apiPayload.BaseResponse;
-import rabbit.umc.com.demo.mainmission.service.MainMissionService;
+import rabbit.umc.com.demo.mainmission.facade.MainMissionFacade;
 import rabbit.umc.com.demo.mainmission.dto.GetMainMissionRes;
 import rabbit.umc.com.demo.mainmission.dto.MainMissionViewRes;
 import rabbit.umc.com.demo.mainmission.dto.PostMainMissionReq;
@@ -29,7 +29,8 @@ import rabbit.umc.com.utils.JwtService;
 @RequiredArgsConstructor
 @RequestMapping("/app")
 public class MainMissionController {
-    private final MainMissionService mainMissionService;
+
+    private final MainMissionFacade mainMissionFacade;
     private final JwtService jwtService;
 
     @Tag(name = "mainMissionView")
@@ -49,7 +50,7 @@ public class MainMissionController {
                                                           @RequestParam("day") int day){
         try {
             Long userId = (long) jwtService.getUserIdx();
-            GetMainMissionRes getMainMissionRes = mainMissionService.getMainMission(mainMissionId, day, userId);
+            GetMainMissionRes getMainMissionRes = mainMissionFacade.getMainMissionByDay(mainMissionId, day, userId);
 
             return new BaseResponse<>(getMainMissionRes);
         }catch (BaseException exception){
@@ -74,7 +75,7 @@ public class MainMissionController {
     public BaseResponse likeMissionProof(@PathVariable("mainMissionProofId")Long mainMissionProofId){
         try {
             Long userId = (long) jwtService.getUserIdx();
-            mainMissionService.likeMissionProof(userId, mainMissionProofId);
+            mainMissionFacade.likeMissionProof(userId, mainMissionProofId);
 
             return new BaseResponse<>(mainMissionProofId + "번 사진 좋아요");
         }catch (BaseException exception){
@@ -98,7 +99,7 @@ public class MainMissionController {
     public BaseResponse unLikeMissionProof(@PathVariable("mainMissionProofId")Long mainMissionProofId){
         try {
             Long userId = (long) jwtService.getUserIdx();
-            mainMissionService.unLikeMissionProof(userId, mainMissionProofId);
+            mainMissionFacade.unLikeMissionProof(userId, mainMissionProofId);
 
             return new BaseResponse<>(mainMissionProofId+ "번 좋아요 취소");
         }catch (BaseException exception){
@@ -123,10 +124,9 @@ public class MainMissionController {
     public BaseResponse reportMissionProof(@PathVariable("mainMissionProofId") Long mainMissionProofId){
         try {
             Long userId = (long) jwtService.getUserIdx();
-            mainMissionService.reportMissionProof(userId, mainMissionProofId);
+            mainMissionFacade.reportMissionProof(userId, mainMissionProofId);
 
             return new BaseResponse<>(mainMissionProofId + "번 신고 완료되었습니다.");
-
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
@@ -148,7 +148,7 @@ public class MainMissionController {
     public BaseResponse createMainMission(@PathVariable("categoryId") Long categoryId, @RequestBody PostMainMissionReq postMainMissionReq){
         try {
             Long userId = (long) jwtService.getUserIdx();
-            mainMissionService.createMainMission(userId, categoryId, postMainMissionReq);
+            mainMissionFacade.createMainMission(userId, categoryId, postMainMissionReq);
 
             return new BaseResponse<>(categoryId + "번 카테고리 메인미션 생성완료되었습니다");
         }catch (BaseException exception){
@@ -171,7 +171,7 @@ public class MainMissionController {
     public BaseResponse uploadProofImage(@RequestPart(value = "multipartFile") MultipartFile multipartFile, @PathVariable("categoryId") Long categoryId){
         try{
             Long userId = (long) jwtService.getUserIdx();
-            mainMissionService.uploadProofImage(multipartFile, categoryId, userId);
+            mainMissionFacade.uploadProofImage(multipartFile, categoryId, userId);
 
             return new BaseResponse<>("인증 사진 업로드 완료");
         } catch (BaseException | IOException exception){
@@ -194,9 +194,8 @@ public class MainMissionController {
     public BaseResponse<List<MainMissionViewRes>> getMainMissionView(@PathVariable Long categoryId){
         try {
             Long userId = (long) jwtService.getUserIdx();
-            List<MainMissionViewRes> mainMissionViewRes = mainMissionService.getMainMissionView(categoryId, userId);
 
-            return new BaseResponse<>(mainMissionViewRes);
+            return new BaseResponse<>(mainMissionFacade.getMainMissionView(categoryId, userId));
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
