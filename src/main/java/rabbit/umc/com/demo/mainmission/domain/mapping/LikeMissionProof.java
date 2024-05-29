@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import rabbit.umc.com.demo.base.BaseTimeEntity;
 import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.user.Domain.User;
@@ -13,7 +12,6 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -35,6 +33,5 @@ public class LikeMissionProof extends BaseTimeEntity {
     @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
     @Builder.Default
     private Status status = Status.ACTIVE;
-
 
 }

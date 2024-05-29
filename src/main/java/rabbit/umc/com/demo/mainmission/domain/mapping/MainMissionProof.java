@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import rabbit.umc.com.demo.base.BaseTimeEntity;
 import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
@@ -17,7 +16,6 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

@@ -1,7 +1,6 @@
 package rabbit.umc.com.config.apiPayload;
 
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 /**
  * 에러 코드 관리
@@ -85,6 +84,10 @@ public enum BaseResponseStatus {
     FAILED_TO_DELETE_MISSION_SCHEDULE(false,"MISSION4014","미션 또는 일정이 존재하지 않습니다."),
     FAILED_TO_UPLOAD_PROOF_IMAGE(false, "MISSION4015", "인증 이미지 업로드에 실패했습니다."),
     NOT_TOGETER_MISSION(false,"MISSION4016", "도전중인 미션이 아닙니다."),
+
+    DONT_EXIST_MAIN_MISSION_LIKE(false,"MAIN_MISSION_LIKE4001","좋아요하고 있지 않습니다."),
+
+    DONT_EXIST_MISSION_USERS(false,"MAIN_MISSION_LIKE4001" , "미션 참여자가 아닙니다."),
 
     DONT_EXIST_CATEGORY(false, "CATEGORY4001", "존재하지 않는 카테고리 입니다."),
 

@@ -1,5 +1,6 @@
 package rabbit.umc.com.demo.mainmission.repository;
 
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.data.jpa.repository.Query;
@@ -15,8 +16,6 @@ import java.util.List;
 @Repository
 public interface MainMissionRepository extends JpaRepository<MainMission, Long> {
 
-
-
 //    @Query(value = "select m  " +
 //            "from MainMission m  " +
 //            "WHERE m.status = 'ACTIVE' " )
@@ -27,11 +26,10 @@ public interface MainMissionRepository extends JpaRepository<MainMission, Long> 
             "WHERE m.status = :status")
     List<MainMission> findProgressMissionByStatus(@Param("status") Status status);
 
-    MainMission findMainMissionByCategoryAndStatus(Category category, Status status);
+    Optional<MainMission> findMainMissionByCategoryAndStatus(Category category, Status status);
 
-    MainMission findMainMissionByCategoryIdAndStatus(Long categoryId, Status status);
     List<MainMission> findMainMissionsByEndAtBeforeAndLastMissionTrue(LocalDate now);
 
-    MainMission findMainMissionsByCategoryIdAndStatus(Long categoryId, Status status );
+    Optional<MainMission> findMainMissionsByCategoryAndStatus(Category category, Status status );
 
 }

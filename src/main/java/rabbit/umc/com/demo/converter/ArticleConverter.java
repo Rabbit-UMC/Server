@@ -1,11 +1,13 @@
 package rabbit.umc.com.demo.converter;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.domain.Article;
 import rabbit.umc.com.demo.community.domain.Category;
+import rabbit.umc.com.demo.community.domain.Comment;
 import rabbit.umc.com.demo.image.domain.Image;
 import rabbit.umc.com.demo.community.domain.mapping.LikeArticle;
 import rabbit.umc.com.demo.community.dto.ArticleListRes;
@@ -13,10 +15,8 @@ import rabbit.umc.com.demo.community.dto.ArticleListRes.ArticleDto;
 import rabbit.umc.com.demo.community.dto.ArticleRes;
 import rabbit.umc.com.demo.community.dto.ArticleRes.ArticleImageDto;
 import rabbit.umc.com.demo.community.dto.ArticleRes.CommentDto;
-import rabbit.umc.com.demo.community.dto.CommunityHomeRes;
-import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionDto;
-import rabbit.umc.com.demo.community.dto.CommunityHomeRes.PopularArticleDto;
-import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.PopularArticleDtoV2;
+import rabbit.umc.com.demo.home.dto.CommunityHomeRes.PopularArticleDto;
+import rabbit.umc.com.demo.home.dto.CommunityHomeResV2.PopularArticleDtoV2;
 import rabbit.umc.com.demo.community.dto.GetPopularArticleRes;
 import rabbit.umc.com.demo.community.dto.PostArticleReq;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
@@ -36,16 +36,6 @@ public class ArticleConverter {
                         .likeCount(article.getLikeCount())
                         .build())
                 .collect(Collectors.toList());
-    }
-
-    public static CommunityHomeRes toCommunityHomeRes(List<MainMission> missionList, List<Article> articleList){
-        List<PopularArticleDto> popularArticleList = ArticleConverter.toPopularArticleDto(articleList);
-        List<MainMissionDto> mainMissionDtoList = MainMissionConverter.toMainMissionDtoList(missionList);
-
-        return CommunityHomeRes.builder()
-                .mainMission(mainMissionDtoList)
-                .popularArticle(popularArticleList)
-                .build();
     }
 
     public static List<PopularArticleDtoV2> toPopularArticleDtoV2(List<Article> top4Articles){
@@ -102,7 +92,19 @@ public class ArticleConverter {
                 .build();
     }
 
-    public static ArticleRes toArticleRes(Article article, Boolean isLike,List<ArticleImageDto> articleImages, List<CommentDto> commentLists ){
+    public static ArticleRes toArticleRes(Article article, Boolean isLike){
+
+        List<ArticleImageDto> articleImages = article.getImages()
+                .stream()
+                .map(ArticleConverter::toArticleImageDto)
+                .collect(Collectors.toList());
+
+        List<CommentDto> commentLists = article.getComments()
+                .stream()
+                .sorted(Comparator.comparing(Comment::getCreatedAt))
+                .map(CommentConverter::toCommentDto)
+                .collect(Collectors.toList());
+
         return ArticleRes.builder()
                 .categoryName(article.getCategory().getName())
                 .articleId(article.getId())

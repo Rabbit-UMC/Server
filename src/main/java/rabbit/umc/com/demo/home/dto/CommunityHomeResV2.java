@@ -1,4 +1,4 @@
-package rabbit.umc.com.demo.community.dto;
+package rabbit.umc.com.demo.home.dto;
 
 import java.util.List;
 import lombok.AllArgsConstructor;

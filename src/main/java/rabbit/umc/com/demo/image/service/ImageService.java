@@ -1,6 +1,5 @@
 package rabbit.umc.com.demo.image.service;
 
-import com.amazonaws.services.s3.AmazonS3;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -22,25 +21,22 @@ import rabbit.umc.com.s3.AmazonS3Manager;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ImageService {
-    private static final String MISSION_PROOF_PATH = "main";
-    private static final String S3_KEY = "https://rabbit-umc-bucket.s3.ap-northeast-2.amazonaws.com/";
 
     private final ImageRepository imageRepository;
     private final AmazonS3Manager s3Manager;
     private final UuidRepository uuidRepository;
-    private final AmazonS3 amazonS3;
 
     @Transactional
-    public Uuid makeUuid(){
+    public Uuid makeUuid() {
         String uuid = UUID.randomUUID().toString();
-        Uuid saveUuid = uuidRepository.save(Uuid.builder()
+
+        return uuidRepository.save(Uuid.builder()
                 .uuid(uuid)
                 .build());
-        return saveUuid;
     }
 
     @Transactional
-    public void createArticleImage(List<MultipartFile> files, Article article){
+    public void createArticleImage(List<MultipartFile> files, Article article) {
         for (MultipartFile file : files) {
             Uuid uuid = makeUuid();
             String imageUrl = s3Manager.uploadFile(s3Manager.generateKeyName(uuid, "article"), file);
@@ -51,7 +47,7 @@ public class ImageService {
     }
 
     @Transactional
-    public GenerateImageResDto createImage(MultipartFile file, String path){
+    public GenerateImageResDto createImage(MultipartFile file, String path) {
         Uuid uuid = makeUuid();
         String imageUrl = s3Manager.uploadFile(s3Manager.generateKeyName(uuid, path), file);
         Image image = ImageConverter.toImage(imageUrl, uuid.getUuid(), file.getOriginalFilename());
@@ -66,7 +62,7 @@ public class ImageService {
     }
 
     @Transactional
-    public void deleteImages(List<Long> imageId){
+    public void deleteImages(List<Long> imageId) {
         List<Image> images = imageRepository.findAllById(imageId);
 
         for (Image image : images) {
@@ -81,6 +77,9 @@ public class ImageService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.DONT_EXIST_IMAGE));
     }
 
-
-
+    public void saveArticleImage(Long id, Article targetArticle) throws BaseException {
+        Image image = findById(id);
+        image.setArticle(targetArticle);
+        imageRepository.save(image);
+    }
 }

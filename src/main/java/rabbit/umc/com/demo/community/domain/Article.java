@@ -1,14 +1,11 @@
 package rabbit.umc.com.demo.community.domain;
 
 import io.swagger.annotations.ApiModelProperty;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DynamicInsert;
 import rabbit.umc.com.demo.base.BaseTimeEntity;
 import rabbit.umc.com.demo.base.Status;
 
@@ -28,7 +25,6 @@ import static javax.persistence.GenerationType.*;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -76,6 +72,27 @@ public class Article extends BaseTimeEntity {
 
     public void setInactive(){
         this.status = Status.INACTIVE;
+    }
+
+    public void updateArticle(String title, String content){
+        this.title = title;
+        this.content = content;
+    }
+
+    public void updateLikeCountUp(){
+        this.likeCount++;
+    }
+
+    public void updateLikeCountDown(){
+        this.likeCount--;
+    }
+
+    public void updateCommentCountUp(){
+        this.commentCount++;
+    }
+
+    public void updateCommentCountDown(){
+        this.commentCount--;
     }
 
 }

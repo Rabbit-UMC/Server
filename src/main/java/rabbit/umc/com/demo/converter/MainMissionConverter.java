@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import rabbit.umc.com.demo.base.Status;
 import rabbit.umc.com.demo.community.domain.Category;
-import rabbit.umc.com.demo.community.dto.CommunityHomeRes.MainMissionDto;
-import rabbit.umc.com.demo.community.dto.CommunityHomeResV2.MainMissionDtoV2;
+import rabbit.umc.com.demo.home.dto.CommunityHomeRes.MainMissionDto;
+import rabbit.umc.com.demo.home.dto.CommunityHomeResV2.MainMissionDtoV2;
 import rabbit.umc.com.demo.mainmission.domain.MainMission;
 import rabbit.umc.com.demo.mainmission.domain.mapping.LikeMissionProof;
 import rabbit.umc.com.demo.mainmission.domain.mapping.MainMissionProof;
@@ -72,7 +72,7 @@ public class MainMissionConverter {
                 .build();
     }
 
-    public static MainMission toMainMission(PostMainMissionReq postMainMissionReq, Category category){
+    public static MainMission toMainMission(PostMainMissionReq postMainMissionReq, Category category, User hostuser){
         return MainMission.builder()
                 .category(category)
                 .startAt(postMainMissionReq.getMissionStartTime())
@@ -80,6 +80,7 @@ public class MainMissionConverter {
                 .title(postMainMissionReq.getMainMissionTitle())
                 .content(postMainMissionReq.getMainMissionContent())
                 .lastMission(postMainMissionReq.getLastMission())
+                .hostUserName(hostuser.getUserName())
                 .status(Status.ACTIVE)
                 .build();
     }
@@ -101,9 +102,9 @@ public class MainMissionConverter {
                 .build();
     }
 
-    public static MainMissionViewRes toMainMissionViewRes(User user, MainMission mainMission){
+    public static MainMissionViewRes toMainMissionViewRes(MainMission mainMission){
         return MainMissionViewRes.builder()
-                .nowHostUserName(user.getUserName())
+                .nowHostUserName(mainMission.getHostUserName())
                 .missionImageUrl(mainMission.getCategory().getImage())
                 .missionTitle(mainMission.getTitle())
                 .missionStartDay(DateUtil.getMonthDay(mainMission.getStartAt()))
@@ -112,22 +113,23 @@ public class MainMissionConverter {
                 .build();
     }
 
-    public static MainMissionDtoV2 toMainMissionDtoV2(MainMission mainMission) {
-        List<MainMissionUsers> mainMissionUsers = mainMission.getMainMissionUsers();
+    public static List<MainMissionDtoV2> toMainMissionDtoV2(List<MainMission> mainMissionList) {
+        return mainMissionList.stream().map(mainMission -> {
+            List<MainMissionUsers> mainMissionUsers = mainMission.getMainMissionUsers();
 
-        Optional<MainMissionUsers> topRankUser = mainMissionUsers.stream()
-                .max(Comparator.comparingInt(MainMissionUsers::getScore));
+            Optional<MainMissionUsers> topRankUser = mainMissionUsers.stream()
+                    .max(Comparator.comparingInt(MainMissionUsers::getScore));
 
-        String name = topRankUser.map(user -> user.getUser().getUserName()).orElse("없음");
+            String name = topRankUser.map(user -> user.getUser().getUserName()).orElse("없음");
 
-
-        return MainMissionDtoV2.builder()
-                .mainMissionId(mainMission.getId())
-                .mainMissionTitle(mainMission.getTitle())
-                .dDay(DateUtil.calculateDDay(mainMission.getEndAt()))
-                .topRankUser(name)
-                .missionCategoryId(mainMission.getCategory().getId())
-                .build();
+            return MainMissionDtoV2.builder()
+                    .mainMissionId(mainMission.getId())
+                    .mainMissionTitle(mainMission.getTitle())
+                    .dDay(DateUtil.calculateDDay(mainMission.getEndAt()))
+                    .topRankUser(name)
+                    .missionCategoryId(mainMission.getCategory().getId())
+                    .build();
+        }).collect(Collectors.toList());
     }
 
 }
