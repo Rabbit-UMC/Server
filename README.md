@@ -8,7 +8,7 @@ Myo-Zip-Sa Server (Spring Boot)
 <br>
 
 ## 📄 프로젝트 소개
-커뮤니티가 고이지 않게 변화하는 환경 구축. 자극적인 컨텐츠가 없어도 사람이 모이는 미션 형 커뮤니티
+커뮤니티가 고이지 않게 변화하는 환경 구축. 자극적인 컨텐츠가 없어도 사람이 모이는 미션 형 커뮤니티
 
 ### 👥 맴버구성
 <table>
@@ -27,6 +27,9 @@ Myo-Zip-Sa Server (Spring Boot)
 <br>
 
 ## 🔨 개발 환경
-- **JAVA 11**
-- **Framework:** SpringBoot 2.X
+- **Lanage:** JAVA 11
+- **Framework:** SpringBoot 2.7.13
 - **DataBase:** MySQL
+- **Devops:** AWS(EC2, RDS, S3), NginX
+
+
